@@ -1,0 +1,21 @@
+server:
+  port: 8010
+spring:
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://127.0.0.1:3306/ff_dev
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update # DB 스키마 자동생성, 앱이 재실행되어도 데이터는 유지된다.
+custom:
+  fileDirPath: C:\file_upload # 파일 업로드
