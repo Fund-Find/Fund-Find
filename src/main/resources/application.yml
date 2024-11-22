@@ -14,11 +14,7 @@ spring:
       client:
         registration:
           kakao:
-            client-id: YOUR_KAKAO_CLIENT_ID  # Kakao 클라이언트 ID 설정
-            client-secret: YOUR_KAKAO_CLIENT_SECRET  # Kakao 클라이언트 Secret 설정
             scope:
-              - profile
-              - account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
             redirect-uri: 'http://localhost:8080/{action}/oauth2/code/{registrationId}'
@@ -29,14 +25,15 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
   jpa:
-    hibernate:
-      ddl-auto: update  # 테이블 생성 및 업데이트
     properties:
       hibernate:
-        default_batch_fetch_size: 100  # Lazy 로딩 최적화
-        show_sql: true  # SQL 출력 활성화
-        format_sql: true  # SQL 포맷팅
-        use_sql_comments: true  # SQL에 주석 포함
+        default_batch_fetch_size: 100 # Lazy ??? ? ? ??? DB?? ???? ???? ?
+        show_sql: true # SQL ??? ?? ?? ???
+        format_sql: true # SQL ??? ?????
+        use_sql_comments: true # SQL ??? ???
+    hibernate:
+      ddl-auto: update
+
   logging:
     level:
       org.hibernate.SQL: DEBUG  # SQL 쿼리 로그 출력
