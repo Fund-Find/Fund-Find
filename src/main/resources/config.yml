@@ -1,0 +1,14 @@
+# 홈페이지에서 API서비스 신청시 받은 Appkey, Appsecret 값 설정
+APP_KEY: "PSlBkPCX0esNWc5Tv1vDYh37FZnf6BPlEACX"
+APP_SECRET: "ucJXLQefoLvC3ObryidOsMBx/DF50MpaKYArOCcyfGStu0og5psl4oR60B2sI55RM9slwmPN/tDvKGS0k+R+1eGR4N4lWltyMtG9DnV1/GLB8h69vcMpm3uHd8EoY5wHGMidM11wblylmKAv3hc+jcyHFe+yyF4BBAhqxwHMaxNoNLpFEd0="
+
+# 계좌번호 앞 8자리
+C ANO: "74835379"
+# 계좌번호 뒤 2자리
+ACNT_PRDT_CD: "01"
+
+# 도메인
+URL_BASE: "https://openapi.koreainvestment.com:9443"
+
+# HTS ID
+HTS_ID: "xogh3322"

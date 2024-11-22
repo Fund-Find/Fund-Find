@@ -1,16 +1,27 @@
 spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+  mvc:
+    view:
+      prefix: /templates/
+      suffix: .html
   profiles:
-    active: dev  # ?????? application-dev.yml ? ????? ??
-    include: secret # active ?? ???? (application-dev.yml) ??? application-secret.yml ? ????? ??
+    active: dev  # application-dev.yml 활성화
+    include: secret  # application-secret.yml 포함
   security:
     oauth2:
       client:
         registration:
           kakao:
+            client-id: YOUR_KAKAO_CLIENT_ID  # Kakao 클라이언트 ID 설정
+            client-secret: YOUR_KAKAO_CLIENT_SECRET  # Kakao 클라이언트 Secret 설정
             scope:
+              - profile
+              - account_email
             client-name: Kakao
             authorization-grant-type: authorization_code
-            redirect-uri: 'http://localhost:8010/{action}/oauth2/code/{registrationId}'
+            redirect-uri: 'http://localhost:8080/{action}/oauth2/code/{registrationId}'
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -18,21 +29,33 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
   jpa:
+    hibernate:
+      ddl-auto: update  # 테이블 생성 및 업데이트
     properties:
       hibernate:
-        default_batch_fetch_size: 100 # Lazy ??? ? ? ??? DB?? ???? ???? ?
-        show_sql: true # SQL ??? ?? ?? ???
-        format_sql: true # SQL ??? ?????
-        use_sql_comments: true # SQL ??? ???
+        default_batch_fetch_size: 100  # Lazy 로딩 최적화
+        show_sql: true  # SQL 출력 활성화
+        format_sql: true  # SQL 포맷팅
+        use_sql_comments: true  # SQL에 주석 포함
   logging:
     level:
-      # SQL? ??? ?? ????, SQL? ??? ??
-      org.hibernate.SQL: DEBUG
-      org.hibernate.orm.jdbc.bind: TRACE
-      org.hibernate.orm.jdbc.extract: TRACE
-      org.springframework.transaction.interceptor: TRACE
+      org.hibernate.SQL: DEBUG  # SQL 쿼리 로그 출력
+      org.hibernate.orm.jdbc.bind: TRACE  # 바인딩 파라미터 출력
+      org.hibernate.orm.jdbc.extract: TRACE  # 추출 파라미터 출력
+      org.springframework.transaction.interceptor: TRACE  # 트랜잭션 디버깅
 
-# 프로필 기본 이미지
+# 기본 프로필 이미지 설정
 default:
   thumbnail: profile_basic.png
 
+korea-investment:
+  api-key: "PSlBkPCX0esNWc5Tv1vDYh37FZnf6BPlEACX"  # 실제 한국투자증권 API 키로 변경
+  secret-key: "ucJXLQefoLvC3ObryidOsMBx/DF50MpaKYArOCcyfGStu0og5psl4oR60B2sI55RM9slwmPN/tDvKGS0k+R+1eGR4N4lWltyMtG9DnV1/GLB8h69vcMpm3uHd8EoY5wHGMidM11wblylmKAv3hc+jcyHFe+yyF4BBAhqxwHMaxNoNLpFEd0="  # 실제 한국투자증권 Secret 키로 변경
+  base-url: "https://openapi.koreainvestment.com:9443"  # 한국투자증권 API Base URL
+
+logging:
+  level:
+    com.example.domain.fund: DEBUG  # 로깅 레벨 설정
+
+server:
+  port: 8080
