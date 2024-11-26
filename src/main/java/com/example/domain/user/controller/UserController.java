@@ -4,8 +4,13 @@ import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.service.UserService;
+import com.example.global.Jwt.JwtService;
+import com.example.global.Jwt.TokenResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/User")
 public class UserController {
     private final UserService userService;
+    private JwtService jwtService;
 
     // 회원가입
     @PostMapping("/register")
@@ -21,6 +27,31 @@ public class UserController {
         UserResponse response = this.userService.registerUser(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody UserRequest request) {
+        String token = userService.authenticateAndGenerateToken(request);
+        return ResponseEntity.ok(new TokenResponse(token));
+    }
+
+ 
+//        // accessToken 발급
+//        String accessToken = jwtProvider.genAccessToken(user);
+//        Cookie cookie = new Cookie("accessToken", accessToken);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(true);
+
+//
+//        response.addCookie(cookie);
+//        return RsData.of("200", "토큰 발급 성공" + accessToken, new MemberResponse(member));
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        UserResponse user = userService.getUserFromToken(token);
+        return ResponseEntity.ok(user);
+    }
+
 
     // 사용자 정보 조회
     @GetMapping("/{username}")

@@ -30,4 +30,8 @@ public class UserResponse {
         this.createdDate = user.getCreatedDate();
         this.modifiedDate = user.getModifiedDate();
     }
+
+    public static UserResponse fromEntity(SiteUser user) {
+        return new UserResponse(user);
+    }
 }

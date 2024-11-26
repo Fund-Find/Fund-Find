@@ -4,6 +4,7 @@ import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.repository.UserRepository;
+import com.example.global.Jwt.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private JwtService jwtService;
 
 
     // 회원가입
@@ -47,6 +49,38 @@ public class UserService {
 
         // DTO 반환
         return UserResponse.fromEntity(savedUser);
+    }
+
+    public SiteUser getUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
+
+
+    public String authenticateAndGenerateToken(UserRequest request) {
+        // 사용자 확인
+        SiteUser user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // JWT 생성
+        return jwtService.generateToken(user);
+    }
+
+    public UserResponse getUserFromToken(String token) {
+        if (!jwtService.validateToken(token)) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        String username = jwtService.extractUsername(token);
+        SiteUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return UserResponse.fromEntity(user);
     }
 
     // 사용자 정보 조회

@@ -20,7 +20,7 @@ public class UserRequest {
     @Email(message = "유효한 이메일 형식이어야 합니다.")
     private String email;
 
-    @Size(max = 100, message = "닉네임은 최대 100자이어야 합니다.")
+    @Size(max = 12, message = "닉네임은 최대 12자이어야 합니다.")
     private String nickname;
 
     @Size(max = 500, message = "자기소개는 최대 500자이어야 합니다.")
