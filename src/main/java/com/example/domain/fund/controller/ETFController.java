@@ -14,14 +14,14 @@ public class ETFController {
 
     private final ETFService etfService;
 
-    @GetMapping("/stock")
+    @GetMapping("/ETF")
     public String getStockInfo(Model model) {
         try {
-            String stockInfo = etfService.getStockInfo("069500");
-            model.addAttribute("stockInfo", stockInfo);
+            String etfInfo = etfService.getETFInfo("069500");
+            model.addAttribute("etfInfo", etfInfo);
         } catch (Exception e) {
             model.addAttribute("error", "Error fetching stock information: " + e.getMessage());
         }
-        return "stock";
+        return "etfInfo";
     }
 }
