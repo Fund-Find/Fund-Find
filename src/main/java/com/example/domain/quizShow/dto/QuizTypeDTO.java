@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.dto;
 
+import com.example.domain.quizShow.entity.QuizType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,5 +11,15 @@ import lombok.NoArgsConstructor;
 public class QuizTypeDTO {
     private Long id;
     private String typeName;
-    private String description;
+
+    public static QuizTypeDTO from(QuizType quizType) {
+        if (quizType == null) {
+            return null;
+        }
+
+        return new QuizTypeDTO(
+                quizType.getId(),
+                quizType.getTypeName()
+        );
+    }
 }

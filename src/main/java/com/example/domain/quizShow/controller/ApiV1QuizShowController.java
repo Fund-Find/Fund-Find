@@ -6,12 +6,11 @@ import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
 import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowResponseDTO;
 import com.example.domain.quizShow.response.QuizShowListResponse;
-import com.example.domain.quizShow.response.QuizShowResponse;
 import com.example.domain.quizShow.service.QuizShowService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,10 +19,10 @@ public class ApiV1QuizShowController {
     private final QuizShowService quizShowService;
 
     @GetMapping("")
-    public RsData<QuizShowListResponse> list() {
-        List<QuizShowListResponseDTO> quizShowList = this.quizShowService.getList();
+    public RsData<QuizShowListResponse> list(@PageableDefault(size = 10) Pageable pageable) {
+        QuizShowListResponseDTO quizShowDTO = this.quizShowService.getList(pageable);
 
-        return RsData.of("200", "게시글 다건 조회", new QuizShowListResponse(quizShowList));
+        return RsData.of("200", "게시글 다건 조회", new QuizShowListResponse(quizShowDTO));
     }
 
     @GetMapping("/{id}")

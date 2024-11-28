@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Set;
 
@@ -31,10 +32,12 @@ public class QuizShow extends BaseEntity {
     @Column(nullable = false)
     private Integer totalScore;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    @ColumnDefault("0")
     private Integer view;
 
     @ManyToMany
+    @ColumnDefault("0")
     @JoinTable(
             name = "quiz_show_votes",
             joinColumns = @JoinColumn(name = "quiz_show_id"),

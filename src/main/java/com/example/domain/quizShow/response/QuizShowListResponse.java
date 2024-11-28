@@ -4,10 +4,8 @@ import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @Getter
 public class QuizShowListResponse {
-    private final List<QuizShowListResponseDTO> quizShowList;
+    private final QuizShowListResponseDTO quizShowList;  // List 대신 단일 DTO로 변경
 }
