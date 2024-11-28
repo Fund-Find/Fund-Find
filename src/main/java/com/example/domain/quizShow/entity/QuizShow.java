@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.entity;
 
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.Set;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizShow {
+public class QuizShow extends BaseEntity {
 
     @Column
     private String title;

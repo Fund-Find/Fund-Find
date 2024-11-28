@@ -1,5 +1,6 @@
 package com.example.domain.discussion.entity;
 
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Discussion {
+public class Discussion extends BaseEntity {
 
     @Column
     private String title;

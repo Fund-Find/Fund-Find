@@ -1,4 +1,4 @@
-package com.example.domain.global.jpa;
+package com.example.global.jpa;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+
 
 @SuperBuilder(toBuilder = true)
 @MappedSuperclass
