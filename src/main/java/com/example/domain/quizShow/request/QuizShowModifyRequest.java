@@ -1,4 +1,4 @@
-package com.example.domain.quizShow.dto.request;
+package com.example.domain.quizShow.request;
 
 import lombok.Data;
 

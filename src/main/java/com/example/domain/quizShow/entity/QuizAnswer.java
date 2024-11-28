@@ -25,7 +25,7 @@ public class QuizAnswer extends BaseEntity {
     private SiteUser user;
 
     @Column(nullable = false)
-    private String userAnswer;      // 사용자가 입력한 답변
+    private String memberAnswer;      // 사용자가 입력한 답변
 
     @Column(nullable = false)
     private Boolean isCorrect;      // 정답 여부 판별 결과

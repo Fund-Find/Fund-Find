@@ -1,4 +1,4 @@
-package com.example.domain.quizShow.dto.response;
+package com.example.domain.quizShow.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
