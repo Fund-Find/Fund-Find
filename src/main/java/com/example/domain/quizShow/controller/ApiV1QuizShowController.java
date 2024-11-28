@@ -5,7 +5,9 @@ import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
 import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowResponseDTO;
+import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.response.QuizShowResponse;
 import com.example.domain.quizShow.service.QuizShowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +28,11 @@ public class ApiV1QuizShowController {
     }
 
     @GetMapping("/{id}")
-    public RsData<QuizShowResponseDTO> getQuizShow() {
-        return RsData.of("200", "게시글 단건 조회");
+    public RsData<QuizShowResponse> getQuizShow(@PathVariable("id") Long id) {
+        QuizShow quizShow = quizShowService.getQuizShow(id);
+        QuizShowResponseDTO quizShowResponseDTO = QuizShowResponseDTO.from(quizShow);
+
+        return RsData.of("200", "게시글 단건 조회", new QuizShowResponse(quizShowResponseDTO));
     }
 
     @PostMapping("")
