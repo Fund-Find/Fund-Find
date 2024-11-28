@@ -4,7 +4,7 @@ import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.service.UserService;
-import com.example.global.Jwt.JwtService;
+//import com.example.global.Jwt.JwtService;
 import com.example.global.Jwt.TokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,27 +12,42 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping(value = "/User")
+@RequestMapping(value = "/user")
 public class UserController {
     private final UserService userService;
-    private JwtService jwtService;
+//    private JwtService jwtService;
 
     // 회원가입
+    @GetMapping("/register")
+    public String registerUser(Model model){
+        model.addAttribute("userRequest", new UserRequest());
+        return "user/register";
+    }
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest request) {
-        UserResponse response = this.userService.registerUser(request);
+    public ResponseEntity<UserResponse> registerUser(
+            @ModelAttribute UserRequest userRequest,
+            @RequestParam("thumbnailImg") MultipartFile thumbnailImg) {
+        userRequest.setThumbnailImg(thumbnailImg);
+        UserResponse response = userService.registerUser(userRequest);
         return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody UserRequest request) {
-        String token = userService.authenticateAndGenerateToken(request);
-        return ResponseEntity.ok(new TokenResponse(token));
+    @GetMapping("/login")
+    public String login() {
+        return "/user/login";
     }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<TokenResponse> login(@Valid @RequestBody UserRequest request) {
+//        String token = userService.authenticateAndGenerateToken(request);
+//        return ResponseEntity.ok(new TokenResponse(token));
+//    }
 
  
 //        // accessToken 발급
@@ -45,12 +60,12 @@ public class UserController {
 //        response.addCookie(cookie);
 //        return RsData.of("200", "토큰 발급 성공" + accessToken, new MemberResponse(member));
 
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = authorizationHeader.replace("Bearer ", "");
-        UserResponse user = userService.getUserFromToken(token);
-        return ResponseEntity.ok(user);
-    }
+//    @GetMapping("/me")
+//    public ResponseEntity<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+//        String token = authorizationHeader.replace("Bearer ", "");
+//        UserResponse user = userService.getUserFromToken(token);
+//        return ResponseEntity.ok(user);
+//    }
 
 
     // 사용자 정보 조회
@@ -63,12 +78,19 @@ public class UserController {
 
     // 사용자 정보 수정
     @PatchMapping("/{username}")
-    public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody SiteUser updatedData) {
+    public ResponseEntity<?> updateUser(
+            @PathVariable String username,
+            @RequestBody UserRequest updatedData) {
+
         SiteUser existingUser = userService.findUserByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        SiteUser updatedUser = userService.updateUser(existingUser, updatedData);
-        return ResponseEntity.ok(updatedUser);
+
+        // 업데이트 메서드 호출
+        UserResponse updatedUserResponse = userService.updateUser(existingUser, updatedData);
+
+        return ResponseEntity.ok(updatedUserResponse);
     }
+
 
     // 사용자 삭제
     @DeleteMapping("/{username}")

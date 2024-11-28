@@ -1,0 +1,154 @@
+<html layout:decorate="~{layout/layout}">
+<head>
+  <link rel="stylesheet" th:href="@{/css/register.css}">
+</head>
+<div layout:fragment="content">
+  <!-- 주요 내용 -->
+  <div class="membershipBox">
+    <h1>Membership</h1>
+    <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%"
+         data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
+
+      <form th:action="@{/user/register}" th:object="${userRequest}" method="post" id="signupForm" enctype="multipart/form-data">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+
+        <div class="textBox mb-4">
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
+            standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
+            make a type specimen book. It has survived not only five centuries, but also the leap into electronic
+            typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
+            sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
+            PageMaker including versions of Lorem Ipsum.
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
+            standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
+            make a type specimen book. It has survived not only five centuries, but also the leap into electronic
+            typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
+            sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
+            PageMaker including versions of Lorem Ipsum.
+          </p>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" th:field="*{agreement}" id="agreement">
+            <label class="form-check-label" for="agreement">
+              동의
+            </label>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('agreement')}" th:errors="*{agreement}">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="username" class="form-label">아이디</label>
+          <input type="text" th:field="*{username}" class="form-control" placeholder="Id">
+        </div>
+        <div class="mb-3">
+          <label for="nickname" class="form-label">닉네임</label>
+          <input type="text" th:field="*{nickname}" class="form-control" placeholder="Nickname">
+        </div>
+        <div class="mb-3">
+          <label for="password1" class="form-label">비밀번호</label>
+          <input type="password" th:field="*{password1}" class="form-control" placeholder="비밀번호">
+        </div>
+        <div class="mb-3">
+          <label for="password2" class="form-label">비밀번호 확인</label>
+          <input type="password" th:field="*{password2}" class="form-control" placeholder="비밀번호 확인">
+        </div>
+
+        <div class="mb-3">
+          <label for="thumbnailImg" class="form-label">프로필 이미지</label>
+          <input type="file" th:field="*{thumbnailImg}" class="form-control" accept="image/*">
+        </div>
+        <div class="mb-3">
+          <label for="intro" class="form-label">자기소개</label>
+          <input type="text" th:field="*{intro}" class="form-control" placeholder="간단하게 자신을 알려주세요 !">
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">email</label>
+          <input type="email" th:field="*{email}" class="form-control" placeholder="email">
+        </div>
+        <button type="submit" id="signupButton" class="btn btn-primary" onclick="handleSignup(event)">
+          <span id="buttonText">회원가입</span>
+          <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript 추가 -->
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      if (!document.getElementById('agreement').checked) {
+        e.preventDefault();
+        alert('이용약관에 동의해주세요.');
+        return false;
+      }
+    });
+    let isSubmitting = false;
+
+
+
+    // 페이지 로드 시 상태 초기화
+    window.onload = function() {
+        isSubmitting = false;
+        const button = document.getElementById('signupButton');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        button.disabled = false;
+        buttonText.textContent = '회원가입';
+        loadingSpinner.classList.add('d-none');
+    }
+
+    // 브라우저 뒤로가기 시 상태 초기화
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    };
+
+    // 폼 제출 전 확인
+    function handleSignup(event) {
+        if (isSubmitting) {
+            event.preventDefault();
+            return;
+        }
+
+        // 사용자 확인
+        if (!confirm('회원가입을 진행하시겠습니까?')) {
+            event.preventDefault();
+            return;
+        }
+
+        const button = document.getElementById('signupButton');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // 폼 유효성 검사
+        const form = document.querySelector('form');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // 버튼 비활성화 및 로딩 표시
+        isSubmitting = true;
+        button.disabled = true;
+        buttonText.textContent = '처리중...';
+        loadingSpinner.classList.remove('d-none');
+
+        // 5초 후에도 응답이 없으면 상태 초기화
+        setTimeout(() => {
+            if (isSubmitting) {
+                isSubmitting = false;
+                button.disabled = false;
+                buttonText.textContent = '회원가입';
+                loadingSpinner.classList.add('d-none');
+                alert('처리 시간이 초과되었습니다. 다시 시도해주세요.');
+            }
+        }, 5000);
+
+        form.submit();
+    }
+  </script>
+</div>
+</html>

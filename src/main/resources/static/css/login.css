@@ -1,0 +1,38 @@
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.loginBox {
+  width: 500px;
+  height: calc(100% - 300px);
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  margin: 0 auto;
+  text-align: center;
+  padding: 120px 0px;
+}
+
+.loginBox > h1 {
+  font-weight: bold;
+  font-size: 5rem;
+  margin-bottom: 50px;
+}
+.loginBox > form > div {
+  margin-bottom: 24px;
+}
+.loginBox > form > div > span {
+  width: 100px;
+}
+.btn-login {
+  width: 180px;
+  height: 52px !important;
+  font-weight: bold;
+  background-color: 250ABF;
+}
+.input-group {
+    width: 500px;
+}
