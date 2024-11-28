@@ -24,4 +24,17 @@ public class QuizShowService {
 
         return quizShowListDTOList;
     }
+
+    public QuizShow write(String showName, String showDescription,
+                          Integer totalQuizCount, Integer totalScore) {
+        QuizShow quizShow = QuizShow.builder()
+                .showName(showName)
+                .showDescription(showDescription)
+                .totalQuizCount(totalQuizCount)
+                .totalScore(totalScore)
+                .build();
+        this.quizShowRepository.save(quizShow);
+
+        return quizShow;
+    }
 }
