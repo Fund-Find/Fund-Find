@@ -4,9 +4,9 @@ import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
 import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
 import com.example.domain.quizShow.entity.QuizShow;
-import com.example.domain.quizShow.entity.QuizCatagory;
+import com.example.domain.quizShow.entity.QuizCategory;
 import com.example.domain.quizShow.repository.QuizShowRepository;
-import com.example.domain.quizShow.repository.QuizCatagoryRepository;
+import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 @RequiredArgsConstructor
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
-    private final QuizCatagoryRepository quizCatagoryRepository;
+    private final QuizCategoryRepository quizCategoryRepository;
 
     public QuizShowListResponseDTO getList(Pageable pageable) {
         Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
@@ -47,12 +47,12 @@ public class QuizShowService {
     }
 
     public QuizShow create(QuizShowCreateRequestDTO quizShowCreateRequestDTO) {
-        QuizCatagory quizCatagory = quizCatagoryRepository.findById(quizShowCreateRequestDTO.getQuizTypeId())
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCreateRequestDTO.getQuizTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         QuizShow quizShow = QuizShow.builder()
                 .showName(quizShowCreateRequestDTO.getShowName())
-                .quizCatagory(quizCatagory)
+                .quizCategory(quizCategory)
                 .showDescription(quizShowCreateRequestDTO.getShowDescription())
                 .totalQuizCount(quizShowCreateRequestDTO.getTotalQuizCount())
                 .totalScore(quizShowCreateRequestDTO.getTotalScore())
@@ -67,12 +67,12 @@ public class QuizShowService {
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-        QuizCatagory quizCatagory = quizCatagoryRepository.findById(quizShowModifyRequestDTO.getQuizTypeId())
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowModifyRequestDTO.getQuizTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         quizShow.modify(
                 quizShowModifyRequestDTO.getShowName(),
-                quizCatagory,
+                quizCategory,
                 quizShowModifyRequestDTO.getShowDescription(),
                 quizShowModifyRequestDTO.getTotalQuizCount(),
                 quizShowModifyRequestDTO.getTotalScore()

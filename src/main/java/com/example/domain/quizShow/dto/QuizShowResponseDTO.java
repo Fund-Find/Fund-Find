@@ -27,7 +27,7 @@ public class QuizShowResponseDTO {
         return new QuizShowResponseDTO(
                 quizShow.getId(),
                 quizShow.getShowName(),
-                QuizCatagoryDTO.from(quizShow.getQuizCatagory()),  // QuizTypeDTO에도 from 메서드 필요
+                QuizCatagoryDTO.from(quizShow.getQuizCategory()),  // QuizTypeDTO에도 from 메서드 필요
                 quizShow.getShowDescription(),
                 quizShow.getTotalQuizCount(),
                 quizShow.getTotalScore(),
@@ -42,7 +42,7 @@ public class QuizShowResponseDTO {
     public QuizShowResponseDTO(QuizShow quizShow) {
         this.id = quizShow.getId();
         this.showName = quizShow.getShowName();
-        this.quizType = QuizCatagoryDTO.from(quizShow.getQuizCatagory());
+        this.quizType = QuizCatagoryDTO.from(quizShow.getQuizCategory());
         this.showDescription = quizShow.getShowDescription();
         this.totalQuizCount = quizShow.getTotalQuizCount();
         this.totalScore = quizShow.getTotalScore();
