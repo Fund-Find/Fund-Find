@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizType extends BaseEntity {
+public class QuizCatagory extends BaseEntity {
     @Column(nullable = false)
     private String typeName;
 }

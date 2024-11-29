@@ -18,7 +18,7 @@ public class QuizShowModifyRequestDTO {
     public static QuizShowModifyRequestDTO form(QuizShow quizShow) {
         return new QuizShowModifyRequestDTO(
                 quizShow.getShowName(),
-                quizShow.getQuizType().getId(),
+                quizShow.getQuizCatagory().getId(),
                 quizShow.getShowDescription(),
                 quizShow.getTotalQuizCount(),
                 quizShow.getTotalScore()

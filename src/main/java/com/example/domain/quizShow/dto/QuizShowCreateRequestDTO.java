@@ -18,7 +18,7 @@ public class QuizShowCreateRequestDTO {
     public static QuizShowCreateRequestDTO form(QuizShow quizShow) {
         return new QuizShowCreateRequestDTO(
                 quizShow.getShowName(),
-                quizShow.getQuizType().getId(),
+                quizShow.getQuizCatagory().getId(),
                 quizShow.getShowDescription(),
                 quizShow.getTotalQuizCount(),
                 quizShow.getTotalScore()

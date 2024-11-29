@@ -22,7 +22,7 @@ public class QuizShow extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)  // QuizType도 엔티티이므로 관계 매핑 필요
     @JoinColumn(name = "quiz_type_id")
-    private QuizType quizType;
+    private QuizCatagory quizCatagory;
 
     private String showDescription;
 
@@ -45,10 +45,10 @@ public class QuizShow extends BaseEntity {
     )
     private Set<SiteUser> votes;
 
-    public void modify(String showName, QuizType quizType, String showDescription,
+    public void modify(String showName, QuizCatagory quizCatagory, String showDescription,
                        Integer totalQuizCount, Integer totalScore) {
         this.showName = showName;
-        this.quizType = quizType;
+        this.quizCatagory = quizCatagory;
         this.showDescription = showDescription;
         this.totalQuizCount = totalQuizCount;
         this.totalScore = totalScore;

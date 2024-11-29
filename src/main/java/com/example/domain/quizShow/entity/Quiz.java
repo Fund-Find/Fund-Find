@@ -21,7 +21,7 @@ public class Quiz extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)
-    private QuizType quizType;
+    private QuizCatagory quizCatagory;
 
     @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
     private String quizContent;

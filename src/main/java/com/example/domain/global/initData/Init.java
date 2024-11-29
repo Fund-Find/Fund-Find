@@ -1,7 +1,7 @@
 package com.example.domain.global.initData;
 
 import com.example.domain.quizShow.service.QuizShowService;
-import com.example.domain.quizShow.service.QuizTypeService;
+import com.example.domain.quizShow.service.QuizCatagoryService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Init {
     @Bean
-    CommandLineRunner initData(QuizShowService quizShowService, QuizTypeService quizTypeService) {
+    CommandLineRunner initData(QuizShowService quizShowService, QuizCatagoryService quizCatagoryService) {
         return args -> {
 //            quizTypeService.write("1번 타입");
 //            quizTypeService.write("2번 타입");
