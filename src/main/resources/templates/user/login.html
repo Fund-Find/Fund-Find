@@ -5,7 +5,7 @@
 <div layout:fragment="content">
     <!-- 주요 내용 -->
     <div class="loginBox">
-        <h1>로그인</h1>
+        <h1>Fund FInd</h1>
         <form th:action="@{/user/login}" method="post">
             <div th:if="${param.error}">
                 <div class="alert alert-danger">
@@ -13,16 +13,16 @@
                 </div>
             </div>
             <div class="input-group flex-nowrap">
-                <label for="username" class="input-group-text">ID</label>
+                <label for="username" class="input-group-text"></label>
                 <input type="text" name="username" id="username" class="form-control" placeholder="ID" aria-label="Username"
                        aria-describedby="addon-wrapping">
             </div>
             <div class="input-group flex-nowrap">
-                <label for="password" class="input-group-text">비밀번호</label>
+                <label for="password" class="input-group-text"></label>
                 <input type="password" name="password" id="password" class="form-control" placeholder="Password" aria-label="Username"
                        aria-describedby="addon-wrapping">
             </div>
-            <div>
+            <div class="add">
                 <a th:href="@{/user/find-account}">아이디 찾기</a>
                 <span>/</span>
                 <a th:href="@{/user/find-account}">비밀번호 재설정</a>

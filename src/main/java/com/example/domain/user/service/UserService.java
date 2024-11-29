@@ -29,6 +29,11 @@
 
         // 회원가입
         public UserResponse registerUser(UserRequest request) {
+            // 비밀번호와 비밀번호 확인란 비교
+            if (!request.getPassword1().equals(request.getPassword2())) {
+                throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
+            }
+
             // 중복 확인
             if (userRepository.existsByUsername(request.getUsername())) {
                 throw new IllegalArgumentException("이미 존재하는 사용자 이름입니다.");
