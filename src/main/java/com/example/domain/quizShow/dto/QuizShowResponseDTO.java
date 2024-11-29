@@ -38,4 +38,13 @@ public class QuizShowResponseDTO {
                 quizShow.getModifiedDate()
         );
     }
+
+    public QuizShowResponseDTO(QuizShow quizShow) {
+        this.id = quizShow.getId();
+        this.showName = quizShow.getShowName();
+        this.quizType = QuizTypeDTO.from(quizShow.getQuizType());
+        this.showDescription = quizShow.getShowDescription();
+        this.totalQuizCount = quizShow.getTotalQuizCount();
+        this.totalScore = quizShow.getTotalScore();
+    }
 }

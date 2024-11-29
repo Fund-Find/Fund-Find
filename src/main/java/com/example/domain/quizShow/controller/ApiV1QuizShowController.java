@@ -36,17 +36,32 @@ public class ApiV1QuizShowController {
     }
 
     @PostMapping("")
-    public RsData<QuizShowCreateRequestDTO> create() {
-        return RsData.of("200", "게시글 생성 완료");
+    public RsData<QuizShowCreateRequestDTO> create(@RequestBody QuizShowCreateRequestDTO newQuizShow) {
+        QuizShow quizShow = quizShowService.create(newQuizShow);
+        return RsData.of("200", "게시글 생성 완료", QuizShowCreateRequestDTO.form(quizShow));
     }
 
     @PatchMapping("/{id}")
-    public RsData<QuizShowModifyRequestDTO> modify() {
-        return RsData.of("200", "게시글 수정 완료");
+    public RsData<QuizShowModifyRequestDTO> modify(@PathVariable("id") Long id,
+                                                   @RequestBody QuizShowModifyRequestDTO quizShowModifyRequestDTO) {
+        QuizShow modifyQuizShow = quizShowService.modify(id, quizShowModifyRequestDTO);
+
+        return RsData.of("200", "게시글 수정 완료", QuizShowModifyRequestDTO.form(modifyQuizShow));
     }
 
     @DeleteMapping("{id}")
-    public RsData<QuizShowResponseDTO> delete() {
-        return RsData.of("200", "게시글 삭제 완료");
+    public RsData<QuizShowResponseDTO> delete(@PathVariable("id") Long id) {
+        QuizShow quizShow = this.quizShowService.getQuizShow(id);
+
+        if (quizShow == null) return RsData.of(
+                "500",
+                "%d 번 게시물은 존재하지 않습니다.".formatted(id),
+                null
+        );
+
+        quizShowService.delete(quizShow);
+        QuizShowResponseDTO quizShowResponseDTO = new QuizShowResponseDTO(quizShow);
+
+        return RsData.of("200", "게시글 삭제 완료", quizShowResponseDTO);
     }
 }
