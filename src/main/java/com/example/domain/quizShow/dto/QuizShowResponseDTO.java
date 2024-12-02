@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class QuizShowResponseDTO {
     private Long id;
     private String showName;
-    private QuizCatagoryDTO quizType;
+    private QuizCategoryDTO quizCategory;
     private String showDescription;
     private Integer totalQuizCount;
     private Integer totalScore;
@@ -23,28 +23,17 @@ public class QuizShowResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static QuizShowResponseDTO from(QuizShow quizShow) {
-        return new QuizShowResponseDTO(
-                quizShow.getId(),
-                quizShow.getShowName(),
-                QuizCatagoryDTO.from(quizShow.getQuizCategory()),  // QuizTypeDTO에도 from 메서드 필요
-                quizShow.getShowDescription(),
-                quizShow.getTotalQuizCount(),
-                quizShow.getTotalScore(),
-                quizShow.getView(),
-                quizShow.getVotes() != null ? quizShow.getVotes().size() : 0,
-                false,  // hasVoted는 현재 로그인한 사용자 정보가 필요해서 별도 처리 필요
-                quizShow.getCreatedDate(),
-                quizShow.getModifiedDate()
-        );
-    }
-
     public QuizShowResponseDTO(QuizShow quizShow) {
         this.id = quizShow.getId();
         this.showName = quizShow.getShowName();
-        this.quizType = QuizCatagoryDTO.from(quizShow.getQuizCategory());
+        this.quizCategory = new QuizCategoryDTO(quizShow.getQuizCategory());
         this.showDescription = quizShow.getShowDescription();
         this.totalQuizCount = quizShow.getTotalQuizCount();
         this.totalScore = quizShow.getTotalScore();
+        this.view = quizShow.getView();
+        this.voteCount = quizShow.getVotes() != null ? quizShow.getVotes().size() : 0;
+        this.hasVoted = false;  // 추후 구현
+        this.createdAt = quizShow.getCreatedDate();
+        this.updatedAt = quizShow.getModifiedDate();
     }
 }

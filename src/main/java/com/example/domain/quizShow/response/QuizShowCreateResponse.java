@@ -7,10 +7,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class QuizShowModifyResponse {
+public class QuizShowCreateResponse {
     private final QuizShowResponseDTO quizShow;
 
-    public QuizShowModifyResponse(QuizShow quizShow) {
+    public QuizShowCreateResponse(QuizShow quizShow) {
         this.quizShow = new QuizShowResponseDTO(quizShow);
     }
 }

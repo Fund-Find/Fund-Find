@@ -1,29 +1,33 @@
 package com.example.domain.quizShow.service;
 
-import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
-import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
-import com.example.domain.quizShow.entity.QuizShow;
+import com.example.domain.quizShow.dto.QuizShowResponseDTO;
 import com.example.domain.quizShow.entity.QuizCategory;
-import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
+import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.request.QuizShowCreateRequest;
+import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
     private final QuizCategoryRepository quizCategoryRepository;
 
     public QuizShowListResponseDTO getList(Pageable pageable) {
         Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
-        return QuizShowListResponseDTO.of(quizShowPage);
+        return new QuizShowListResponseDTO(quizShowPage);
     }
 
     public QuizShow write(String showName, String showDescription,
@@ -46,16 +50,17 @@ public class QuizShowService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
     }
 
-    public QuizShow create(QuizShowCreateRequestDTO quizShowCreateRequestDTO) {
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCreateRequestDTO.getQuizTypeId())
+    @Transactional
+    public QuizShow create(@Valid QuizShowCreateRequest quizShowCreateRequest) {
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCreateRequest.getQuizCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         QuizShow quizShow = QuizShow.builder()
-                .showName(quizShowCreateRequestDTO.getShowName())
+                .showName(quizShowCreateRequest.getShowName())
                 .quizCategory(quizCategory)
-                .showDescription(quizShowCreateRequestDTO.getShowDescription())
-                .totalQuizCount(quizShowCreateRequestDTO.getTotalQuizCount())
-                .totalScore(quizShowCreateRequestDTO.getTotalScore())
+                .showDescription(quizShowCreateRequest.getShowDescription())
+                .totalQuizCount(quizShowCreateRequest.getTotalQuizCount())
+                .totalScore(quizShowCreateRequest.getTotalScore())
                 .view(0)
                 .votes(new HashSet<>())
                 .build();
@@ -63,25 +68,29 @@ public class QuizShowService {
         return quizShowRepository.save(quizShow);
     }
 
-    public QuizShow modify(Long id, QuizShowModifyRequestDTO quizShowModifyRequestDTO) {
+    @Transactional
+    public QuizShow modify(Long id, QuizShowModifyRequest quizShowModifyRequest) {
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowModifyRequestDTO.getQuizTypeId())
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowModifyRequest.getQuizCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         quizShow.modify(
-                quizShowModifyRequestDTO.getShowName(),
+                quizShowModifyRequest.getShowName(),
                 quizCategory,
-                quizShowModifyRequestDTO.getShowDescription(),
-                quizShowModifyRequestDTO.getTotalQuizCount(),
-                quizShowModifyRequestDTO.getTotalScore()
+                quizShowModifyRequest.getShowDescription(),
+                quizShowModifyRequest.getTotalQuizCount(),
+                quizShowModifyRequest.getTotalScore()
         );
 
         return quizShowRepository.save(quizShow);
     }
 
-    public void delete(QuizShow quizShow) {
+    @Transactional
+    public QuizShowResponseDTO delete(QuizShow quizShow) {
+        QuizShowResponseDTO quizShowResponseDTO = new QuizShowResponseDTO(quizShow);
         this.quizShowRepository.delete(quizShow);
+        return quizShowResponseDTO;
     }
 }

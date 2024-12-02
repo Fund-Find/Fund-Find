@@ -11,13 +11,13 @@ public class Init {
     @Bean
     CommandLineRunner initData(QuizShowService quizShowService, QuizCategoryService quizCategoryService) {
         return args -> {
-//            quizTypeService.write("1번 타입");
-//            quizTypeService.write("2번 타입");
-//            quizTypeService.write("3번 타입");
-//            quizTypeService.write("4번 타입");
-//            quizTypeService.write("5번 타입");
-//            quizTypeService.write("6번 타입");
-
+//            quizCategoryService.write("1번 타입");
+//            quizCategoryService.write("2번 타입");
+//            quizCategoryService.write("3번 타입");
+//            quizCategoryService.write("4번 타입");
+//            quizCategoryService.write("5번 타입");
+//            quizCategoryService.write("6번 타입");
+//
 //            quizShowService.write("제목1", "설명1", 5, 10, 0);
 //            quizShowService.write("제목2", "설명2", 10, 30, 0);
 //            quizShowService.write("제목3", "설명3", 15, 55, 0);

@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 public class QuizCategoryService {
     private final QuizCategoryRepository quizCategoryRepository;
 
-    public QuizCategory write(String typeName) {
+    public QuizCategory write(String categoryName) {
         QuizCategory quizCategory = QuizCategory.builder()
-                .typeName(typeName)
+                .categoryName(categoryName)
                 .build();
         this.quizCategoryRepository.save(quizCategory);
 

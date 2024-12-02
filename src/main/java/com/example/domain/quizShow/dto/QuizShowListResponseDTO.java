@@ -14,21 +14,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class QuizShowListResponseDTO {
     private List<QuizShowResponseDTO> quizShows;
-    private long totalElements;
-    private int totalPages;
-    private int currentPage;
+    private Long totalElements;
+    private Integer totalPages;
+    private Integer currentPage;
 
-    // Page<QuizShow>를 받는 생성자 추가
-    public static QuizShowListResponseDTO of(Page<QuizShow> quizShowPage) {
-        List<QuizShowResponseDTO> quizShowDTOs = quizShowPage.getContent().stream()
-                .map(QuizShowResponseDTO::from)  // QuizShow -> QuizShowResponseDTO 변환
+    public QuizShowListResponseDTO(Page<QuizShow> quizShowPage) {
+        this.quizShows = quizShowPage.getContent().stream()
+                .map(QuizShowResponseDTO::new)  // 생성자를 사용한 변환
                 .collect(Collectors.toList());
-
-        return new QuizShowListResponseDTO(
-                quizShowDTOs,
-                quizShowPage.getTotalElements(),
-                quizShowPage.getTotalPages(),
-                quizShowPage.getNumber()
-        );
+        this.totalElements = quizShowPage.getTotalElements();
+        this.totalPages = quizShowPage.getTotalPages();
+        this.currentPage = quizShowPage.getNumber();
     }
 }
