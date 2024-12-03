@@ -44,13 +44,4 @@ public class QuizShow extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<SiteUser> votes;
-
-    public void modify(String showName, QuizCategory quizCategory, String showDescription,
-                       Integer totalQuizCount, Integer totalScore) {
-        this.showName = showName;
-        this.quizCategory = quizCategory;
-        this.showDescription = showDescription;
-        this.totalQuizCount = totalQuizCount;
-        this.totalScore = totalScore;
-    }
 }
