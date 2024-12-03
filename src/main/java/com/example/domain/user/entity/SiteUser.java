@@ -3,9 +3,9 @@ package com.example.domain.user.entity;
 import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Getter
@@ -35,5 +35,4 @@ public class SiteUser extends BaseEntity {
     private String nickname;
 
     private String thumbnailImg;
-
 }

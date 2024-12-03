@@ -4,13 +4,7 @@ import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.service.UserService;
-//import com.example.global.Jwt.JwtService;
-import com.example.global.Jwt.TokenResponse;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,7 +43,7 @@ public class UserController {
 //        return ResponseEntity.ok(new TokenResponse(token));
 //    }
 
- 
+
 //        // accessToken 발급
 //        String accessToken = jwtProvider.genAccessToken(user);
 //        Cookie cookie = new Cookie("accessToken", accessToken);

@@ -1,13 +1,13 @@
 package com.example.domain.quizShow.entity;
 
+import com.example.domain.user.entity.SiteUser;
 import com.example.global.jpa.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.userdetails.User;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Set;
 
@@ -17,13 +17,31 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuizShow extends BaseEntity {
+    @Column(nullable = false)
+    private String showName;
 
-    @Column
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)  // QuizType도 엔티티이므로 관계 매핑 필요
+    @JoinColumn(name = "quiz_category_id")
+    private QuizCategory quizCategory;
 
-    @Column(columnDefinition = "text")
-    private String content;
+    private String showDescription;
 
-    private Set<User> votes;
+    @Column(nullable = false)
+    private Integer totalQuizCount;
 
+    @Column(nullable = false)
+    private Integer totalScore;
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    @ColumnDefault("0")
+    private Integer view;
+
+    @ManyToMany
+    @ColumnDefault("0")
+    @JoinTable(
+            name = "quiz_show_votes",
+            joinColumns = @JoinColumn(name = "quiz_show_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<SiteUser> votes;
 }

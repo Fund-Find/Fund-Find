@@ -1,9 +1,9 @@
 package com.example.domain.quizShow.repository;
 
-import com.example.domain.quizShow.entity.QuizShow;
+import com.example.domain.quizShow.entity.QuizCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface  QuizShowRepository extends JpaRepository<QuizShow, Long> {
+public interface QuizCategoryRepository extends JpaRepository<QuizCategory, Long> {
 }

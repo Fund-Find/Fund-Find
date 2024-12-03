@@ -1,6 +1,6 @@
-package com.example.domain.discussion.entity;
+package com.example.domain.quizShow.entity;
 
-import com.example.domain.global.jpa.BaseEntity;
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -13,11 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Discussion extends BaseEntity {
-
-    @Column
-    private String title;
-
-    @Column(columnDefinition = "text")
-    private String content;
+public class QuizCategory extends BaseEntity {
+    @Column(nullable = false)
+    private String categoryName;
 }
