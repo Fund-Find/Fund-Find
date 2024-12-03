@@ -1,4 +1,4 @@
-package com.example.domain.global.initData;
+package com.example.global.initData;
 
 import com.example.domain.quizShow.service.QuizShowService;
 import com.example.domain.quizShow.service.QuizCategoryService;

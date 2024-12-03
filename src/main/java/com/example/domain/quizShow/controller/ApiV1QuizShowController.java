@@ -1,6 +1,6 @@
 package com.example.domain.quizShow.controller;
 
-import com.example.domain.global.rsData.RsData;
+import com.example.global.rsData.RsData;
 import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
 import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
