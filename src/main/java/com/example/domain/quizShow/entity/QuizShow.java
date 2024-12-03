@@ -1,8 +1,8 @@
 package com.example.domain.quizShow.entity;
 
-import com.example.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.example.domain.user.entity.SiteUser;
+import com.example.global.jpa.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,5 +40,5 @@ public class QuizShow extends BaseEntity {
             joinColumns = @JoinColumn(name = "quiz_show_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> votes;
+    private Set<SiteUser> votes;
 }

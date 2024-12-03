@@ -1,7 +1,7 @@
 package com.example.domain.quizShow.entity;
 
-import com.example.domain.global.jpa.BaseEntity;
-import com.example.domain.user.entity.User;
+import com.example.domain.user.entity.SiteUser;
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class QuizAnswer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private User user;
+    private SiteUser user;
 
     @Column(nullable = false)
     private String userAnswer;      // 사용자가 입력한 답변

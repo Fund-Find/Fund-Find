@@ -1,6 +1,6 @@
 package com.example.domain.quizShow.entity;
 
-import com.example.domain.global.jpa.BaseEntity;
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

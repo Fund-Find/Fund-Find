@@ -1,6 +1,6 @@
 package com.example.domain.user.entity;
 
-import com.example.domain.global.jpa.BaseEntity;
+import com.example.global.jpa.BaseEntity;
 import com.example.domain.quizShow.entity.QuizShow;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 public class UserQuizResult extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private SiteUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_show_id", nullable = false)
