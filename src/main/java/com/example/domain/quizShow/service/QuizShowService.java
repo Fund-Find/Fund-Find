@@ -1,13 +1,13 @@
 package com.example.domain.quizShow.service;
 
+import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
+import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowResponseDTO;
 import com.example.domain.quizShow.entity.QuizCategory;
 import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
-import com.example.domain.quizShow.request.QuizShowCreateRequest;
-import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,40 +51,40 @@ public class QuizShowService {
     }
 
     @Transactional
-    public QuizShow create(@Valid QuizShowCreateRequest quizShowCreateRequest) {
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCreateRequest.getQuizCategoryId())
+    public QuizShowResponseDTO create(@Valid QuizShowCreateRequestDTO quizShowCR_DTO) {
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCR_DTO.getQuizCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         QuizShow quizShow = QuizShow.builder()
-                .showName(quizShowCreateRequest.getShowName())
+                .showName(quizShowCR_DTO.getShowName())
                 .quizCategory(quizCategory)
-                .showDescription(quizShowCreateRequest.getShowDescription())
-                .totalQuizCount(quizShowCreateRequest.getTotalQuizCount())
-                .totalScore(quizShowCreateRequest.getTotalScore())
+                .showDescription(quizShowCR_DTO.getShowDescription())
+                .totalQuizCount(quizShowCR_DTO.getTotalQuizCount())
+                .totalScore(quizShowCR_DTO.getTotalScore())
                 .view(0)
                 .votes(new HashSet<>())
                 .build();
 
-        return quizShowRepository.save(quizShow);
+        quizShowRepository.save(quizShow);
+
+        return new QuizShowResponseDTO(quizShow);
     }
 
     @Transactional
-    public QuizShow modify(Long id, QuizShowModifyRequest quizShowModifyRequest) {
+    public QuizShowResponseDTO modify(Long id, QuizShowModifyRequestDTO quizShowMR_DTO) {
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowModifyRequest.getQuizCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+        QuizShow updatedQuizShow = quizShow.toBuilder()
+                .showName(quizShowMR_DTO.getShowName())
+                .quizCategory(quizCategoryRepository.findById(quizShowMR_DTO.getQuizCategoryId())
+                        .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다.")))
+                .showDescription(quizShowMR_DTO.getShowDescription())
+                .totalQuizCount(quizShowMR_DTO.getTotalQuizCount())
+                .totalScore(quizShowMR_DTO.getTotalScore())
+                .build();
 
-        quizShow.modify(
-                quizShowModifyRequest.getShowName(),
-                quizCategory,
-                quizShowModifyRequest.getShowDescription(),
-                quizShowModifyRequest.getTotalQuizCount(),
-                quizShowModifyRequest.getTotalScore()
-        );
-
-        return quizShowRepository.save(quizShow);
+        return new QuizShowResponseDTO(quizShowRepository.save(updatedQuizShow));
     }
 
     @Transactional

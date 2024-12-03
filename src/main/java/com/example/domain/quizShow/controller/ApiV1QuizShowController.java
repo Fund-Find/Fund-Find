@@ -1,13 +1,12 @@
 package com.example.domain.quizShow.controller;
 
 import com.example.domain.global.rsData.RsData;
+import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
+import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
 import com.example.domain.quizShow.dto.QuizShowResponseDTO;
 import com.example.domain.quizShow.entity.QuizShow;
-import com.example.domain.quizShow.request.QuizShowCreateRequest;
-import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import com.example.domain.quizShow.response.QuizShowCreateResponse;
-import com.example.domain.quizShow.response.QuizShowModifyResponse;
 import com.example.domain.quizShow.service.QuizShowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,15 +35,15 @@ public class ApiV1QuizShowController {
     }
 
     @PostMapping("")
-    public RsData<QuizShowCreateResponse> create(@Valid @RequestBody QuizShowCreateRequest quizShowCreateRequest) {
-        QuizShow quizShow = quizShowService.create(quizShowCreateRequest);
+    public RsData<QuizShowCreateResponse> create(@Valid @RequestBody QuizShowCreateRequestDTO quizShow_CR_DTO) {
+        QuizShowResponseDTO quizShowR_DTO = quizShowService.create(quizShow_CR_DTO);
 
-        return RsData.of("200", "게시글 생성 완료", new QuizShowCreateResponse(quizShow));
+        return RsData.of("200", "게시글 생성 완료", new QuizShowCreateResponse(quizShowR_DTO));
     }
 
     @PatchMapping("/{id}")
-    public RsData<QuizShowModifyResponse> modify(@PathVariable("id") Long id,
-                                                @Valid @RequestBody QuizShowModifyRequest quizShowModifyRequest) {
+    public RsData<QuizShowResponseDTO> modify(@PathVariable("id") Long id,
+                                           @Valid @RequestBody QuizShowModifyRequestDTO quizShowMR_DTO) {
         QuizShow quizShow = this.quizShowService.getQuizShow(id);
 
         if (quizShow == null) return RsData.of(
@@ -53,9 +52,9 @@ public class ApiV1QuizShowController {
                 null
         );
 
-        quizShow = this.quizShowService.modify(id, quizShowModifyRequest);
+        QuizShowResponseDTO quizShowR_DTO = this.quizShowService.modify(id, quizShowMR_DTO);
 
-        return RsData.of("200", "게시글 수정 완료", new QuizShowModifyResponse(quizShow));
+        return RsData.of("200", "게시글 수정 완료", quizShowR_DTO);
     }
 
     @DeleteMapping("{id}")
