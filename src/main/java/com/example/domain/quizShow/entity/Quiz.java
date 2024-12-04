@@ -31,4 +31,8 @@ public class Quiz extends BaseEntity {
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<QuizChoice> choices;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_id", nullable = false)
+    private QuizType quizType;
 }
