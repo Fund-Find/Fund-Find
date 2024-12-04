@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.controller;
 
+import com.example.domain.quizShow.dto.QuizShowDTO;
 import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
@@ -29,22 +30,22 @@ public class ApiV1QuizShowController {
 
     @GetMapping("/{id}")
     public RsData<QuizShowResponse> getQuizShow(@PathVariable("id") Long id) {
-        QuizShow quizShow = quizShowService.getQuizShow(id);
+        QuizShowDTO quizShow = quizShowService.getQuizShow(id);
 
         return RsData.of("200", "게시글 단건 조회", new QuizShowResponse(quizShow));
     }
 
     @PostMapping("")
-    public RsData<QuizShowCreateResponse> create(@Valid @RequestBody QuizShowCreateRequest quizShow_CR_DTO) {
-        QuizShowResponse quizShowR_DTO = quizShowService.create(quizShow_CR_DTO);
+    public RsData<QuizShowResponse> create(@Valid @RequestBody QuizShowCreateRequest quizShowCR) {
+        QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
 
-        return RsData.of("200", "게시글 생성 완료", new QuizShowCreateResponse(quizShowR_DTO));
+        return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
     }
 
     @PatchMapping("/{id}")
     public RsData<QuizShowResponse> modify(@PathVariable("id") Long id,
                                            @Valid @RequestBody QuizShowModifyRequest quizShowMR_DTO) {
-        QuizShow quizShow = this.quizShowService.getQuizShow(id);
+        QuizShowDTO quizShow = this.quizShowService.getQuizShow(id);
 
         if (quizShow == null) return RsData.of(
                 "500",
@@ -59,7 +60,7 @@ public class ApiV1QuizShowController {
 
     @DeleteMapping("{id}")
     public RsData<QuizShowResponse> delete(@PathVariable("id") Long id) {
-        QuizShow quizShow = this.quizShowService.getQuizShow(id);
+        QuizShowDTO quizShow = this.quizShowService.getQuizShow(id);
 
         if (quizShow == null) return RsData.of(
                 "500",

@@ -8,7 +8,11 @@ import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import com.example.domain.quizShow.repository.QuizRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.request.QuizCreateRequest;
+import com.example.domain.quizShow.request.QuizShowCreateRequest;
+import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.response.QuizShowResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,19 +34,6 @@ public class QuizShowService {
     private final QuizCategoryRepository quizCategoryRepository;
     private final QuizRepository quizRepository;
 
-    public QuizShowListResponse getList(Pageable pageable) {
-        Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
-
-        List<QuizShowDTO> quizShows = quizShowPage.getContent().stream()
-                .map(QuizShowDTO::new)
-                .collect(Collectors.toList());
-
-        return new QuizShowListResponse(quizShows,
-                quizShowPage.getTotalElements(),
-                quizShowPage.getTotalPages(),
-                quizShowPage.getNumber());
-    }
-
     public QuizShow write(String showName, String showDescription,
                           Integer totalQuizCount, Integer totalScore,
                           Integer view) {
@@ -58,45 +49,61 @@ public class QuizShowService {
         return quizShow;
     }
 
-    public QuizShow getQuizShow(Long id) {
-        return quizShowRepository.findById(id)
+    public QuizShowListResponse getList(Pageable pageable) {
+        Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
+
+        List<QuizShowDTO> quizShows = quizShowPage.getContent().stream()
+                .map(QuizShowDTO::new)
+                .collect(Collectors.toList());
+
+        return new QuizShowListResponse(quizShows,
+                quizShowPage.getTotalElements(),
+                quizShowPage.getTotalPages(),
+                quizShowPage.getNumber());
+    }
+
+    public QuizShowDTO getQuizShow(Long id) {
+        QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
+        return new QuizShowDTO(quizShow);
     }
 
     @Transactional
-    public QuizShowResponseDTO create(@Valid QuizShowCreateRequestDTO quizShowCR_DTO) {
+    public QuizShowDTO create(@Valid QuizShowCreateRequest quizShowCR) {
         // 퀴즈쇼 카테고리 조회
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCR_DTO.getQuizCategoryId())
+        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCR.getQuizCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
         // QuizShow 생성
         QuizShow quizShow = QuizShow.builder()
-                .showName(quizShowCR_DTO.getShowName())
+                .showName(quizShowCR.getShowName())
                 .quizCategory(quizCategory)
-                .showDescription(quizShowCR_DTO.getShowDescription())
-                .totalQuizCount(quizShowCR_DTO.getTotalQuizCount())
-                .totalScore(quizShowCR_DTO.getTotalScore())
+                .showDescription(quizShowCR.getShowDescription())
+                .totalQuizCount(quizShowCR.getTotalQuizCount())
+                .totalScore(quizShowCR.getTotalScore())
                 .view(0)
                 .votes(new HashSet<>())
                 .build();
 
+        quizShowRepository.save(quizShow);
+
         // Quiz 생성 및 저장
-        if (quizShowCR_DTO.getQuizzes() != null) {
-            for (QuizCreateDTO quizDTO : quizShowCR_DTO.getQuizzes()) {
-                QuizCategory quizQuizCategory = quizCategoryRepository.findById(quizDTO.getQuizCategoryId())
+        if (quizShowCR.getQuizzes() != null) {
+            for (QuizCreateRequest quizReq : quizShowCR.getQuizzes()) {
+                QuizCategory quizQuizCategory = quizCategoryRepository.findById(quizReq.getQuizCategoryId())
                         .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
 
                 Quiz quiz = Quiz.builder()
                         .quizShow(quizShow)
                         .quizCategory(quizQuizCategory)
-                        .quizContent(quizDTO.getQuizContent())
-                        .quizScore(quizDTO.getQuizScore())
+                        .quizContent(quizReq.getQuizContent())
+                        .quizScore(quizReq.getQuizScore())
                         .choices(new ArrayList<>())
                         .build();
 
                 // 선택지 생성
-                if (quizDTO.getChoices() != null) {
-                    for (String choiceContent : quizDTO.getChoices()) {
+                if (quizReq.getChoices() != null) {
+                    for (String choiceContent : quizReq.getChoices()) {
                         QuizChoice choice = QuizChoice.builder()
                                 .quiz(quiz)
                                 .choiceContent(choiceContent)
@@ -109,11 +116,11 @@ public class QuizShowService {
             }
         }
 
-        return new QuizShowResponseDTO(quizShow);
+        return new QuizShowDTO(quizShow);
     }
 
     @Transactional
-    public QuizShowResponseDTO modify(Long id, QuizShowModifyRequestDTO quizShowMR_DTO) {
+    public QuizShowResponse modify(Long id, QuizShowModifyRequest quizShowMR_DTO) {
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
@@ -126,13 +133,13 @@ public class QuizShowService {
                 .totalScore(quizShowMR_DTO.getTotalScore())
                 .build();
 
-        return new QuizShowResponseDTO(quizShowRepository.save(updatedQuizShow));
+        return new QuizShowResponse(quizShowRepository.save(updatedQuizShow));
     }
 
     @Transactional
-    public QuizShowResponseDTO delete(QuizShow quizShow) {
-        QuizShowResponseDTO quizShowResponseDTO = new QuizShowResponseDTO(quizShow);
+    public QuizShowResponse delete(QuizShow quizShow) {
+        QuizShowResponse quizShowResponse = new QuizShowResponse(quizShow);
         this.quizShowRepository.delete(quizShow);
-        return quizShowResponseDTO;
+        return quizShowResponse;
     }
 }
