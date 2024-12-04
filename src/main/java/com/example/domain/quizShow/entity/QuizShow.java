@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -44,4 +45,7 @@ public class QuizShow extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<SiteUser> votes;
+
+    @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
 }

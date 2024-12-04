@@ -1,13 +1,14 @@
 package com.example.domain.quizShow.service;
 
-import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
-import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowResponseDTO;
+import com.example.domain.quizShow.dto.QuizShowDTO;
+import com.example.domain.quizShow.entity.Quiz;
 import com.example.domain.quizShow.entity.QuizCategory;
+import com.example.domain.quizShow.entity.QuizChoice;
 import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
+import com.example.domain.quizShow.repository.QuizRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.response.QuizShowListResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +28,19 @@ import java.util.HashSet;
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
     private final QuizCategoryRepository quizCategoryRepository;
+    private final QuizRepository quizRepository;
 
-    public QuizShowListResponseDTO getList(Pageable pageable) {
+    public QuizShowListResponse getList(Pageable pageable) {
         Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
-        return new QuizShowListResponseDTO(quizShowPage);
+
+        List<QuizShowDTO> quizShows = quizShowPage.getContent().stream()
+                .map(QuizShowDTO::new)
+                .collect(Collectors.toList());
+
+        return new QuizShowListResponse(quizShows,
+                quizShowPage.getTotalElements(),
+                quizShowPage.getTotalPages(),
+                quizShowPage.getNumber());
     }
 
     public QuizShow write(String showName, String showDescription,
@@ -52,9 +65,11 @@ public class QuizShowService {
 
     @Transactional
     public QuizShowResponseDTO create(@Valid QuizShowCreateRequestDTO quizShowCR_DTO) {
+        // 퀴즈쇼 카테고리 조회
         QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCR_DTO.getQuizCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
+        // QuizShow 생성
         QuizShow quizShow = QuizShow.builder()
                 .showName(quizShowCR_DTO.getShowName())
                 .quizCategory(quizCategory)
@@ -65,7 +80,34 @@ public class QuizShowService {
                 .votes(new HashSet<>())
                 .build();
 
-        quizShowRepository.save(quizShow);
+        // Quiz 생성 및 저장
+        if (quizShowCR_DTO.getQuizzes() != null) {
+            for (QuizCreateDTO quizDTO : quizShowCR_DTO.getQuizzes()) {
+                QuizCategory quizQuizCategory = quizCategoryRepository.findById(quizDTO.getQuizCategoryId())
+                        .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
+
+                Quiz quiz = Quiz.builder()
+                        .quizShow(quizShow)
+                        .quizCategory(quizQuizCategory)
+                        .quizContent(quizDTO.getQuizContent())
+                        .quizScore(quizDTO.getQuizScore())
+                        .choices(new ArrayList<>())
+                        .build();
+
+                // 선택지 생성
+                if (quizDTO.getChoices() != null) {
+                    for (String choiceContent : quizDTO.getChoices()) {
+                        QuizChoice choice = QuizChoice.builder()
+                                .quiz(quiz)
+                                .choiceContent(choiceContent)
+                                .build();
+                        quiz.getChoices().add(choice);
+                    }
+                }
+
+                quizRepository.save(quiz);
+            }
+        }
 
         return new QuizShowResponseDTO(quizShow);
     }

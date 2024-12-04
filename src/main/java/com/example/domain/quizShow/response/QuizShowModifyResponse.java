@@ -1,6 +1,5 @@
 package com.example.domain.quizShow.response;
 
-import com.example.domain.quizShow.dto.QuizShowResponseDTO;
 import com.example.domain.quizShow.entity.QuizShow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

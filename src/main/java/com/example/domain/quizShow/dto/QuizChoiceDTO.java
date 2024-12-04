@@ -7,7 +7,5 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizTypeDTO {
-    private Long id;
-    private String typeName;
+public class QuizChoiceDTO {
 }
