@@ -1,10 +1,8 @@
 package com.example.domain.quizShow.controller;
 
 import com.example.domain.quizShow.dto.QuizShowDTO;
-import com.example.domain.quizShow.entity.QuizShow;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
-import com.example.domain.quizShow.response.QuizShowCreateResponse;
 import com.example.domain.quizShow.response.QuizShowListResponse;
 import com.example.domain.quizShow.response.QuizShowResponse;
 import com.example.domain.quizShow.service.QuizShowService;
@@ -44,32 +42,14 @@ public class ApiV1QuizShowController {
 
     @PatchMapping("/{id}")
     public RsData<QuizShowResponse> modify(@PathVariable("id") Long id,
-                                           @Valid @RequestBody QuizShowModifyRequest quizShowMR_DTO) {
-        QuizShowDTO quizShow = this.quizShowService.getQuizShow(id);
-
-        if (quizShow == null) return RsData.of(
-                "500",
-                "%d 번 게시물은 존재하지 않습니다.".formatted(id),
-                null
-        );
-
-        QuizShowResponse quizShowR_DTO = this.quizShowService.modify(id, quizShowMR_DTO);
-
-        return RsData.of("200", "게시글 수정 완료", quizShowR_DTO);
+                                           @Valid @RequestBody QuizShowModifyRequest quizShowMR) {
+        QuizShowDTO modifiedQuizShow = this.quizShowService.modify(id, quizShowMR);
+        return RsData.of("200", "게시글 수정 완료", new QuizShowResponse(modifiedQuizShow));
     }
 
     @DeleteMapping("{id}")
     public RsData<QuizShowResponse> delete(@PathVariable("id") Long id) {
-        QuizShowDTO quizShow = this.quizShowService.getQuizShow(id);
-
-        if (quizShow == null) return RsData.of(
-                "500",
-                "%d 번 게시물은 존재하지 않습니다.".formatted(id),
-                null
-        );
-
-        QuizShowResponse quizShowResponse = this.quizShowService.delete(quizShow);
-
-        return RsData.of("200", "게시글 삭제 완료", quizShowResponse);
+        QuizShowDTO deletedQuizShow = this.quizShowService.delete(id);
+        return RsData.of("200", "게시글 삭제 완료", new QuizShowResponse(deletedQuizShow));
     }
 }

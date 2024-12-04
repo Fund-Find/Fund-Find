@@ -20,5 +20,5 @@ public class QuizShowCreateRequest {
     @NotNull
     private Integer totalScore;
     @Valid  // 중첩된 객체의 검증을 위해 추가
-    private List<QuizCreateRequest> quizzes;
+    private List<QuizRequest> quizzes;
 }

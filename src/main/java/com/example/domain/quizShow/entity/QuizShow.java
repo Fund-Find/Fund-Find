@@ -23,7 +23,7 @@ public class QuizShow extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)  // QuizType도 엔티티이므로 관계 매핑 필요
     @JoinColumn(name = "quiz_category_id")
-    private QuizCategory quizCategory;
+    private QuizShowCategory quizShowCategory;
 
     private String showDescription;
 

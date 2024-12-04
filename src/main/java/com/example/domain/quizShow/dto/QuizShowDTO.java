@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class QuizShowDTO {
     private Long id;
     private String showName;
-    private QuizCategoryDTO quizCategory;
+    private QuizShowCategoryDTO quizCategory;
     private String showDescription;
     private Integer totalQuizCount;
     private Integer totalScore;
@@ -25,7 +25,7 @@ public class QuizShowDTO {
     public QuizShowDTO(QuizShow quizShow) {
         this.id = quizShow.getId();
         this.showName = quizShow.getShowName();
-        this.quizCategory = new QuizCategoryDTO(quizShow.getQuizCategory());
+        this.quizCategory = new QuizShowCategoryDTO(quizShow.getQuizShowCategory());
         this.showDescription = quizShow.getShowDescription();
         this.totalQuizCount = quizShow.getTotalQuizCount();
         this.totalScore = quizShow.getTotalScore();
