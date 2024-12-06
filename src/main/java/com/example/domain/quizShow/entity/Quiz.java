@@ -19,10 +19,6 @@ public class Quiz extends BaseEntity {
     @JoinColumn(name = "show_id", nullable = false)
     private QuizShow quizShow;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = false)
-    private QuizShowCategory quizShowCategory;
-
     @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
     private String quizContent;
 

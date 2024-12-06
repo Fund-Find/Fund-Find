@@ -1,10 +1,7 @@
 package com.example.domain.quizShow.service;
 
 import com.example.domain.quizShow.dto.QuizShowDTO;
-import com.example.domain.quizShow.entity.Quiz;
-import com.example.domain.quizShow.entity.QuizShowCategory;
-import com.example.domain.quizShow.entity.QuizChoice;
-import com.example.domain.quizShow.entity.QuizShow;
+import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import com.example.domain.quizShow.repository.QuizRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
@@ -12,6 +9,7 @@ import com.example.domain.quizShow.request.QuizRequest;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.validator.QuizValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +30,7 @@ public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
     private final QuizCategoryRepository quizCategoryRepository;
     private final QuizRepository quizRepository;
+    private final QuizValidator quizValidator;
 
     public QuizShow write(String showName, String showDescription,
                           Integer totalQuizCount, Integer totalScore,
@@ -70,13 +69,12 @@ public class QuizShowService {
     @Transactional
     public QuizShowDTO create(@Valid QuizShowCreateRequest quizShowCR) {
         // 퀴즈쇼 카테고리 조회
-        QuizShowCategory quizShowCategory = quizCategoryRepository.findById(quizShowCR.getQuizCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+        QuizShowCategoryEnum category = quizShowCR.getCategory();
 
         // QuizShow 생성
         QuizShow quizShow = QuizShow.builder()
                 .showName(quizShowCR.getShowName())
-                .quizShowCategory(quizShowCategory)
+                .category(quizShowCR.getCategory())
                 .showDescription(quizShowCR.getShowDescription())
                 .totalQuizCount(quizShowCR.getTotalQuizCount())
                 .totalScore(quizShowCR.getTotalScore())
@@ -94,7 +92,6 @@ public class QuizShowService {
 
                 Quiz quiz = Quiz.builder()
                         .quizShow(quizShow)
-                        .quizShowCategory(quizQuizShowCategory)
                         .quizContent(quizReq.getQuizContent())
                         .quizScore(quizReq.getQuizScore())
                         .choices(new ArrayList<>())
@@ -111,6 +108,7 @@ public class QuizShowService {
                     }
                 }
 
+                quizValidator.validateQuiz(quiz); // 유효성 검증
                 quizRepository.save(quiz);
             }
         }
@@ -125,13 +123,12 @@ public class QuizShowService {
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
         // 퀴즈쇼 카테고리 조회
-        QuizShowCategory quizShowCategory = quizCategoryRepository.findById(modifyRequest.getQuizCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다."));
+        QuizShowCategoryEnum category = modifyRequest.getCategory();
 
         // 퀴즈쇼 정보 수정
         QuizShow updatedQuizShow = quizShow.toBuilder()
                 .showName(modifyRequest.getShowName())
-                .quizShowCategory(quizShowCategory)
+                .category(modifyRequest.getCategory())
                 .showDescription(modifyRequest.getShowDescription())
                 .totalQuizCount(modifyRequest.getTotalQuizCount())
                 .totalScore(modifyRequest.getTotalScore())
@@ -169,7 +166,6 @@ public class QuizShowService {
 
         Quiz quiz = Quiz.builder()
                 .quizShow(quizShow)
-                .quizShowCategory(quizShowCategory)
                 .quizContent(request.getQuizContent())
                 .quizScore(request.getQuizScore())
                 .choices(new ArrayList<>())
@@ -186,6 +182,7 @@ public class QuizShowService {
             }
         }
 
+        quizValidator.validateQuiz(quiz); // 유효성 검증
         return quizRepository.save(quiz);
     }
 
@@ -194,7 +191,6 @@ public class QuizShowService {
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
 
         Quiz updatedQuiz = quiz.toBuilder()
-                .quizShowCategory(quizShowCategory)
                 .quizContent(request.getQuizContent())
                 .quizScore(request.getQuizScore())
                 .build();
@@ -211,6 +207,7 @@ public class QuizShowService {
             }
         }
 
+        quizValidator.validateQuiz(updatedQuiz); // 유효성 검증
         quizRepository.save(updatedQuiz);
     }
 

@@ -21,9 +21,9 @@ public class QuizShow extends BaseEntity {
     @Column(nullable = false)
     private String showName;
 
-    @ManyToOne(fetch = FetchType.LAZY)  // QuizType도 엔티티이므로 관계 매핑 필요
-    @JoinColumn(name = "quiz_category_id")
-    private QuizShowCategory quizShowCategory;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private QuizShowCategoryEnum category;
 
     private String showDescription;
 

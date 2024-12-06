@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.request;
 
+import com.example.domain.quizShow.entity.QuizShowCategoryEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ public class QuizShowCreateRequest {
     @NotBlank
     private String showName;
     @NotNull
-    private Long quizCategoryId;;
+    private QuizShowCategoryEnum category;
     @NotBlank
     private String showDescription;
     @NotNull
