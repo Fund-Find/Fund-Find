@@ -21,27 +21,24 @@ function Register() {
             alert('이용약관에 동의해주세요.')
             return
         }
-
+        // formData 객체 선언
         const formData = new FormData()
-        formData.append('username', username)
-        formData.append('nickname', nickname)
-        formData.append('password1', password1)
-        formData.append('password2', password2)
-        formData.append('intro', intro)
-        formData.append('email', email)
-        formData.append('thumbnailImg', thumbnailImg) // 파일 처리
 
-        // formData.append(
-        //     'userRequest',
-        //     JSON.stringify({
-        //         username,
-        //         nickname,
-        //         password1,
-        //         password2,
-        //         intro,
-        //         email,
-        //     }),
-        // )
+        const userRequest = {
+            username,
+            nickname,
+            password1,
+            password2,
+            intro,
+            email,
+            agreement,
+        }
+        formData.append('userRequest', new Blob([JSON.stringify(userRequest)], { type: 'application/json' }))
+
+        // 파일 추가
+        if (thumbnailImg) {
+            formData.append('thumbnailImg', thumbnailImg)
+        }
 
         setLoading(true) // 로딩 시작
 
@@ -60,7 +57,7 @@ function Register() {
 
             if (response.ok) {
                 alert(data.msg) // 서버에서 반환한 메시지 출력
-                window.location.href = '/login' // 예시: 로그인 페이지로 이동
+                window.location.href = '/auth/login' // 예시: 로그인 페이지로 이동
             } else {
                 setErrorMessage(data.msg || '회원가입에 실패했습니다.')
             }

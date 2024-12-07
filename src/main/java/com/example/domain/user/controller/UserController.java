@@ -1,5 +1,6 @@
 package com.example.domain.user.controller;
 
+import com.example.domain.user.dto.request.UserLoginRequest;
 import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
@@ -28,7 +29,7 @@ public class UserController {
     @PostMapping("/register")
     public RsData<UserResponse> registerUser(
             @RequestPart("userRequest") @Valid UserRequest userRequest,  // JSON 데이터를 받는 부분
-            @RequestPart("thumbnailImg") MultipartFile thumbnailImg) {  // 파일 업로드 처리
+            @RequestPart(value = "thumbnailImg", required = false) MultipartFile thumbnailImg) {  // 파일 업로드 처리
         userRequest.setThumbnailImg(thumbnailImg);  // 파일을 UserRequest에 설정
         System.out.println("test");
 
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public RsData<UserResponse> login (@Valid @RequestBody UserRequest Request, HttpServletResponse res) {
+    public RsData<UserResponse> login (@Valid @RequestBody UserLoginRequest Request, HttpServletResponse res) {
 
         SiteUser user = this.userService.getUser(Request.getUsername());
 
@@ -57,8 +58,6 @@ public class UserController {
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(60 * 60);
         res.addCookie(refreshTokenCookie);
-
-
 
         return RsData.of("200", "토큰 발급 성공: " + accessToken , new UserResponse(user));
     }
