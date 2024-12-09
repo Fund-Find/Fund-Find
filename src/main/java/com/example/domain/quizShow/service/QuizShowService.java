@@ -1,13 +1,15 @@
 package com.example.domain.quizShow.service;
 
-import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
-import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowResponseDTO;
-import com.example.domain.quizShow.entity.QuizCategory;
-import com.example.domain.quizShow.entity.QuizShow;
+import com.example.domain.quizShow.dto.QuizShowDTO;
+import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
+import com.example.domain.quizShow.repository.QuizRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.request.QuizRequest;
+import com.example.domain.quizShow.request.QuizShowCreateRequest;
+import com.example.domain.quizShow.request.QuizShowModifyRequest;
+import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.validator.QuizValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +29,8 @@ import java.util.HashSet;
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
     private final QuizCategoryRepository quizCategoryRepository;
-
-    public QuizShowListResponseDTO getList(Pageable pageable) {
-        Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
-        return new QuizShowListResponseDTO(quizShowPage);
-    }
+    private final QuizRepository quizRepository;
+    private final QuizValidator quizValidator;
 
     public QuizShow write(String showName, String showDescription,
                           Integer totalQuizCount, Integer totalScore,
@@ -45,52 +47,181 @@ public class QuizShowService {
         return quizShow;
     }
 
-    public QuizShow getQuizShow(Long id) {
-        return quizShowRepository.findById(id)
+    public QuizShowListResponse getList(Pageable pageable) {
+        Page<QuizShow> quizShowPage = this.quizShowRepository.findAll(pageable);
+
+        List<QuizShowDTO> quizShows = quizShowPage.getContent().stream()
+                .map(QuizShowDTO::new)
+                .collect(Collectors.toList());
+
+        return new QuizShowListResponse(quizShows,
+                quizShowPage.getTotalElements(),
+                quizShowPage.getTotalPages(),
+                quizShowPage.getNumber());
+    }
+
+    public QuizShowDTO getQuizShow(Long id) {
+        QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
+        return new QuizShowDTO(quizShow);
     }
 
     @Transactional
-    public QuizShowResponseDTO create(@Valid QuizShowCreateRequestDTO quizShowCR_DTO) {
-        QuizCategory quizCategory = quizCategoryRepository.findById(quizShowCR_DTO.getQuizCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+    public QuizShowDTO create(@Valid QuizShowCreateRequest quizShowCR) {
+        // 퀴즈쇼 카테고리 조회
+        QuizShowCategoryEnum category = quizShowCR.getCategory();
 
+        // QuizShow 생성
         QuizShow quizShow = QuizShow.builder()
-                .showName(quizShowCR_DTO.getShowName())
-                .quizCategory(quizCategory)
-                .showDescription(quizShowCR_DTO.getShowDescription())
-                .totalQuizCount(quizShowCR_DTO.getTotalQuizCount())
-                .totalScore(quizShowCR_DTO.getTotalScore())
+                .showName(quizShowCR.getShowName())
+                .category(quizShowCR.getCategory())
+                .showDescription(quizShowCR.getShowDescription())
+                .totalQuizCount(quizShowCR.getTotalQuizCount())
+                .totalScore(quizShowCR.getTotalScore())
                 .view(0)
                 .votes(new HashSet<>())
                 .build();
 
         quizShowRepository.save(quizShow);
 
-        return new QuizShowResponseDTO(quizShow);
+        // Quiz 생성 및 저장
+        if (quizShowCR.getQuizzes() != null) {
+            for (QuizRequest quizReq : quizShowCR.getQuizzes()) {
+                QuizShowCategory quizQuizShowCategory = quizCategoryRepository.findById(quizReq.getQuizCategoryId())
+                        .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
+
+                Quiz quiz = Quiz.builder()
+                        .quizShow(quizShow)
+                        .quizContent(quizReq.getQuizContent())
+                        .quizScore(quizReq.getQuizScore())
+                        .choices(new ArrayList<>())
+                        .build();
+
+                // 선택지 생성
+                if (quizReq.getChoices() != null) {
+                    for (String choiceContent : quizReq.getChoices()) {
+                        QuizChoice choice = QuizChoice.builder()
+                                .quiz(quiz)
+                                .choiceContent(choiceContent)
+                                .build();
+                        quiz.getChoices().add(choice);
+                    }
+                }
+
+                quizValidator.validateQuiz(quiz); // 유효성 검증
+                quizRepository.save(quiz);
+            }
+        }
+
+        return new QuizShowDTO(quizShow);
     }
 
     @Transactional
-    public QuizShowResponseDTO modify(Long id, QuizShowModifyRequestDTO quizShowMR_DTO) {
+    public QuizShowDTO modify(Long id, QuizShowModifyRequest modifyRequest) {
+        // 퀴즈쇼 조회
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
+        // 퀴즈쇼 카테고리 조회
+        QuizShowCategoryEnum category = modifyRequest.getCategory();
+
+        // 퀴즈쇼 정보 수정
         QuizShow updatedQuizShow = quizShow.toBuilder()
-                .showName(quizShowMR_DTO.getShowName())
-                .quizCategory(quizCategoryRepository.findById(quizShowMR_DTO.getQuizCategoryId())
-                        .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다.")))
-                .showDescription(quizShowMR_DTO.getShowDescription())
-                .totalQuizCount(quizShowMR_DTO.getTotalQuizCount())
-                .totalScore(quizShowMR_DTO.getTotalScore())
+                .showName(modifyRequest.getShowName())
+                .category(modifyRequest.getCategory())
+                .showDescription(modifyRequest.getShowDescription())
+                .totalQuizCount(modifyRequest.getTotalQuizCount())
+                .totalScore(modifyRequest.getTotalScore())
                 .build();
 
-        return new QuizShowResponseDTO(quizShowRepository.save(updatedQuizShow));
+        quizShowRepository.save(updatedQuizShow);
+
+        // 퀴즈 수정/추가/삭제 처리
+        if (modifyRequest.getQuizzes() != null) {
+            for (QuizRequest quizRequest : modifyRequest.getQuizzes()) {
+                if (quizRequest.getId() == null) {
+                    // 새로운 퀴즈 추가
+                    createNewQuiz(updatedQuizShow, quizRequest);
+                } else {
+                    Quiz existingQuiz = quizRepository.findById(quizRequest.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("퀴즈를 찾을 수 없습니다."));
+
+                    if (Boolean.TRUE.equals(quizRequest.getIsDeleted())) {
+                        // 퀴즈 삭제
+                        quizRepository.delete(existingQuiz);
+                    } else {
+                        // 퀴즈 수정
+                        updateExistingQuiz(existingQuiz, quizRequest);
+                    }
+                }
+            }
+        }
+
+        return new QuizShowDTO(updatedQuizShow);
+    }
+
+    private Quiz createNewQuiz(QuizShow quizShow, QuizRequest request) {
+        QuizShowCategory quizShowCategory = quizCategoryRepository.findById(request.getQuizCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
+
+        Quiz quiz = Quiz.builder()
+                .quizShow(quizShow)
+                .quizContent(request.getQuizContent())
+                .quizScore(request.getQuizScore())
+                .choices(new ArrayList<>())
+                .build();
+
+        // 선택지 생성
+        if (request.getChoices() != null) {
+            for (String choiceContent : request.getChoices()) {
+                QuizChoice choice = QuizChoice.builder()
+                        .quiz(quiz)
+                        .choiceContent(choiceContent)
+                        .build();
+                quiz.getChoices().add(choice);
+            }
+        }
+
+        quizValidator.validateQuiz(quiz); // 유효성 검증
+        return quizRepository.save(quiz);
+    }
+
+    private void updateExistingQuiz(Quiz quiz, QuizRequest request) {
+        QuizShowCategory quizShowCategory = quizCategoryRepository.findById(request.getQuizCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
+
+        Quiz updatedQuiz = quiz.toBuilder()
+                .quizContent(request.getQuizContent())
+                .quizScore(request.getQuizScore())
+                .build();
+
+        // 기존 선택지 삭제 후 새로운 선택지 추가
+        quiz.getChoices().clear();
+        if (request.getChoices() != null) {
+            for (String choiceContent : request.getChoices()) {
+                QuizChoice choice = QuizChoice.builder()
+                        .quiz(updatedQuiz)
+                        .choiceContent(choiceContent)
+                        .build();
+                updatedQuiz.getChoices().add(choice);
+            }
+        }
+
+        quizValidator.validateQuiz(updatedQuiz); // 유효성 검증
+        quizRepository.save(updatedQuiz);
     }
 
     @Transactional
-    public QuizShowResponseDTO delete(QuizShow quizShow) {
-        QuizShowResponseDTO quizShowResponseDTO = new QuizShowResponseDTO(quizShow);
+    public QuizShowDTO delete(Long id) {
+        QuizShow quizShow = quizShowRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
+
+        // 삭제 전에 DTO 생성
+        QuizShowDTO quizShowDTO = new QuizShowDTO(quizShow);
+
+        // 퀴즈쇼 삭제 (연관된 퀴즈들도 cascade로 함께 삭제됨)
         this.quizShowRepository.delete(quizShow);
-        return quizShowResponseDTO;
+
+        return quizShowDTO;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class QuizDTO {
     private Long quizShowId;
-    private Long quizTypeId;
+    private QuizTypeDTO quizType;
     private String quizContent;
     private Integer quizScore;
     private List<QuizChoice> choices;

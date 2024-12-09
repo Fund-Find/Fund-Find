@@ -1,6 +1,6 @@
 package com.example.domain.quizShow.service;
 
-import com.example.domain.quizShow.entity.QuizCategory;
+import com.example.domain.quizShow.entity.QuizShowCategory;
 import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 public class QuizCategoryService {
     private final QuizCategoryRepository quizCategoryRepository;
 
-    public QuizCategory write(String categoryName) {
-        QuizCategory quizCategory = QuizCategory.builder()
+    public QuizShowCategory write(String categoryName) {
+        QuizShowCategory quizShowCategory = QuizShowCategory.builder()
                 .categoryName(categoryName)
                 .build();
-        this.quizCategoryRepository.save(quizCategory);
+        this.quizCategoryRepository.save(quizShowCategory);
 
-        return quizCategory;
+        return quizShowCategory;
     }
 }

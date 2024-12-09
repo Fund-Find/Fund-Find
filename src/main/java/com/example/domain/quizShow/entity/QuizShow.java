@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -20,9 +21,9 @@ public class QuizShow extends BaseEntity {
     @Column(nullable = false)
     private String showName;
 
-    @ManyToOne(fetch = FetchType.LAZY)  // QuizType도 엔티티이므로 관계 매핑 필요
-    @JoinColumn(name = "quiz_category_id")
-    private QuizCategory quizCategory;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private QuizShowCategoryEnum category;
 
     private String showDescription;
 
@@ -33,7 +34,6 @@ public class QuizShow extends BaseEntity {
     private Integer totalScore;
 
     @Column(nullable = false, columnDefinition = "integer default 0")
-    @ColumnDefault("0")
     private Integer view;
 
     @ManyToMany
@@ -44,4 +44,7 @@ public class QuizShow extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<SiteUser> votes;
+
+    @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
 }

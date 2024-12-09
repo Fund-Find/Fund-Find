@@ -2,12 +2,12 @@ package com.example.domain.quizShow.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
+//문제 출제용
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class QuizTypeDTO {
+public class QuizChoiceResponseDTO {
     private Long id;
-    private String typeName;
+    private Long quizId;
+    private String choiceContent;
 }

@@ -19,10 +19,6 @@ public class Quiz extends BaseEntity {
     @JoinColumn(name = "show_id", nullable = false)
     private QuizShow quizShow;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = false)
-    private QuizCategory quizCategory;
-
     @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
     private String quizContent;
 
@@ -31,4 +27,8 @@ public class Quiz extends BaseEntity {
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<QuizChoice> choices;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_id", nullable = false)
+    private QuizType quizType;
 }
