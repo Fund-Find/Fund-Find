@@ -3,6 +3,7 @@ package com.example.domain.fund.accessToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,9 +17,15 @@ import java.util.Map;
 @Service
 @Slf4j
 public class AccessTokenManager {
-    private final String TOKEN_URL = "https://openapi.koreainvestment.com:9443/oauth2/tokenP";
-    private final String APP_KEY = "PSlBkPCX0esNWc5Tv1vDYh37FZnf6BPlEACX";
-    private final String APP_SECRET = "ucJXLQefoLvC3ObryidOsMBx/DF50MpaKYArOCcyfGStu0og5psl4oR60B2sI55RM9slwmPN/tDvKGS0k+R+1eGR4N4lWltyMtG9DnV1/GLB8h69vcMpm3uHd8EoY5wHGMidM11wblylmKAv3hc+jcyHFe+yyF4BBAhqxwHMaxNoNLpFEd0=";
+
+    @Value("${korea-investment.token-url}")
+    private String TOKEN_URL;
+
+    @Value("${korea-investment.api-key}")
+    private String APP_KEY;
+
+    @Value("${korea-investment.secret-key}")
+    private String APP_SECRET;
 
     private String accessToken;
     private long expiryTime;
@@ -41,7 +48,7 @@ public class AccessTokenManager {
         if (accessToken == null || currentTime >= expiryTime) {
             try {
                 // 마지막 갱신으로부터 1일이 지났는지 확인
-                if (lastTokenRefreshTime > 0 && (currentTime - lastTokenRefreshTime) < 86400000) { // -> 60000에서 1일로 변경
+                if (lastTokenRefreshTime > 0 && (currentTime - lastTokenRefreshTime) < 86400000) { // 1일로 변경
                     log.debug("Waiting for token refresh cooldown...");
                     return;
                 }
