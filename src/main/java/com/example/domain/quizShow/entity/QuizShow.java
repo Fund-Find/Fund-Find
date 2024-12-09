@@ -34,7 +34,6 @@ public class QuizShow extends BaseEntity {
     private Integer totalScore;
 
     @Column(nullable = false, columnDefinition = "integer default 0")
-    @ColumnDefault("0")
     private Integer view;
 
     @ManyToMany

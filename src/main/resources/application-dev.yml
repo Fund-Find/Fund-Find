@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
 spring:
   thymeleaf:
     cache: false
@@ -10,10 +10,15 @@ spring:
     restart:
       enabled: true
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://127.0.0.1:3306/ff_dev
-    username: root
-    password:
+    url: jdbc:postgresql://localhost:5433/ff_dev
+    username: ff_dev
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: jdbc:mariadb://127.0.0.1:3306/ff_dev
+#    username: root
+#    password:
   jpa:
     hibernate:
       ddl-auto: update # DB 스키마 자동생성, 앱이 재실행되어도 데이터는 유지된다.

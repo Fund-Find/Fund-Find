@@ -57,6 +57,3 @@ default:
 logging:
   level:
     com.example.domain.fund: DEBUG  # 로깅 레벨 설정
-
-server:
-  port: 8080

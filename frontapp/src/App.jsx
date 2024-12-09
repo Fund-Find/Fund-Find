@@ -17,7 +17,8 @@ function App() {
                 <Route path="/article/lsit" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
                 <Route path="/survey" element={<Survey />} /> {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
-                                <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
+                <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
+                <Route path="/quizshow/list" element={<QuizShowList />}></Route>
             </Routes>
         </BrowserRouter>
     )
