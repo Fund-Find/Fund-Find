@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class UserResponse {
-    private Long id;                // 사용자 ID
-    private String username;        // 사용자 이름
-    private String email;           // 이메일
-    private String nickname;        // 닉네임
-    private String intro;           // 자기소개
-    private String thumbnailImg;    // 프로필 이미지
-    private LocalDateTime createdDate;  // 생성일
-    private LocalDateTime modifiedDate; // 수정일
+    private final Long id;                // 사용자 ID
+    private final String username;        // 사용자 이름
+    private final String email;           // 이메일
+    private final String nickname;        // 닉네임
+    private final String intro;           // 자기소개
+    private final String thumbnailImg;    // 프로필 이미지
+    private final LocalDateTime createdDate;  // 생성일
+    private final LocalDateTime modifiedDate; // 수정일
 
 
     // User 엔티티 기반 생성자
