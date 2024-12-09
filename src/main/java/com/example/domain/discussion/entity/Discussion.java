@@ -1,6 +1,6 @@
 package com.example.domain.discussion.entity;
 
-import com.example.domain.global.jpa.BaseEntity;
+import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;

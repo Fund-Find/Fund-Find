@@ -2,7 +2,7 @@ package com.example.global.security;
 
 
 import com.example.domain.user.service.UserService;
-import com.example.global.RsData.RsData;
+import com.example.global.rsData.RsData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

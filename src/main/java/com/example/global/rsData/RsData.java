@@ -1,4 +1,4 @@
-package com.example.global.RsData;
+package com.example.global.rsData;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

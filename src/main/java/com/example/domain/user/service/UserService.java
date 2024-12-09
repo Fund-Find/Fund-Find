@@ -5,20 +5,18 @@
     import com.example.domain.user.entity.SiteUser;
     import com.example.domain.user.repository.UserRepository;
     import com.example.global.Jwt.JwtProvider;
-    import com.example.global.RsData.RsData;
+    import com.example.global.rsData.RsData;
     import com.example.global.security.SecurityUser;
     import jakarta.transaction.Transactional;
     import lombok.RequiredArgsConstructor;
     import org.springframework.security.core.GrantedAuthority;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
-    import org.springframework.web.multipart.MultipartFile;
 
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Map;
     import java.util.Optional;
-    import java.util.UUID;
 
     @Service
     @RequiredArgsConstructor
@@ -133,6 +131,23 @@
             List<GrantedAuthority> authorities = new ArrayList<>();
 
             return new SecurityUser(id, username, "", authorities);
+        }
+        public SiteUser getSiteUserFromAccessToken(String accessToken) {
+            // JWT 토큰에서 클레임 추출
+            Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
+
+            // SiteUser 객체 생성
+            SiteUser user = new SiteUser();
+
+            // 클레임에서 프로필 정보 추출하여 setter로 값 설정
+            user.setUsername((String) payloadBody.get("username"));
+            user.setNickname((String) payloadBody.get("nickname"));
+            user.setThumbnailImg((String) payloadBody.get("ThumbnailImg"));
+            user.setEmail((String) payloadBody.get("email"));
+            user.setIntro((String) payloadBody.get("intro"));
+
+            // 필요한 정보를 설정한 SiteUser 객체 반환
+            return user;
         }
     }
 

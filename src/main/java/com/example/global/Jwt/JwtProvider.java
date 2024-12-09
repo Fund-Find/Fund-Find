@@ -78,14 +78,18 @@ public class JwtProvider {
 
     // 클레임 정보 받아오기
     public Map<String, Object> getClaims(String token) {
-        String body = Jwts.parserBuilder()
-                .setSigningKey(getSecretKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("body", String.class);
+        try {
+            String body = Jwts.parserBuilder()
+                    .setSigningKey(getSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("body", String.class);
 
-        return Util.toMap(body);
+            return Util.toMap(body);
+        } catch (Exception e) {
+            return null; // 예외 발생 시 null 반환 (유효하지 않은 토큰)
+        }
     }
 
 }

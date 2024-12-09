@@ -6,14 +6,12 @@ import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.service.UserService;
 import com.example.global.Jwt.JwtProvider;
-import com.example.global.RsData.RsData;
+import com.example.global.rsData.RsData;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,23 +60,18 @@ public class UserController {
         return RsData.of("200", "토큰 발급 성공: " + accessToken , new UserResponse(user));
     }
 
- 
-//        // accessToken 발급
-//        String accessToken = jwtProvider.genAccessToken(user);
-//        Cookie cookie = new Cookie("accessToken", accessToken);
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
+    @GetMapping("/profile")
+    public RsData<UserResponse> getProfile(@RequestHeader("Authorization") String authorizationHeader) {
+        // JWT 토큰에서 "Bearer " 부분을 제거하고 토큰만 추출
+        String token = authorizationHeader.replace("Bearer ", "");
 
-//
-//        response.addCookie(cookie);
-//        return RsData.of("200", "토큰 발급 성공" + accessToken, new MemberResponse(member));
+        // UserService에서 엑세스 토큰을 사용해 사용자 정보 가져오기
+        SiteUser user = userService.getSiteUserFromAccessToken(token);
 
-//    @GetMapping("/me")
-//    public ResponseEntity<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
-//        String token = authorizationHeader.replace("Bearer ", "");
-//        UserResponse user = userService.getUserFromToken(token);
-//        return ResponseEntity.ok(user);
-//    }
+        // SecurityUser로부터 UserResponse 반환 (필요한 정보만 포함)
+        return RsData.of("200", "회원프로필 접근 완료", new UserResponse(user));
+    }
+
 
 
     // 사용자 정보 조회
