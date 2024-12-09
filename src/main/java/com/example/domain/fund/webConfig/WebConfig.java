@@ -1,10 +1,7 @@
 package com.example.domain.fund.webConfig;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -33,4 +30,15 @@ public class WebConfig implements WebMvcConfigurer {
         // -> /templates/ 디렉토리 아래에서 JSP 파일을 찾고, 파일 확장자는 .html로 지정함
         registry.jsp("/templates/", ".html");
     }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5173")  // 프론트엔드 서버 주소
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 }
+
+

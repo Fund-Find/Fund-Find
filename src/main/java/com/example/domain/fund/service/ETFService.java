@@ -5,6 +5,7 @@ import com.example.domain.fund.config.OpenApiConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -16,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @Slf4j
 public class ETFService {
+
     private final OpenApiConfig openApiConfig;
     private final RestTemplate restTemplate;
     private final AccessTokenManager accessTokenManager;
@@ -24,7 +26,7 @@ public class ETFService {
     public String getETFInfo(String stockCode) {
         StringBuilder result = new StringBuilder(); // 결과 데이터를 누적하여 저장하기 위한 StringBuilder 객체 생성
         try {
-            String token = accessTokenManager.getAccessToken(); // 인증 토큰 가져옴
+            String token = accessTokenManager.getAccessToken(); // 인증 토큰 가져옴 Bearer 토큰
 
             if (token == null || token.isEmpty()) {
                 log.error("액세스 토큰이 비어있습니다."); // 토큰이 없는 경우 에러 기록
@@ -51,26 +53,53 @@ public class ETFService {
     private String getBasicInfo(String stockCode, String token) {
         try {
             log.info("========== 기본 정보 조회 시작 ==========");
-            String url = openApiConfig.getBaseUrl() + "/uapi/domestic-stock/v1/quotations/inquire-price";
+            String url = openApiConfig.getBaseUrl() + "/uapi/etfetn/v1/quotations/inquire-price";
 
             // makeApiCall을 호출하여 API 요청을 보냄(API 응답을 JSON 객체(JsonNode)로 반환)
-            JsonNode response = makeApiCall(url, stockCode, "FHKST01010100", token);
+            JsonNode response = makeApiCall(url, stockCode, "FHPST02400000", token);
 
-            // 응답이 null이 아니거나 output 필드가 있는 경우
+            // 응답이 null이 아니고, output 필드가 있는 경우
             if (response != null && response.has("output")) {
                 JsonNode output = response.get("output");
+                log.info("전체 응답: {}", output.toPrettyString());
+
+                // 구성종목 수를 안전하게 가져온 후 100 이상이면 100으로 제한
+                String etfCountRaw = getNodeTextSafely(output, "etf_cnfg_issu_cnt", "N/A");
+                String etfCount = "N/A"; // 기본값 설정
+                try {
+                    int count = Integer.parseInt(etfCountRaw);
+                    etfCount = count > 100 ? "100" : String.valueOf(count);
+                } catch (NumberFormatException e) {
+                    log.warn("ETF 구성종목 수 변환 중 오류 발생: {}", e.getMessage());
+                }
+
                 // output: JSON에서 필요한 데이터를 추출해 가독성 좋은 문자열로 포맷
                 return String.format("""
                     ETF 기본 정보:
                     종목명: %s
+                    회원사명: %s
+                    ETF 구성종목 수(최대 100개): %s개
+                    ETF 순자산 총액: %s억 원
+                    NAV: %s원
+                    전일 최종 NAV: %s원
+                    전일 대비 NAV 변동액: %s원
+                    ETF 배당주기: %s개월
                     현재가: %s원
                     전일대비: %s원
                     등락률: %s%%""",
-                        getNodeTextSafely(output, "hts_kor_isnm", "N/A"), // hts_kor_isnm : ETF의 한글 종목명
+                        getNodeTextSafely(output, "etf_rprs_bstp_kor_isnm", "N/A"), // hts_kor_isnm : ETF 이름
+                        getNodeTextSafely(output, "mbcr_name", "N/A"), // mbcr_name : 회원사 명
+                        etfCount, // 구성종목 수 (100 이상이면 100으로 제한)
+                        getNodeTextSafely(output, "etf_ntas_ttam", "N/A"), // etf_ntas_ttam : ETF 순자산총액
+                        getNodeTextSafely(output, "nav", "N/A"), // nav : ETF nav
+                        getNodeTextSafely(output, "prdy_last_nav", "N/A"), // prdy_last_nav : 전일 최종 nav
+                        getNodeTextSafely(output, "nav_prdy_vrss", "N/A"), // nav_prdy_vrss : 전일 대비 nav 변동액
+                        getNodeTextSafely(output, "etf_dvdn_cycl", "N/A"), // etf_dvdn_cycl : ETF 배당주기
                         getNodeTextSafely(output, "stck_prpr", "0"), // stck_prpr : 현재가
                         getNodeTextSafely(output, "prdy_vrss", "0"), // prdy_vrss : 전일대비 가격 변화(원)
                         getNodeTextSafely(output, "prdy_ctrt", "0")); // prdy_ctrt : 전일대비 등락률(%)
             }
+
             // 응답이 null이거나 output 필드가 없는 경우 메시지 반환
             return "기본 정보를 불러올 수 없습니다.";
         } catch (Exception e) {
@@ -143,7 +172,7 @@ public class ETFService {
                 if (jsonResponse.has("output2") && jsonResponse.get("output2").isArray()) {
                     JsonNode output2 = jsonResponse.get("output2");
                     if (output2.size() > 0) {
-                        result.append(String.format("%-20s %-20s %-20s %-20s %-20s\n", "종목명", "종목코드", "구성종목 시가총액", "비중에 따른 시가총액", "비중(%)"));
+                        result.append(String.format("%-20s %-10s %-15s %-20s %-20s\n", "종목명", "종목코드", "구성종목 시가총액(억 원)", "비중에 따른 시가총액(억 원)", "비중(%)"));
 
                         // "=" 이걸 120번 반복 출력
                         // 결과 : "============================================================"
@@ -152,14 +181,14 @@ public class ETFService {
                         for (JsonNode item : output2) {
                             String stockName = item.path("hts_kor_isnm").asText("N/A"); // 종목명
                             String stockCodeFromETF = item.path("stck_shrn_iscd").asText("N/A"); // 종목코드
-                            String marketCapHts = item.path("hts_avls").asText("N/A"); // hts 시가총액
+                            String marketCapHts = item.path("hts_avls").asText("N/A"); // 해당종목 시가총액
                             String marketCap = item.path("etf_cnfg_issu_avls").asText("0"); // 비중 시가총액
                             String weight = item.path("etf_cnfg_issu_rlim").asText("0"); // 비중
                             // - : 왼쪽정렬,
                             // 20 : 출력할 문자열 최소 폭 지정
                             // 20보다 짧으면 나머지는 공백으로 채워짐
                             // 20보다 길면 잘리지 않고 그대로 출력
-                            result.append(String.format("%-20s %-20s %20s %20s %20s%%\n",
+                            result.append(String.format("%-20s %-20s %-20s %-20s %20s%%\n",
                                     stockName, stockCodeFromETF, formatNumber(marketCapHts), formatNumber(marketCap), formatWeight(weight)));
                         }
                     } else {
@@ -194,8 +223,8 @@ public class ETFService {
             headers.setContentType(MediaType.APPLICATION_JSON); // Content-Type : 요청 본문의 데이터 형식(여기서는 JSON)
 
             StringBuilder queryString = new StringBuilder();
-            queryString.append("?FID_COND_MRKT_DIV_CODE=J");
-            queryString.append("&FID_INPUT_ISCD=").append(stockCode);
+            queryString.append("?FID_COND_MRKT_DIV_CODE=J"); // J: 국내 장
+            queryString.append("&FID_INPUT_ISCD=").append(stockCode); // 종목코드
             String requestUrl = url + queryString.toString();
 
             log.info("========== API 요청 정보 ==========");
