@@ -1,0 +1,102 @@
+.profile-container {
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.profile-info div {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column; /* 수직 정렬로 변경 */
+    align-items: flex-start; /* 좌측 정렬 */
+}
+
+.profile-info strong {
+    margin-bottom: 5px; /* 제목과 입력 필드 간격 조정 */
+    font-weight: bold;
+    color: #555;
+}
+
+.profile-info input {
+    border: 1px solid #0056b3;
+    width: 100%; /* 입력 필드나 텍스트를 컨테이너의 전체 너비로 확장 */
+    padding: 8px;
+    font-size: 14px;
+}
+.profile-info textarea,
+.profile-info span {
+    width: 100%; /* 입력 필드나 텍스트를 컨테이너의 전체 너비로 확장 */
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.profile-info input:focus,
+.profile-info textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.profile-info img {
+    align-self: center; /* 프로필 이미지는 중앙 정렬 */
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.profile-info button {
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-info button:hover {
+    background-color: #0056b3;
+}
+
+.profile-info img {
+    border-radius: 5px;
+    width: 400px;
+    border: 1px solid #ddd;
+}
+
+button {
+    margin: 10px 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+button + button {
+    background-color: #dc3545;
+}
+
+button + button:hover {
+    background-color: #c82333;
+}

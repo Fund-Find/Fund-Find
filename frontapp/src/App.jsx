@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Article from './pages/Article'
 import Nav from './components/Nav'
 import Register from './pages/Register'
+import Profile from './pages/profile'
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                 <Route path="/auth/login" element={<Login />}></Route>
                 <Route path="/article/lsit" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
+                <Route path="/user/profile" element={<Profile />}></Route>
             </Routes>
         </BrowserRouter>
     )

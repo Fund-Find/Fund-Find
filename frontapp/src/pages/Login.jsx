@@ -13,26 +13,43 @@ function Login() {
             password,
         }
 
+        // _xsrf 쿠키에서 CSRF 토큰을 가져오기
+        const xsrfToken = getCookie('_xsrf')
+
         try {
             const response = await fetch('http://localhost:8080/api/v1/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': xsrfToken, // CSRF 토큰을 헤더에 포함
                 },
                 body: JSON.stringify(requestData),
+                credentials: 'include', // 쿠키를 포함하여 요청
             })
 
             const data = await response.json()
             if (response.ok) {
+                localStorage.setItem('accessToken', data.accessToken) // 로그인 후 엑세스 토큰을 localStorage에 저장
+                console.log(document.cookie) // 쿠키 값 출력
                 alert('로그인 성공')
-                // 로그인 성공 후 리다이렉트 또는 토큰 저장 로직 추가
-                window.location.href = '/home' // 예시: 홈 페이지로 리다이렉트
+                window.location.href = '/user/profile'
             } else {
                 setErrorMessage(data.message || '로그인에 실패했습니다.')
             }
         } catch (error) {
             setErrorMessage('서버와 연결할 수 없습니다.')
         }
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) {
+            const cookieValue = parts.pop().split(';').shift()
+            console.log(`${name} Cookie Value: `, cookieValue) // 쿠키 값 확인
+            return cookieValue
+        }
+        return null
     }
 
     return (

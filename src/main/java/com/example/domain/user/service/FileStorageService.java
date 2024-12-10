@@ -50,7 +50,17 @@ public class FileStorageService {
 
     public void deleteFile(String filePath) {
         try {
-            Path path = Paths.get(filePath).toAbsolutePath();
+            // 파일 경로가 URL 형식인지 확인
+            if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                // URL에서 실제 파일 이름 추출
+                String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+
+                // 업로드 디렉토리 내 파일 경로 재구성
+                filePath = Paths.get(uploadDir).resolve(fileName).toAbsolutePath().toString();
+            }
+
+            // 파일 삭제 로직
+            Path path = Paths.get(filePath);
             if (Files.exists(path)) {
                 Files.delete(path);
             }
@@ -58,4 +68,5 @@ public class FileStorageService {
             throw new RuntimeException("파일 삭제 실패: " + e.getMessage(), e);
         }
     }
+
 }
