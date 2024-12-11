@@ -1,13 +1,15 @@
 package com.example.domain.quizShow.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.example.domain.user.entity.SiteUser;
+import com.example.global.jpa.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.userdetails.User;
+import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,14 +17,34 @@ import java.util.Set;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizShow {
+public class QuizShow extends BaseEntity {
+    @Column(nullable = false)
+    private String showName;
 
-    @Column
-    private String title;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private QuizShowCategoryEnum category;
 
-    @Column(columnDefinition = "text")
-    private String content;
+    private String showDescription;
 
-    private Set<User> votes;
+    @Column(nullable = false)
+    private Integer totalQuizCount;
 
+    @Column(nullable = false)
+    private Integer totalScore;
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer view;
+
+    @ManyToMany
+    @ColumnDefault("0")
+    @JoinTable(
+            name = "quiz_show_votes",
+            joinColumns = @JoinColumn(name = "quiz_show_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<SiteUser> votes;
+
+    @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
 }
