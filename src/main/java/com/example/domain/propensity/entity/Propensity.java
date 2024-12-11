@@ -1,4 +1,4 @@
-package com.example.domain.propersity.entity;
+package com.example.domain.propensity.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

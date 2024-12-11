@@ -1,7 +1,7 @@
 package com.example.domain.propensity.controller;
 
-import com.example.domain.propersity.dto.PropensityDTO;
-import com.example.domain.propersity.repository.PropensityRepository;
+import com.example.domain.propensity.dto.PropensityDTO;
+import com.example.domain.propensity.repository.PropensityRepository;
 import com.example.domain.propensity.service.PropensityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

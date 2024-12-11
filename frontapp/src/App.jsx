@@ -7,6 +7,7 @@ import Register from './pages/Register'
 import Profile from './pages/profile'
 import Survey from './pages/Survey'
 import Result from './pages/Result'
+import QuizShowList from './pages/QuizshowList'
 
 function App() {
     return (

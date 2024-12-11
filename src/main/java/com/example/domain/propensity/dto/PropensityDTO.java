@@ -1,4 +1,4 @@
-package com.example.domain.propersity.dto;
+package com.example.domain.propensity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

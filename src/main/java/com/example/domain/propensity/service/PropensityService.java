@@ -4,9 +4,9 @@ import com.example.domain.fund.entity.ETF;
 import com.example.domain.fund.model.ETFCategory;
 import com.example.domain.fund.model.ETFSubCategory;
 import com.example.domain.fund.repository.ETFRepository;
-import com.example.domain.propersity.dto.PropensityDTO;
-import com.example.domain.propersity.entity.Propensity;
-import com.example.domain.propersity.repository.PropensityRepository;
+import com.example.domain.propensity.dto.PropensityDTO;
+import com.example.domain.propensity.entity.Propensity;
+import com.example.domain.propensity.repository.PropensityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

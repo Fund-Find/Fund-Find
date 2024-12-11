@@ -1,6 +1,6 @@
-package com.example.domain.propersity.repository;
+package com.example.domain.propensity.repository;
 
-import com.example.domain.propersity.entity.Propensity;
+import com.example.domain.propensity.entity.Propensity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
