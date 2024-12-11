@@ -13,18 +13,28 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
+
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
     private final UserService userService;
+
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+        String authorizationHeader = request.getHeader("Authorization");
+        logger.debug("Incoming Authorization Header: {}", String.valueOf(authorizationHeader));
+
         if (request.getRequestURI().contains("/api/v1/user") || request.getRequestURI().equals("/api/v1/user/logout")) {
             filterChain.doFilter(request, response);
             return;
@@ -53,12 +63,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private String _getCookie(String name) {
         Cookie[] cookies = req.getCookies();
 
+        if (cookies == null) {
+            logger.debug("요청에 쿠키를 찾을 수 없음");
+            return ""; // 쿠키가 없는 경우 빈 문자열 반환
+        }
+
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElse("");
+                .orElse(""); // 원하는 쿠키가 없는 경우 빈 문자열 반환
     }
+
 
     private void _addHeaderCookie(String tokenName, String token) {
         ResponseCookie cookie = ResponseCookie.from(tokenName, token)

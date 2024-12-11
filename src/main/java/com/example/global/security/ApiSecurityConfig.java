@@ -24,13 +24,17 @@ public class ApiSecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers(HttpMethod.GET, "/api/*/articles").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/*/articles/*").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/*/user/login").permitAll() // 로그인은 누구나 가능, post 요청만 허용
-                                .requestMatchers(HttpMethod.GET, "/api/*/user/logout").permitAll() // 로그인은 누구나 가능, post 요청만 허용
-                                .requestMatchers(HttpMethod.POST, "/api/*/user/register").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/*/user/profile").permitAll()
-                                .requestMatchers(HttpMethod.PATCH, "/api/*/user/profile").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/*/articles").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/*/articles/*").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/api/*/user/login").permitAll() // 로그인은 누구나 가능, post 요청만 허용
+//                                .requestMatchers(HttpMethod.GET, "/api/*/user/logout").permitAll() // 로그인은 누구나 가능, post 요청만 허용
+//                                .requestMatchers(HttpMethod.POST, "/api/*/user/register").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/*/user/profile").permitAll()
+//                                .requestMatchers(HttpMethod.PATCH, "/api/*/user/profile").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.PATCH, "/api/**").permitAll()
+
 
                                 .anyRequest().authenticated()
                 )
