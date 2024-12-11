@@ -35,7 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-application-secret.yml
-config.yml
-kis_devlp.yml
