@@ -139,7 +139,7 @@ const Profile = () => {
                         type="email"
                         value={user.email}
                         readOnly
-                        style={{ backgroundColor: '#f0f0f0', border: 'none' }}
+                        style={{ backgroundColor: '#f0f0f0', border: 'red' }}
                     />
                     <button onClick={handleEmailUpdate}>이메일 수정</button>
                 </div>
@@ -164,7 +164,7 @@ const Profile = () => {
                                     setPreviewImage(URL.createObjectURL(file))
                                 }}
                             />
-                            {previewImage && <img src={previewImage} alt="미리보기" width="100" />}
+                            {previewImage && <img src={previewImage} alt="미리보기" />}
                         </>
                     ) : (
                         user.thumbnailImg && <img src={user.thumbnailImg} alt="프로필 이미지" width="100" />

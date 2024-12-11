@@ -1,13 +1,13 @@
 package com.example.domain.quizShow.controller;
 
-import com.example.global.rsData.RsData;
-import com.example.domain.quizShow.dto.QuizShowCreateRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowListResponseDTO;
-import com.example.domain.quizShow.dto.QuizShowModifyRequestDTO;
-import com.example.domain.quizShow.dto.QuizShowResponseDTO;
-import com.example.domain.quizShow.entity.QuizShow;
-import com.example.domain.quizShow.response.QuizShowCreateResponse;
+
+import com.example.domain.quizShow.dto.QuizShowDTO;
+import com.example.domain.quizShow.request.QuizShowCreateRequest;
+import com.example.domain.quizShow.request.QuizShowModifyRequest;
+import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.response.QuizShowResponse;
 import com.example.domain.quizShow.service.QuizShowService;
+import com.example.global.rsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -21,54 +21,36 @@ public class ApiV1QuizShowController {
     private final QuizShowService quizShowService;
 
     @GetMapping("")
-    public RsData<QuizShowListResponseDTO> list(@PageableDefault(size = 10) Pageable pageable) {
-        QuizShowListResponseDTO quizShowDTO = this.quizShowService.getList(pageable);
+    public RsData<QuizShowListResponse> list(@PageableDefault(size = 10) Pageable pageable) {
+        QuizShowListResponse quizShowListResponse = this.quizShowService.getList(pageable);
 
-        return RsData.of("200", "게시글 다건 조회", quizShowDTO);
+        return RsData.of("200", "게시글 다건 조회", quizShowListResponse);
     }
 
     @GetMapping("/{id}")
-    public RsData<QuizShowResponseDTO> getQuizShow(@PathVariable("id") Long id) {
-        QuizShow quizShow = quizShowService.getQuizShow(id);
+    public RsData<QuizShowResponse> getQuizShow(@PathVariable("id") Long id) {
+        QuizShowDTO quizShow = quizShowService.getQuizShow(id);
 
-        return RsData.of("200", "게시글 단건 조회", new QuizShowResponseDTO(quizShow));
+        return RsData.of("200", "게시글 단건 조회", new QuizShowResponse(quizShow));
     }
 
     @PostMapping("")
-    public RsData<QuizShowCreateResponse> create(@Valid @RequestBody QuizShowCreateRequestDTO quizShow_CR_DTO) {
-        QuizShowResponseDTO quizShowR_DTO = quizShowService.create(quizShow_CR_DTO);
+    public RsData<QuizShowResponse> create(@Valid @RequestBody QuizShowCreateRequest quizShowCR) {
+        QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
 
-        return RsData.of("200", "게시글 생성 완료", new QuizShowCreateResponse(quizShowR_DTO));
+        return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
     }
 
     @PatchMapping("/{id}")
-    public RsData<QuizShowResponseDTO> modify(@PathVariable("id") Long id,
-                                           @Valid @RequestBody QuizShowModifyRequestDTO quizShowMR_DTO) {
-        QuizShow quizShow = this.quizShowService.getQuizShow(id);
-
-        if (quizShow == null) return RsData.of(
-                "500",
-                "%d 번 게시물은 존재하지 않습니다.".formatted(id),
-                null
-        );
-
-        QuizShowResponseDTO quizShowR_DTO = this.quizShowService.modify(id, quizShowMR_DTO);
-
-        return RsData.of("200", "게시글 수정 완료", quizShowR_DTO);
+    public RsData<QuizShowResponse> modify(@PathVariable("id") Long id,
+                                           @Valid @RequestBody QuizShowModifyRequest quizShowMR) {
+        QuizShowDTO modifiedQuizShow = this.quizShowService.modify(id, quizShowMR);
+        return RsData.of("200", "게시글 수정 완료", new QuizShowResponse(modifiedQuizShow));
     }
 
     @DeleteMapping("{id}")
-    public RsData<QuizShowResponseDTO> delete(@PathVariable("id") Long id) {
-        QuizShow quizShow = this.quizShowService.getQuizShow(id);
-
-        if (quizShow == null) return RsData.of(
-                "500",
-                "%d 번 게시물은 존재하지 않습니다.".formatted(id),
-                null
-        );
-
-        QuizShowResponseDTO quizShowResponseDTO = this.quizShowService.delete(quizShow);
-
-        return RsData.of("200", "게시글 삭제 완료", quizShowResponseDTO);
+    public RsData<QuizShowResponse> delete(@PathVariable("id") Long id) {
+        QuizShowDTO deletedQuizShow = this.quizShowService.delete(id);
+        return RsData.of("200", "게시글 삭제 완료", new QuizShowResponse(deletedQuizShow));
     }
 }

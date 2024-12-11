@@ -25,11 +25,50 @@ public class QuizAnswer extends BaseEntity {
     private SiteUser user;
 
     @Column(nullable = false)
-    private String memberAnswer;      // 사용자가 입력한 답변
+    private String userAnswer;  // OX의 경우 "T"/"F", 객관식의 경우 선택한 번호, 주관식/단답형의 경우 텍스트
 
     @Column(nullable = false)
-    private Boolean isCorrect;      // 정답 여부 판별 결과
+    private Boolean isCorrect;  // 정답 여부 판별 결과
 
-    // 필요에 따라 추가될 수 있는 필드
     private LocalDateTime answeredAt;  // 답변 시간
+
+    public boolean validateAnswer() {
+        switch(this.quiz.getQuizType().getType()) {
+            case MULTIPLE_CHOICE:
+                return validateMultipleChoice();
+            case TRUE_FALSE:
+                return validateTrueFalse();
+            case SUBJECTIVE:
+                return validateSubjective();
+            case SHORT_ANSWER:
+                return validateShortAnswer();
+            default:
+                return false;
+        }
+    }
+
+    private boolean validateMultipleChoice() {
+        // 선택한 번호가 정답인지 확인
+        return quiz.getChoices().stream()
+                .filter(QuizChoice::getIsCorrect)
+                .anyMatch(choice -> choice.getId().toString().equals(userAnswer));
+    }
+
+    private boolean validateTrueFalse() {
+        // OX 정답 확인
+        return userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
+    }
+
+    private boolean validateSubjective() {
+        // 주관식은 정답이 여러 가지일 수 있으므로 정답 목록과 비교
+        return quiz.getChoices().stream()
+                .anyMatch(choice -> choice.getChoiceContent().equalsIgnoreCase(userAnswer.trim()));
+    }
+
+    private boolean validateShortAnswer() {
+        // 단답형은 정확히 일치해야 함 (대소문자 구분 없이, 공백 제거)
+        return quiz.getChoices().stream()
+                .anyMatch(choice -> choice.getChoiceContent().trim()
+                        .equalsIgnoreCase(userAnswer.trim()));
+    }
 }

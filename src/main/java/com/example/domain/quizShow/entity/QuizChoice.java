@@ -19,4 +19,6 @@ public class QuizChoice extends BaseEntity {
 
     @Column(nullable = false)
     private String choiceContent;
+
+    private Boolean isCorrect;  // 객관식인 경우 정답 여부
 }
