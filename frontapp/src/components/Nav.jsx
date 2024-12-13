@@ -67,11 +67,27 @@ function Nav() {
         }
     }, [isLoggedIn, remainingTime])
 
-    const handleLogout = () => {
-        localStorage.removeItem('expirationTime')
-        localStorage.removeItem('accessToken')
-        setIsLoggedIn(false)
-        navigate('/')
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/user/logout', {
+                method: 'POST',
+                credentials: 'include',
+            })
+
+            if (response.ok) {
+                setIsLoggedIn(false)
+                alert('로그아웃 성공!')
+                localStorage.removeItem('expirationTime')
+                localStorage.removeItem('accessToken')
+                setIsLoggedIn(false)
+                window.history.back()
+            } else {
+                alert('로그아웃 실패!')
+            }
+        } catch (error) {
+            console.error('로그아웃 중 오류 발생:', error)
+            alert('로그아웃 중 오류가 발생했습니다.')
+        }
     }
 
     const handleRefresh = async () => {
@@ -137,11 +153,16 @@ function Nav() {
                         </button>
                     </li>
                     {isLoggedIn && (
-                        <li>
-                            <span style={{ marginLeft: '10px', color: 'gray' }}>
-                                남은 시간: {remainingTime > 0 ? getFormattedTime(remainingTime) : '만료됨'}
-                            </span>
-                        </li>
+                        <>
+                            <li>
+                                <span style={{ marginLeft: '10px', color: 'gray' }}>
+                                    남은 시간: {remainingTime > 0 ? getFormattedTime(remainingTime) : '만료됨'}
+                                </span>
+                            </li>
+                            <li>
+                                <Link to="/user/profile">내 프로필</Link>
+                            </li>
+                        </>
                     )}
                     {showRefreshButton && (
                         <li>

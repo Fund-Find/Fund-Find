@@ -39,10 +39,10 @@ public class UserService {
         }
 
         // 중복 확인
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (this.userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 사용자 이름입니다.");
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (this.userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
@@ -105,24 +105,23 @@ public class UserService {
 
 
     public SiteUser getUser(String username) {
-        return userRepository.findByUsername(username)
+        return this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
-
 
 
 
     // 사용자 정보 조회
     public Optional<SiteUser> findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return this.userRepository.findByUsername(username);
     }
 
 
     // 사용자 삭제
     public void deleteUser(String username) {
-        SiteUser user = userRepository.findByUsername(username)
+        SiteUser user = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        userRepository.delete(user);
+        this.userRepository.delete(user);
     }
     public boolean validateToken(String accessToken) {
         return jwtProvider.verify(accessToken);
@@ -145,7 +144,7 @@ public class UserService {
         String username = (String) payloadBody.get("username");
 
         // 데이터베이스에서 사용자 조회
-        SiteUser siteUser = userRepository.findByUsername(username)
+        SiteUser siteUser = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         String baseUrl = "http://localhost:8080/uploads/"; // 업로드 이미지 파일이 제공되는 서버 URL

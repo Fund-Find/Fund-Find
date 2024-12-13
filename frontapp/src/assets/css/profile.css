@@ -28,7 +28,7 @@
 }
 
 .profile-info input {
-    border: 1px solid red !important;
+    border: 1px solid #0056b3;
     width: 100%; /* 입력 필드나 텍스트를 컨테이너의 전체 너비로 확장 */
     padding: 8px;
     font-size: 14px;

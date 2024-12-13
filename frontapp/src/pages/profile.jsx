@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../assets/css/profile.css'
+import { useNavigate } from 'react-router-dom' // useNavigate 추가
 
 const API_URL = 'http://localhost:8080/api/v1/user/profile'
 const UPDATE_API_URL = 'http://localhost:8080/api/v1/user/profile'
@@ -7,11 +8,12 @@ const UPDATE_EMAIL_URL = 'http://localhost:8080/api/v1/user/profile/email'
 
 const Profile = () => {
     const [user, setUser] = useState(null)
-    const [previewImage, setPreviewImage] = useState(null) // 이미지 미리보기 상태
-    const [originalUser, setOriginalUser] = useState(null) // 원본 사용자 정보
+    const [previewImage, setPreviewImage] = useState(null)
+    const [originalUser, setOriginalUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
+    const navigate = useNavigate() // useNavigate 훅 사용
 
     useEffect(() => {
         fetch(API_URL, {
@@ -22,8 +24,9 @@ const Profile = () => {
             .then((data) => {
                 if (data.resultCode === '200') {
                     setUser(data.data)
-                    setOriginalUser(data.data) // 원본 상태 저장
-                    setPreviewImage(data.data.thumbnailImg) // 기존 이미지 미리보기 설정
+                    setOriginalUser(data.data)
+                    setPreviewImage(data.data.thumbnailImg)
+                    console.log(data)
                 } else {
                     setError(data.msg || '사용자 정보를 가져오는 데 실패했습니다.')
                 }
@@ -56,8 +59,8 @@ const Profile = () => {
             .then((data) => {
                 if (data.resultCode === '200') {
                     setUser(data.data)
-                    setOriginalUser(data.data) // 저장된 상태를 원본으로 업데이트
-                    setPreviewImage(data.data.thumbnailImg) // 저장된 이미지 미리보기로 업데이트
+                    setOriginalUser(data.data)
+                    setPreviewImage(data.data.thumbnailImg)
                     setIsEditing(false)
                 } else {
                     throw new Error(data.msg || '저장 실패')
@@ -70,8 +73,8 @@ const Profile = () => {
 
     const handleCancel = () => {
         setIsEditing(false)
-        setUser(originalUser) // 원본 상태로 되돌림
-        setPreviewImage(originalUser.thumbnailImg) // 원본 이미지로 복구
+        setUser(originalUser)
+        setPreviewImage(originalUser.thumbnailImg)
     }
 
     const handleEmailUpdate = () => {
@@ -113,6 +116,25 @@ const Profile = () => {
             <h2>프로필</h2>
             <div className="profile-info">
                 <div>
+                    <strong>프로필 이미지:</strong>
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files[0]
+                                    setUser({ ...user, thumbnailImg: file })
+                                    setPreviewImage(URL.createObjectURL(file))
+                                }}
+                            />
+                            {previewImage && <img src={previewImage} alt="미리보기" />}
+                        </>
+                    ) : (
+                        user.thumbnailImg && <img src={user.thumbnailImg} alt="프로필 이미지" width="100" />
+                    )}
+                </div>
+                <div>
                     <strong>사용자 ID:</strong>
                     <input
                         type="text"
@@ -152,22 +174,30 @@ const Profile = () => {
                     )}
                 </div>
                 <div>
-                    <strong>프로필 이미지:</strong>
-                    {isEditing ? (
+                    <strong>투자성향 MBTI:</strong>
+                    {user.propensity ? (
                         <>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    const file = e.target.files[0]
-                                    setUser({ ...user, thumbnailImg: file })
-                                    setPreviewImage(URL.createObjectURL(file))
-                                }}
-                            />
-                            {previewImage && <img src={previewImage} alt="미리보기" />}
+                            <div>
+                                <input
+                                    type="text"
+                                    value={user.propensity.surveyResult}
+                                    readOnly
+                                    style={{ backgroundColor: '#f0f0f0', border: 'none', marginRight: '10px' }}
+                                />
+                                <button
+                                    onClick={() => {
+                                        // navigate 함수 사용
+                                        navigate('/result', {
+                                            state: { propensityId: user.propensity.propensityId },
+                                        })
+                                    }}
+                                >
+                                    내 성향에 맞는 펀드 목록 보기 !
+                                </button>
+                            </div>
                         </>
                     ) : (
-                        user.thumbnailImg && <img src={user.thumbnailImg} alt="프로필 이미지" width="100" />
+                        <span>설문조사를 통해 투자성향을 알아보세요!</span>
                     )}
                 </div>
             </div>

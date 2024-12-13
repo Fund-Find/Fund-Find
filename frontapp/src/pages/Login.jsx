@@ -49,7 +49,7 @@ function Login() {
 
                     // Nav 등 다른 컴포넌트에서 localStorage의 expirationTime 사용 가능
                     // 로그인 성공 후 원하는 페이지로 이동
-                    window.location.href = '/user/profile'
+                    window.history.back()
                 } else {
                     setErrorMessage('로그인 응답에 필요한 정보가 없습니다.')
                 }
