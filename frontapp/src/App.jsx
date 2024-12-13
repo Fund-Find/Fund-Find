@@ -16,7 +16,7 @@ function App() {
             <Routes>
                 <Route index element={<Main />}></Route>
                 <Route path="/auth/login" element={<Login />}></Route>
-                <Route path="/article/lsit" element={<Article />}></Route>
+                <Route path="/article/list" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
                 <Route path="/user/profile" element={<Profile />}></Route>
                 <Route path="/survey" element={<Survey />} /> {/* /survey 경로에 Survey 컴포넌트 렌더링 */}

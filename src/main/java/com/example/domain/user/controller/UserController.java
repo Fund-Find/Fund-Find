@@ -13,9 +13,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +49,7 @@ public class UserController {
         String accessToken = jwtProvider.genAccessToken(user);
         Cookie accessTokenCookie  = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(false);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(60 * 60);
         res.addCookie(accessTokenCookie);
@@ -54,27 +58,34 @@ public class UserController {
         String refreshToken = user.getRefreshToken();
         Cookie refreshTokenCookie  = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(60 * 60);
         res.addCookie(refreshTokenCookie);
+        // JWT에서 만료 시간 추출 또는 별도 메서드에서 만료 시간 계산 후 응답에 담기
+        long expirationTime = jwtProvider.getExpirationTime(accessToken);
 
-        System.out.println(refreshToken);
-        System.out.println(accessToken);
-        return RsData.of("200", "토큰 발급 성공: " + accessToken , new UserResponse(user));
+        // 응답에 토큰 만료 시간이나 필요한 정보를 포함
+        UserResponse userResponse = new UserResponse(user);
+        userResponse.setExpirationTime(expirationTime);
+
+        System.out.println("로그인 요청시 refresh 토큰 :" + refreshToken);
+        System.out.println("로그인 요청시 access 토큰 :" + accessToken);
+        System.out.println("로그인 요청시 남은 시간 :" + expirationTime);
+        return RsData.of("200", "토큰 발급 성공: " + accessToken , userResponse);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse res) {
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(false);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", null);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0);
 
@@ -135,12 +146,48 @@ public class UserController {
 
 
 
-
-
     // 사용자 삭제
     @DeleteMapping("/{username}")
     public ResponseEntity<?> deleteUser(@PathVariable String username) {
         userService.deleteUser(username);
         return ResponseEntity.ok("사용자가 삭제되었습니다.");
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@CookieValue("refreshToken") String refreshToken, HttpServletResponse res) {
+        if (!jwtProvider.verify(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh Token이 유효하지 않습니다.");
+        }
+
+        try {
+            String newAccessToken = jwtProvider.refreshAccessToken(refreshToken);
+
+            Cookie accessTokenCookie = new Cookie("accessToken", newAccessToken);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(false);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(60 * 10); // 10분
+            res.addCookie(accessTokenCookie);
+
+            // 새로 발급한 AccessToken의 만료 시간 가져오기
+            long newExpirationTime = jwtProvider.getExpirationTime(newAccessToken);
+
+            // JSON 형태로 응답 반환
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("resultCode", "200");
+            responseData.put("msg", "Access Token 재발급 성공");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("expirationTime", newExpirationTime);
+            data.put("accessToken", newAccessToken);
+
+            responseData.put("data", data);
+
+            return ResponseEntity.ok(responseData);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Access Token 재발급 실패");
+        }
+    }
+
+
 }

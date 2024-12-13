@@ -10,6 +10,7 @@ import com.example.global.rsData.RsData;
 import com.example.global.security.SecurityUser;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -67,12 +69,19 @@ public class UserService {
         return savedUser;
     }
     public RsData<String> refreshAccessToken(String refreshToken) {
-        SiteUser user = userRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new RuntimeException("존재하지 않는 리프레시 토큰입니다."));
+        if (!jwtProvider.verify(refreshToken)) {
+            return RsData.of("403", "Refresh Token이 유효하지 않습니다.");
+        }
 
-        String accessToken = jwtProvider.genAccessToken(user);
-
-        return RsData.of("200", "토큰 갱신 성공", accessToken);
+        try {
+            String newAccessToken = jwtProvider.refreshAccessToken(refreshToken);
+            return RsData.of("200", "Access Token 재발급 성공", newAccessToken);
+        } catch (Exception e) {
+            log.error("Refresh Token으로 Access Token 재발급 실패: {}", e.getMessage());
+            return RsData.of("500", "Access Token 재발급 실패");
+        }
     }
+
     public UserResponse updateUser(SiteUser existingUser, UserPatchRequest updatedData) {
         if (updatedData.getNickname() != null) {
             existingUser.setNickname(updatedData.getNickname());

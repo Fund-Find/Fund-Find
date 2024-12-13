@@ -3,11 +3,13 @@ package com.example.domain.user.dto.response;
 import com.example.domain.user.entity.SiteUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
+@Setter
 public class UserResponse {
     private final Long id;                // 사용자 ID
     private final String username;        // 사용자 이름
@@ -17,6 +19,7 @@ public class UserResponse {
     private final String thumbnailImg;    // 프로필 이미지
     private final LocalDateTime createdDate;  // 생성일
     private final LocalDateTime modifiedDate; // 수정일
+    private Long expirationTime;
 
 
     // User 엔티티 기반 생성자

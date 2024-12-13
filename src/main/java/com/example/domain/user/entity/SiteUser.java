@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Getter

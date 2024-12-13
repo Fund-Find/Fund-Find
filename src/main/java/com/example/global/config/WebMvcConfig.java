@@ -17,8 +17,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("https://cdpn.io", "http://localhost:5173")
                 .allowedMethods("*")
                 .allowedHeaders("*")
+
                 .allowCredentials(true);
     }
+
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
