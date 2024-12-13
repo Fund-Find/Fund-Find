@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -25,7 +26,13 @@ public class Quiz extends BaseEntity {
     @Column(nullable = false)
     private Integer quizScore;
 
-    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "quiz",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @BatchSize(size = 100)
     private List<QuizChoice> choices;
 
     @ManyToOne(fetch = FetchType.LAZY)

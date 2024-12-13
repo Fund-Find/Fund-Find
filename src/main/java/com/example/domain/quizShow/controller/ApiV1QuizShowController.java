@@ -1,6 +1,5 @@
 package com.example.domain.quizShow.controller;
 
-
 import com.example.domain.quizShow.dto.QuizShowDTO;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
@@ -12,7 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,34 +22,43 @@ public class ApiV1QuizShowController {
     private final QuizShowService quizShowService;
 
     @GetMapping("")
-    public RsData<QuizShowListResponse> list(@PageableDefault(size = 10) Pageable pageable) {
+    public RsData<QuizShowListResponse> list(@PageableDefault(size = 9) Pageable pageable) {
         QuizShowListResponse quizShowListResponse = this.quizShowService.getList(pageable);
-
         return RsData.of("200", "게시글 다건 조회", quizShowListResponse);
     }
 
     @GetMapping("/{id}")
     public RsData<QuizShowResponse> getQuizShow(@PathVariable("id") Long id) {
         QuizShowDTO quizShow = quizShowService.getQuizShow(id);
-
         return RsData.of("200", "게시글 단건 조회", new QuizShowResponse(quizShow));
     }
 
-    @PostMapping("")
-    public RsData<QuizShowResponse> create(@Valid @RequestBody QuizShowCreateRequest quizShowCR) {
-        QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RsData<QuizShowResponse> create(
+            @Valid @RequestPart("data") QuizShowCreateRequest quizShowCR,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
+        if (imageFile != null) {
+            quizShowCR.setImageFile(imageFile);
+        }
+        QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
         return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
     }
 
-    @PatchMapping("/{id}")
-    public RsData<QuizShowResponse> modify(@PathVariable("id") Long id,
-                                           @Valid @RequestBody QuizShowModifyRequest quizShowMR) {
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RsData<QuizShowResponse> modify(
+            @PathVariable("id") Long id,
+            @Valid @RequestPart("data") QuizShowModifyRequest quizShowMR,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
+
+        if (imageFile != null) {
+            quizShowMR.setImageFile(imageFile);
+        }
         QuizShowDTO modifiedQuizShow = this.quizShowService.modify(id, quizShowMR);
         return RsData.of("200", "게시글 수정 완료", new QuizShowResponse(modifiedQuizShow));
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public RsData<QuizShowResponse> delete(@PathVariable("id") Long id) {
         QuizShowDTO deletedQuizShow = this.quizShowService.delete(id);
         return RsData.of("200", "게시글 삭제 완료", new QuizShowResponse(deletedQuizShow));

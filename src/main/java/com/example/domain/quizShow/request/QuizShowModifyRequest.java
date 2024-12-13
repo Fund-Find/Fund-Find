@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public class QuizShowModifyRequest {
     private Integer totalScore;
     @Valid  // 중첩된 객체의 검증을 위해 추가
     private List<QuizRequest> quizzes;
+    private MultipartFile imageFile; // 이미지 경로
+    private boolean useCustomImage; // 사용자 이미지 사용 여부
 }

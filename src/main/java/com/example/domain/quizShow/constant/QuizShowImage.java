@@ -1,29 +1,31 @@
 package com.example.domain.quizShow.constant;
 
+import com.example.domain.quizShow.entity.QuizShowCategoryEnum;
 import lombok.Getter;
 import java.util.Arrays;
 
 @Getter
 public enum QuizShowImage {
-    INVESTMENT("/images/quizShow/Investment.jpg", "Investment"),
-    SAVINGS("/images/quizShow/Savings.jpg", "Savings"),
-    STOCK_MARKET("/images/quizShow/StockMarket.jpg", "Stock Market"),
-    REAL_ESTATE("/images/quizShow/RealEstate.jpg", "Real Estate"),
-    CRYPTOCURRENCY("/images/quizShow/Cryptocurrency.jpg", "Cryptocurrency"),
-    INSURANCE("/images/quizShow/Insurance.jpg", "Insurance");
+    INVESTMENT("/images/quizShow/Investment.jpg", QuizShowCategoryEnum.INVESTMENT),
+    SAVINGS("/images/quizShow/Savings.jpg", QuizShowCategoryEnum.SAVINGS),
+    STOCK_MARKET("/images/quizShow/StockMarket.jpg", QuizShowCategoryEnum.STOCK_MARKET),
+    REAL_ESTATE("/images/quizShow/RealEstate.jpg", QuizShowCategoryEnum.REAL_ESTATE),
+    CRYPTOCURRENCY("/images/quizShow/Cryptocurrency.jpg", QuizShowCategoryEnum.CRYPTOCURRENCY),
+    INSURANCE("/images/quizShow/Insurance.jpg", QuizShowCategoryEnum.INSURANCE);
 
     private final String imagePath;
-    private final String description;
+    private final QuizShowCategoryEnum category;
 
-    QuizShowImage(String imagePath, String description) {
+    QuizShowImage(String imagePath, QuizShowCategoryEnum category) {
         this.imagePath = imagePath;
-        this.description = description;
+        this.category = category;
     }
 
-    public static QuizShowImage fromPath(String imagePath) {
+    public static String getImagePathByCategory(QuizShowCategoryEnum category) {
         return Arrays.stream(QuizShowImage.values())
-                .filter(image -> image.getImagePath().equals(imagePath))
+                .filter(image -> image.getCategory().equals(category))
                 .findFirst()
-                .orElse(INVESTMENT);
+                .map(QuizShowImage::getImagePath)
+                .orElse(INVESTMENT.getImagePath()); // 기본 이미지 경로
     }
 }

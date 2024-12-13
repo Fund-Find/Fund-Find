@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.entity;
 
+import com.example.domain.quizShow.constant.QuizShowImage;
 import com.example.domain.user.entity.SiteUser;
 import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -49,9 +50,27 @@ public class QuizShow extends BaseEntity {
     private List<Quiz> quizzes;
 
     @Column
-    private String imagePath;
+    private String customImagePath; // 사용자 지정 이미지 경로
 
-    public void setDefaultImage() {
-        this.imagePath = QuizShowImage.getImagePathByCategory(this.category);
+    @Column
+    private boolean useCustomImage; // 사용자 이미지 사용 여부
+
+    @Transient
+    private String effectiveImagePath; // 실제 사용될 이미지 경로 (DB에 저장되지 않음)
+
+    public String getEffectiveImagePath() {
+        if (useCustomImage && customImagePath != null && !customImagePath.isEmpty()) {
+            return customImagePath;
+        }
+        return QuizShowImage.getImagePathByCategory(this.category);
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void beforeSave() {
+        if (!useCustomImage || customImagePath == null || customImagePath.isEmpty()) {
+            this.customImagePath = null;
+            this.useCustomImage = false;
+        }
     }
 }
