@@ -10,6 +10,7 @@ import com.example.global.rsData.RsData;
 import com.example.global.security.SecurityUser;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -37,10 +39,10 @@ public class UserService {
         }
 
         // 중복 확인
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (this.userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("이미 존재하는 사용자 이름입니다.");
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (this.userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
@@ -67,12 +69,19 @@ public class UserService {
         return savedUser;
     }
     public RsData<String> refreshAccessToken(String refreshToken) {
-        SiteUser user = userRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new RuntimeException("존재하지 않는 리프레시 토큰입니다."));
+        if (!jwtProvider.verify(refreshToken)) {
+            return RsData.of("403", "Refresh Token이 유효하지 않습니다.");
+        }
 
-        String accessToken = jwtProvider.genAccessToken(user);
-
-        return RsData.of("200", "토큰 갱신 성공", accessToken);
+        try {
+            String newAccessToken = jwtProvider.refreshAccessToken(refreshToken);
+            return RsData.of("200", "Access Token 재발급 성공", newAccessToken);
+        } catch (Exception e) {
+            log.error("Refresh Token으로 Access Token 재발급 실패: {}", e.getMessage());
+            return RsData.of("500", "Access Token 재발급 실패");
+        }
     }
+
     public UserResponse updateUser(SiteUser existingUser, UserPatchRequest updatedData) {
         if (updatedData.getNickname() != null) {
             existingUser.setNickname(updatedData.getNickname());
@@ -96,24 +105,23 @@ public class UserService {
 
 
     public SiteUser getUser(String username) {
-        return userRepository.findByUsername(username)
+        return this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
-
 
 
 
     // 사용자 정보 조회
     public Optional<SiteUser> findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return this.userRepository.findByUsername(username);
     }
 
 
     // 사용자 삭제
     public void deleteUser(String username) {
-        SiteUser user = userRepository.findByUsername(username)
+        SiteUser user = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        userRepository.delete(user);
+        this.userRepository.delete(user);
     }
     public boolean validateToken(String accessToken) {
         return jwtProvider.verify(accessToken);
@@ -136,7 +144,7 @@ public class UserService {
         String username = (String) payloadBody.get("username");
 
         // 데이터베이스에서 사용자 조회
-        SiteUser siteUser = userRepository.findByUsername(username)
+        SiteUser siteUser = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         String baseUrl = "http://localhost:8080/uploads/"; // 업로드 이미지 파일이 제공되는 서버 URL

@@ -7,6 +7,8 @@ import com.example.domain.fund.repository.ETFRepository;
 import com.example.domain.propensity.dto.PropensityDTO;
 import com.example.domain.propensity.entity.Propensity;
 import com.example.domain.propensity.repository.PropensityRepository;
+import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class PropensityService {
 
     private final ETFRepository etfRepository;
     private final PropensityRepository propensityRepository;
+    private final UserRepository userRepository;
 
     // 설문 응답 기반 투자 성향 MBTI 계산
     public String calculateMBTI(Map<String, String> answers) {
@@ -32,13 +35,17 @@ public class PropensityService {
         return mbti.toString();
     }
 
-    public PropensityDTO processAndSavePropensity(Map<String, String> answers) {
+    public PropensityDTO processAndSavePropensity(Map<String, String> answers, SiteUser user) {
         String mbtiResult = calculateMBTI(answers);
 
         Propensity propensity = new Propensity();
         propensity.setSurveyAnswer(answers.toString());
         propensity.setSurveyResult(mbtiResult);
         Propensity savedPropensity = propensityRepository.save(propensity);
+
+        user.setPropensity(propensity);
+        System.out.println("유저의 성향등록 아이디 : "+propensity.getPropensityId());
+        this.userRepository.save(user);
 
         return PropensityDTO.builder()
                 .propensityId(savedPropensity.getPropensityId())

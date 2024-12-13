@@ -1,12 +1,14 @@
 package com.example.domain.user.entity;
 
+import com.example.domain.propensity.entity.Propensity;
 import com.example.global.jpa.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Getter
@@ -38,4 +40,9 @@ public class SiteUser extends BaseEntity {
     private String thumbnailImg;
     @JsonIgnore
     private String refreshToken;
+
+    @ManyToOne
+    @JsonManagedReference
+    private Propensity propensity;
+
 }

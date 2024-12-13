@@ -1,6 +1,6 @@
 package com.example.global.security;
 
-//import com.example.global.Jwt.JwtAuthenticationFilter;
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +19,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
+                        .requestMatchers("/img/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
                 )
                 .formLogin((formLogin) -> formLogin

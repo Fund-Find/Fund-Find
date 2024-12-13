@@ -40,6 +40,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
+
+
         String accessToken = _getCookie("accessToken");
         // accessToken 검증 or refreshToken 발급
         if (!accessToken.isBlank()) {
@@ -86,4 +88,5 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         resp.addHeader("Set-Cookie", cookie.toString());
     }
+
 }

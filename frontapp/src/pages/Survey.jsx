@@ -35,6 +35,7 @@ function Survey() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(answers),
+                credentials: 'include',
             })
 
             const result = await response.json()

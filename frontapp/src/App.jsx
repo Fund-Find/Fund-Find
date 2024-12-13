@@ -8,6 +8,7 @@ import Profile from './pages/profile'
 import Survey from './pages/Survey'
 import Result from './pages/Result'
 import QuizShowList from './pages/QuizshowList'
+import PrivateRoute from './components/PrivateRoute'
 
 function App() {
     return (
@@ -16,10 +17,11 @@ function App() {
             <Routes>
                 <Route index element={<Main />}></Route>
                 <Route path="/auth/login" element={<Login />}></Route>
-                <Route path="/article/lsit" element={<Article />}></Route>
+                <Route path="/article/list" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
                 <Route path="/user/profile" element={<Profile />}></Route>
-                <Route path="/survey" element={<Survey />} /> {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
+                <Route path="/survey" element={<PrivateRoute element={Survey} />} />
+                {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
                 <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
                 <Route path="/quizshow/list" element={<QuizShowList />}></Route>
             </Routes>

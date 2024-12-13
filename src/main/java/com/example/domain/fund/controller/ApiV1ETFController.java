@@ -4,6 +4,8 @@ import com.example.domain.fund.entity.ETF;
 import com.example.domain.fund.service.ETFService;
 import com.example.domain.propensity.dto.PropensityDTO;
 import com.example.domain.propensity.service.PropensityService;
+import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.service.UserService;
 import com.example.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,9 @@ public class ApiV1ETFController {
 
     private final ETFService etfService;
     private final PropensityService propensityService;
+    private final UserService userService;
+
+
 
     @GetMapping("/{code}")
     public RsData<String> getETFInfo(@PathVariable("code") String code) {
@@ -31,12 +36,19 @@ public class ApiV1ETFController {
     }
 
     @PostMapping("/survey/submit")
-    public ResponseEntity<RsData<Long>> submitSurvey(@RequestBody Map<String, String> answers) {
+    public ResponseEntity<RsData<Long>> submitSurvey(@RequestBody Map<String, String> answers,@CookieValue(value = "accessToken", required = false) String accessToken) {
         try {
+            if (accessToken == null) {
+                System.out.println("Access Token이 쿠키에서 발견되지 않았습니다.");
+                return ResponseEntity.badRequest().body(RsData.of("403", "엑세스 토큰이 없습니다.", null));
+            }
 
             String mbti = propensityService.calculateMBTI(answers);
 
-            PropensityDTO savedPropensity = propensityService.processAndSavePropensity(answers);
+            SiteUser user = this.userService.getSiteUserFromAccessToken(accessToken);
+
+
+            PropensityDTO savedPropensity = propensityService.processAndSavePropensity(answers, user);
 
             return ResponseEntity.ok(RsData.of("200", "투자 성향 MBTI 등록 성공", savedPropensity.getPropensityId()));
 
