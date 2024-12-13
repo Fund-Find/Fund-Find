@@ -132,60 +132,11 @@ function Nav() {
             <li>
                 <Link to="/">홈</Link>
             </li>
-            {!isLoggedIn ? (
-                <li>
-                    <Link to="/auth/login">로그인</Link>
-                </li>
-            ) : (
-                <>
-                    <li>
-                        <button
-                            onClick={handleLogout}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'inherit',
-                                cursor: 'pointer',
-                                padding: '0',
-                            }}
-                        >
-                            로그아웃
-                        </button>
-                    </li>
-                    {isLoggedIn && (
-                        <>
-                            <li>
-                                <span style={{ marginLeft: '10px', color: 'gray' }}>
-                                    남은 시간: {remainingTime > 0 ? getFormattedTime(remainingTime) : '만료됨'}
-                                </span>
-                            </li>
-                            <li>
-                                <Link to="/user/profile">내 프로필</Link>
-                            </li>
-                        </>
-                    )}
-                    {showRefreshButton && (
-                        <li>
-                            <button
-                                onClick={handleRefresh}
-                                style={{
-                                    marginLeft: '10px',
-                                    background: '#4CAF50',
-                                    color: '#fff',
-                                    border: 'none',
-                                    padding: '5px 10px',
-                                    cursor: 'pointer',
-                                    borderRadius: '3px',
-                                }}
-                            >
-                                로그인 시간 갱신
-                            </button>
-                        </li>
-                    )}
-                </>
-            )}
             <li>
-                <Link to="/article/list">게시글 목록</Link>
+                <Link to="/auth/login">로그인</Link>
+            </li>
+            <li>
+                <Link to="/article/lsit">게시글 목록</Link>
             </li>
         </ul>
     )

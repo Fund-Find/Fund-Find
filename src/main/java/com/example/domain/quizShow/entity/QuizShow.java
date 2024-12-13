@@ -47,4 +47,11 @@ public class QuizShow extends BaseEntity {
 
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Quiz> quizzes;
+
+    @Column
+    private String imagePath;
+
+    public void setDefaultImage() {
+        this.imagePath = QuizShowImage.getImagePathByCategory(this.category);
+    }
 }

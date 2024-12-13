@@ -1,7 +1,5 @@
 package com.example.global.security;
 
-
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,13 +12,16 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/**")
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                         .requestMatchers("/img/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/user/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin((formLogin) -> formLogin
                         .loginPage("/user/login")
@@ -64,4 +65,3 @@ public class SecurityConfig {
 //        return source;
 //    }
 }
-
