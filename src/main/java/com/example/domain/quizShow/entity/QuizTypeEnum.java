@@ -11,4 +11,8 @@ public enum QuizTypeEnum {
     QuizTypeEnum(String description) {
         this.description = description;
     }
+
+    public String getDescription() {
+        return description;
+    }
 }

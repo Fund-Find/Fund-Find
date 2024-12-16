@@ -19,7 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class ApiSecurityConfig {
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
     @Bean
-    SecurityFilterChain apifilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
                 .authorizeRequests(
@@ -39,39 +39,39 @@ public class ApiSecurityConfig {
                                 .requestMatchers(HttpMethod.PATCH, "/api/**").permitAll()
 
 
+                                .requestMatchers(HttpMethod.GET,"/api/*/quizshow/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/*/articles").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/*/articles/*").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/*/user/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/*/user/logout").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/*/user/register").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .csrf(
-                        csrf -> csrf
-                                .disable()
-                ) // csrf 토큰 끄기
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // cors 설정 추가
-                .httpBasic(
-                        httpBasic -> httpBasic.disable()
-                ) // httpBasic 로그인 방식 끄기
-                .formLogin(
-                        formLogin -> formLogin.disable()
-                ) // 폼 로그인 방식 끄기
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
                 .sessionManagement(
                         sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(
-                        jwtAuthorizationFilter, //엑세스 토큰을 이용한 로그인 처리
+                        jwtAuthorizationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
-        ;
+
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5173"); // 허용할 출처 추가
-        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-        configuration.addAllowedHeader("*"); // 모든 요청 헤더 허용
-        configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 포함 허용
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 CORS 정책 적용
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

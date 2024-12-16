@@ -11,7 +11,7 @@ import java.util.List;
 public class QuizRequest {
     private Long id;
     @NotNull
-    private Long quizCategoryId;
+    private Long quizTypeId;  // QuizType 객체 대신 ID 사용
     @NotBlank
     private String quizContent;
     @NotNull
