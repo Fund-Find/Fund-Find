@@ -33,6 +33,7 @@ public class Quiz extends BaseEntity {
             fetch = FetchType.LAZY
     )
     @BatchSize(size = 100)
+    @OrderBy("id ASC")  // id 기준으로 정렬
     private List<QuizChoice> choices;
 
     @ManyToOne(fetch = FetchType.LAZY)

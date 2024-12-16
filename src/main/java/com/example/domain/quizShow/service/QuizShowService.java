@@ -1,7 +1,10 @@
 package com.example.domain.quizShow.service;
 
 import com.example.domain.quizShow.dto.QuizShowDTO;
-import com.example.domain.quizShow.entity.*;
+import com.example.domain.quizShow.entity.Quiz;
+import com.example.domain.quizShow.entity.QuizChoice;
+import com.example.domain.quizShow.entity.QuizShow;
+import com.example.domain.quizShow.entity.QuizShowCategory;
 import com.example.domain.quizShow.repository.QuizRepository;
 import com.example.domain.quizShow.repository.QuizShowCategoryRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
@@ -14,6 +17,7 @@ import com.example.domain.quizShow.validator.QuizValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +39,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
     private final QuizShowCategoryRepository quizCategoryRepository;
@@ -59,9 +64,24 @@ public class QuizShowService {
     }
 
     public QuizShowDTO getQuizShow(Long id) {
-        QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
-        return new QuizShowDTO(quizShow);
+        try {
+            // 기본 정보 조회
+            QuizShow quizShow = quizShowRepository.findQuizShowById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
+
+            // 퀴즈와 선택지 조회
+            List<Quiz> quizzes = quizRepository.findQuizzesByQuizShowId(id);
+
+            // DTO로 변환하면서 필요한 데이터 조합
+            QuizShowDTO quizShowDTO = new QuizShowDTO(quizShow);
+            // 필요한 경우 퀴즈 정보도 DTO에 설정
+
+            return quizShowDTO;
+
+        } catch (Exception e) {
+            log.error("퀴즈쇼 조회 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("퀴즈쇼 조회에 실패했습니다.", e);
+        }
     }
 
     @Transactional

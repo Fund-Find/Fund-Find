@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
@@ -47,6 +48,8 @@ public class QuizShow extends BaseEntity {
     private Set<SiteUser> votes;
 
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")  // id 기준으로 정렬
+    @BatchSize(size = 100)  // batch size 설정
     private List<Quiz> quizzes;
 
     @Column
