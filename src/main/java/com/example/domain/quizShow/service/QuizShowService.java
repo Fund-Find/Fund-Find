@@ -159,7 +159,7 @@ public class QuizShowService {
                     .build();
 
             createChoices(quiz, quizReq.getChoices());
-            quizValidator.validateQuiz(quiz);
+            quizValidator.validateQuiz(quiz, quizReq.getQuizTypeId());
             quizRepository.save(quiz);
         }
     }
@@ -182,9 +182,6 @@ public class QuizShowService {
     }
 
     private Quiz createNewQuiz(QuizShow quizShow, QuizRequest request) {
-        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
-
         Quiz quiz = Quiz.builder()
                 .quizShow(quizShow)
                 .quizContent(request.getQuizContent())
@@ -193,14 +190,11 @@ public class QuizShowService {
                 .build();
 
         createChoices(quiz, request.getChoices());
-        quizValidator.validateQuiz(quiz);
+        quizValidator.validateQuiz(quiz, request.getQuizTypeId());
         return quizRepository.save(quiz);
     }
 
     private void updateExistingQuiz(Quiz quiz, QuizRequest request) {
-        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
-
         quiz.getChoices().clear();
         Quiz updatedQuiz = quiz.toBuilder()
                 .quizContent(request.getQuizContent())
@@ -208,7 +202,7 @@ public class QuizShowService {
                 .build();
 
         createChoices(updatedQuiz, request.getChoices());
-        quizValidator.validateQuiz(updatedQuiz);
+        quizValidator.validateQuiz(updatedQuiz, request.getQuizTypeId());
         quizRepository.save(updatedQuiz);
     }
 
