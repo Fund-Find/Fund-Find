@@ -2,9 +2,10 @@ package com.example.domain.quizShow.service;
 
 import com.example.domain.quizShow.dto.QuizShowDTO;
 import com.example.domain.quizShow.entity.*;
-import com.example.domain.quizShow.repository.QuizCategoryRepository;
 import com.example.domain.quizShow.repository.QuizRepository;
+import com.example.domain.quizShow.repository.QuizShowCategoryRepository;
 import com.example.domain.quizShow.repository.QuizShowRepository;
+import com.example.domain.quizShow.repository.QuizTypeRepository;
 import com.example.domain.quizShow.request.QuizRequest;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
@@ -36,9 +37,10 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class QuizShowService {
     private final QuizShowRepository quizShowRepository;
-    private final QuizCategoryRepository quizCategoryRepository;
+    private final QuizShowCategoryRepository quizCategoryRepository;
     private final QuizRepository quizRepository;
     private final QuizValidator quizValidator;
+    private final QuizTypeRepository quizTypeRepository;
 
     @Value("${custom.upload.dir}")
     private String uploadDir;
@@ -146,7 +148,7 @@ public class QuizShowService {
 
     private void createQuizzes(QuizShow quizShow, List<QuizRequest> quizRequests) {
         for (QuizRequest quizReq : quizRequests) {
-            QuizShowCategory quizQuizShowCategory = quizCategoryRepository.findById(quizReq.getQuizCategoryId())
+            QuizShowCategory quizQuizShowCategory = quizCategoryRepository.findById(quizReq.getQuizTypeId())
                     .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
 
             Quiz quiz = Quiz.builder()
@@ -180,7 +182,7 @@ public class QuizShowService {
     }
 
     private Quiz createNewQuiz(QuizShow quizShow, QuizRequest request) {
-        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizCategoryId())
+        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
 
         Quiz quiz = Quiz.builder()
@@ -196,7 +198,7 @@ public class QuizShowService {
     }
 
     private void updateExistingQuiz(Quiz quiz, QuizRequest request) {
-        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizCategoryId())
+        QuizShowCategory category = quizCategoryRepository.findById(request.getQuizTypeId())
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
 
         quiz.getChoices().clear();
