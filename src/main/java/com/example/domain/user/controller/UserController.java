@@ -116,7 +116,9 @@ public class UserController {
         }
 
         System.out.println("사용자 프로필 조회 성공: " + user.getUsername());
-        System.out.println("사용자 프로필 투자성향 번호 : " + user.getPropensity().getPropensityId());
+        if (user.getPropensity() != null){
+            System.out.println("사용자 프로필 투자성향 번호 : " + user.getPropensity().getPropensityId());
+        }
         return RsData.of("200", "회원 프로필 접근 완료", new UserResponse(user));
     }
 
