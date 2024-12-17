@@ -1,19 +1,20 @@
 /* styles.css */
-/* body {
+body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
     color: #333;
-} */
+}
 
 /*노말라이즈*/
-/* ul,
+ul,
 li {
     margin: 0 !important;
     padding: 0 !important;
     list-style: none !important;
-} */
+}
+*/
 
 /*작업시작*/
 .container {

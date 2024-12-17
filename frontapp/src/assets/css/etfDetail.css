@@ -1,0 +1,135 @@
+.etf-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.back-button {
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #e0e0e0;
+}
+
+.etf-info h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.info-table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.info-table th,
+.info-table td {
+    padding: 15px 20px; /* 패딩 증가 */
+    text-align: left; /* 왼쪽 정렬로 변경 */
+    border: 1px solid #e0e0e0;
+    line-height: 1.5;
+}
+
+.info-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.info-table td {
+    background-color: #fff;
+    color: #666;
+}
+
+/* 숫자 데이터는 오른쪽 정렬 */
+.info-table td.number {
+    text-align: right;
+}
+
+.info-table tr:hover td {
+    background-color: #f5f5f5;
+}
+
+/* 레이블 스타일 추가 */
+.data-label {
+    font-weight: 600;
+    color: #666;
+    margin-right: 10px;
+}
+
+/* 구분선 추가 */
+.section-divider {
+    height: 2px;
+    background-color: #f0f0f0;
+    margin: 30px 0;
+}
+
+.positive {
+    color: #d60000;
+    font-weight: bold;
+}
+
+.negative {
+    color: #0051c7;
+    font-weight: bold;
+}
+
+.component-title {
+    margin: 30px 0 15px 0;
+    font-size: 20px;
+}
+
+.component-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.component-table th,
+.component-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.component-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.component-table tr:hover td {
+    background-color: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+    .info-table-wrapper {
+        margin: 0 -20px;
+        border-radius: 0;
+    }
+
+    .info-table {
+        font-size: 14px;
+    }
+
+    .info-table th,
+    .info-table td {
+        padding: 10px;
+    }
+}

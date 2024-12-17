@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.example.domain.fund.model.ETFCategory.*;
 import static com.example.domain.fund.model.ETFSubCategory.*;
 
@@ -156,6 +158,10 @@ public class ETFInitService {
             etfInitService.initializeETFData();
             System.out.println("ETF 데이터 초기화 완료");
         }
+    }
+
+    public List<ETF> getAllETFs() {
+        return etfRepository.findAll();
     }
 
 }

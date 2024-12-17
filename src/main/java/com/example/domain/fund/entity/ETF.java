@@ -20,14 +20,58 @@ public class ETF {
     private ETFCategory category;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "etf_sub_category")
     private ETFSubCategory subCategory;
 
+    @Column(name = "current_price")
+    private String price;
+
+    @Column(name = "component_count")
+    private String componentCount;
+
+    @Column(name = "net_asset")
+    private String netAsset;
+
+    @Column(name = "nav")
+    private String nav;
+
+    @Column(name = "prev_final_nav")
+    private String prevNav;
+
+    @Column(name = "nav_change")
+    private String navChange;
+
+    @Column(name = "dividend_cycle")
+    private String dividendCycle;
+
+    @Column(name = "company_name")
+    private String company;
+
+    @Column(name = "price_change")
+    private String priceChange;
+
+    @Column(name = "price_change_rate")
+    private String priceChangeRate;
+
     @Builder
-    public ETF(String code, String name, ETFCategory category, ETFSubCategory subCategory) {
+    public ETF(String code, String name, ETFCategory category, ETFSubCategory subCategory,
+               String price, String componentCount, String netAsset, String nav, String prevNav, String navChange, String dividendCycle,
+               String company, String priceChange, String priceChangeRate) {
         this.code = code;
         this.name = name;
         this.category = category;
         this.subCategory = subCategory;
+        this.price = price;
+        this.componentCount = componentCount;
+        this.netAsset = netAsset;
+        this.nav = nav;
+        this.prevNav = prevNav;
+        this.navChange = navChange;
+        this.dividendCycle = dividendCycle;
+        this.company = company;
+        this.priceChange = priceChange;
+        this.priceChangeRate = priceChangeRate;
     }
+
 }
 

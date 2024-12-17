@@ -2,6 +2,7 @@ package com.example.domain.fund.service;
 
 import com.example.domain.fund.accessToken.AccessTokenManager;
 import com.example.domain.fund.config.OpenApiConfig;
+import com.example.domain.fund.entity.ETF;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,6 +13,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -161,6 +167,8 @@ public class ETFService {
 
                 // output2 : 구성 종목 데이터 배열
                 if (jsonResponse.has("output2")) {
+                    JsonNode output2 = jsonResponse.get("output2");
+                    log.info("output2 존재함. 크기: {}", output2.size());
                     log.info("output2: {}", jsonResponse.get("output2").toPrettyString());
                 } else {
                     log.warn("output2 데이터가 없습니다.");
@@ -188,7 +196,7 @@ public class ETFService {
                             // 20 : 출력할 문자열 최소 폭 지정
                             // 20보다 짧으면 나머지는 공백으로 채워짐
                             // 20보다 길면 잘리지 않고 그대로 출력
-                            result.append(String.format("%-20s %-20s %-20s %-20s %20s%%\n",
+                            result.append(String.format("%-20s %-10s %-15s %-20s %-20s%%\n",
                                     stockName, stockCodeFromETF, formatNumber(marketCapHts), formatNumber(marketCap), formatWeight(weight)));
                         }
                     } else {
@@ -290,4 +298,185 @@ public class ETFService {
 
         return fieldNode.asText();
     }
+
+//    public List<Map<String, String>> getETFsDetailInfo(List<ETF> etfs) {
+//        List<Map<String, String>> etfDetailsList = new ArrayList<>();
+//
+//        for (ETF etf : etfs) {
+//            try {
+//                String etfInfo = getETFInfo(etf.getCode());
+//                Map<String, String> etfDetails = parseETFInfo(etfInfo);
+//
+//                // ETF 기본 정보 추가
+//                etfDetails.put("code", etf.getCode());
+//                etfDetails.put("name", etf.getName());
+//                etfDetails.put("category", etf.getCategory().getDescription());
+//                etfDetails.put("subCategory", etf.getSubCategory().getDescription());
+//
+//                etfDetailsList.add(etfDetails);
+//
+//                // API 호출 간 간격 추가 (초당 요청 제한 고려)
+//                Thread.sleep(100);
+//
+//            } catch (Exception e) {
+//                log.error("ETF 정보 조회 실패 - 코드: {}, 에러: {}", etf.getCode(), e.getMessage());
+//
+//                // 에러 발생시에도 기본 정보는 추가
+//                Map<String, String> basicInfo = new HashMap<>();
+//                basicInfo.put("code", etf.getCode());
+//                basicInfo.put("name", etf.getName());
+//                basicInfo.put("category", etf.getCategory().getDescription());
+//                basicInfo.put("subCategory", etf.getSubCategory().getDescription());
+//                basicInfo.put("error", "일시적으로 정보를 불러올 수 없습니다.");
+//                etfDetailsList.add(basicInfo);
+//            }
+//        }
+//
+//        return etfDetailsList;
+//    }
+
+    public List<Map<String, String>> getETFsDetailInfo(List<ETF> etfs) {
+        List<Map<String, String>> etfDetailsList = new ArrayList<>();
+
+        for (ETF etf : etfs) {
+            try {
+                Map<String, String> details = new HashMap<>();
+                details.put("code", etf.getCode());
+                details.put("name", etf.getName());
+                details.put("category", etf.getCategory().getDescription());
+                details.put("subCategory", etf.getSubCategory().getDescription());
+
+                // ETF 세부 정보 추가
+                details.put("currentPrice", etf.getPrice());
+                details.put("componentCount", etf.getComponentCount());
+                details.put("netAsset", etf.getNetAsset());
+                details.put("nav", etf.getNav());
+                details.put("prevNav", etf.getPrevNav());
+                details.put("navChange", etf.getNavChange());
+                details.put("dividendCycle", etf.getDividendCycle());
+                details.put("company", etf.getCompany());
+                details.put("priceChange", etf.getPriceChange());
+                details.put("priceChangeRate", etf.getPriceChangeRate());
+
+                // API 호출로 실시간 데이터 가져오기
+                try {
+                    String etfInfo = getETFInfo(etf.getCode());
+                    if (etfInfo != null && !etfInfo.isEmpty()) {
+                        Map<String, String> apiDetails = parseETFInfo(etfInfo);
+                        details.putAll(apiDetails);  // API에서 받아온 데이터로 업데이트
+                    }
+                } catch (Exception e) {
+                    log.error("ETF API 조회 실패 - 코드: {}, 에러: {}", etf.getCode(), e.getMessage());
+                }
+
+                etfDetailsList.add(details);
+                Thread.sleep(100);  // API 호출 제한 고려
+
+            } catch (Exception e) {
+                log.error("ETF 정보 처리 실패 - 코드: {}, 에러: {}", etf.getCode(), e.getMessage());
+                Map<String, String> errorDetails = new HashMap<>();
+                errorDetails.put("code", etf.getCode());
+                errorDetails.put("name", etf.getName());
+                errorDetails.put("error", "데이터를 불러올 수 없습니다");
+                etfDetailsList.add(errorDetails);
+            }
+        }
+
+        return etfDetailsList;
+    }
+
+    public Map<String, String> parseETFInfo(String etfInfo) {
+        Map<String, String> details = new HashMap<>();
+
+        try {
+            if (etfInfo == null || etfInfo.isEmpty()) {
+                throw new IllegalArgumentException("ETF 정보가 비어있습니다.");
+            }
+
+            // ETF 기본 정보 파싱
+            String[] lines = etfInfo.split("\n");
+            for (String line : lines) {
+                if (line.contains(":")) {
+                    String[] parts = line.split(":", 2);
+                    String key = parts[0].trim();
+                    String value = parts[1].trim();
+
+                    switch (key) {
+                        case "현재가":
+                            details.put("currentPrice", value.replace("원", "").trim());
+                            break;
+                        case "ETF 구성종목 수(최대 100개)":
+                            details.put("componentCount", value.replace("개", "").trim());
+                            break;
+                        case "ETF 순자산 총액":
+                            details.put("netAsset", value.replace("억 원", "").trim());
+                            break;
+                        case "NAV":
+                            details.put("nav", value.replace("원", "").trim());
+                            break;
+                        case "전일 최종 NAV":
+                            details.put("prevNav", value.replace("원", "").trim());
+                            break;
+                        case "전일 대비 NAV 변동액":
+                            details.put("navChange", value.replace("원", "").trim());
+                            break;
+                        case "ETF 배당주기":
+                            details.put("dividendCycle", value.replace("개월", "").trim());
+                            break;
+                        case "회원사명":
+                            details.put("company", value.trim());
+                            break;
+                        case "전일대비":
+                            details.put("priceChange", value.replace("원", "").trim());
+                            break;
+                        case "등락률":
+                            details.put("priceChangeRate", value.replace("%", "").trim());
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("ETF 정보 파싱 실패: {}", e.getMessage());
+            // 파싱 실패 시 기본값 설정
+            details.put("currentPrice", "0");
+            details.put("componentCount", "0");
+            details.put("netAsset", "0");
+            details.put("nav", "0");
+            details.put("prevNav", "0");
+            details.put("navChange", "0");
+            details.put("dividendCycle", "0");
+            details.put("company", "N/A");
+            details.put("priceChange", "0");
+            details.put("priceChangeRate", "0");
+        }
+
+        return details;
+    }
+
+//    public String parseComponentInfo(String code) {
+//        try {
+//            String url = openApiConfig.getBaseUrl() + "/uapi/etfetn/v1/quotations/inquire-component-stock-price";
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.set("tr_id", "FHKST121600C0");
+//            headers.set("custtype", "P");
+//
+//            // Query Parameter 설정
+//            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+//                    .queryParam("FID_COND_MRKT_DIV_CODE", "J")
+//                    .queryParam("FID_INPUT_ISCD", code);
+//
+//            // API 호출 및 결과 파싱
+//            ResponseEntity<String> response = restTemplate.exchange(
+//                    builder.toUriString(),
+//                    HttpMethod.GET,
+//                    new HttpEntity<>(headers),
+//                    String.class
+//            );
+//
+//            return response.getBody();
+//        } catch (Exception e) {
+//            throw new RuntimeException("구성종목 조회 실패: " + e.getMessage());
+//        }
+//    }
+
 }
