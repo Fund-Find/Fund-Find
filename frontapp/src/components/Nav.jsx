@@ -180,7 +180,9 @@ function Nav() {
 
             {/* faFacebook 로고  */}
             <div className="logo">
-                <FontAwesomeIcon icon={faFacebook} />
+                <Link to="/">
+                    <FontAwesomeIcon icon={faFacebook} />
+                </Link>
             </div>
 
             {/* User 버튼 */}
