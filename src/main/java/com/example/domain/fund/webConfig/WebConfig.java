@@ -3,6 +3,10 @@ package com.example.domain.fund.webConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.time.Duration;
+
+import static org.springframework.http.CacheControl.maxAge;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -35,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173")  // 프론트엔드 서버 주소
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

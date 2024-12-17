@@ -1,4 +1,4 @@
-package com.example.domain.fund.etfDto;
+package com.example.domain.fund.etfDTO;
 
 import com.example.domain.fund.model.ETFCategory;
 import com.example.domain.fund.model.ETFSubCategory;
