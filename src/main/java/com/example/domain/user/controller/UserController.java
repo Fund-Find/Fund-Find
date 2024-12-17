@@ -115,10 +115,8 @@ public class UserController {
             return RsData.of("404", "사용자를 찾을 수 없습니다.", null);
         }
 
-        System.out.println("사용자 프로필 조회 성공: " + user.getUsername());
-        if (user.getPropensity() != null){
-            System.out.println("사용자 프로필 투자성향 번호 : " + user.getPropensity().getPropensityId());
-        }
+//        System.out.println("사용자 프로필 조회 성공: " + user.getUsername());
+//        System.out.println("사용자 프로필 투자성향 번호 : " + user.getPropensity().getPropensityId());
         return RsData.of("200", "회원 프로필 접근 완료", new UserResponse(user));
     }
 

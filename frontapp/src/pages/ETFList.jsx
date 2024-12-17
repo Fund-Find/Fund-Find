@@ -1,11 +1,47 @@
-import { useState, useEffect, useRef } from 'react'
-import { Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Virtual, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import '../assets/css/etfList.css'
+
+const ComparePopup = ({ etfCodes = [], onClose = () => {}, removeETF = () => {} }) => {
+    if (!etfCodes || !Array.isArray(etfCodes)) {
+        return null
+    }
+
+    const handleClose = (e) => {
+        e.preventDefault()
+        if (typeof onClose === 'function') {
+            onClose()
+        }
+    }
+
+    return (
+        <div className="compare-popup-overlay">
+            <div className="compare-popup">
+                <button className="popup-close-btn" onClick={handleClose}>
+                    <span>×</span>
+                </button>
+                <div className="compare-container">
+                    {etfCodes.map((code) => (
+                        <div key={code} className="compare-item">
+                            <div className="compare-item-header">
+                                <h3>ETF {code}</h3>
+                                <button className="item-close-btn" onClick={() => removeETF(code)}>
+                                    ×
+                                </button>
+                            </div>
+                            <iframe src={`/etf/${code}`} title={`ETF ${code}`} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default function ETFList() {
     const [etfs, setEtfs] = useState([])
@@ -15,16 +51,27 @@ export default function ETFList() {
     const [sortedETFs, setSortedETFs] = useState([])
     const [swiperRef, setSwiperRef] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
+    const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('etfFavorites')
+        return saved ? JSON.parse(saved) : []
+    })
+    const [compareList, setCompareList] = useState([])
+    const [showComparePopup, setShowComparePopup] = useState(false)
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
     const itemsPerPage = 10
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetchETFs()
     }, [])
 
     useEffect(() => {
-        const filtered = etfs.filter((etf) =>
+        let filtered = etfs.filter((etf) =>
             searchTerm ? etf.name.toLowerCase().includes(searchTerm.toLowerCase()) : true,
         )
+        if (showFavoritesOnly) {
+            filtered = filtered.filter((etf) => favorites.includes(etf.code))
+        }
         if (filtered.length > 0) {
             const sorted = sortByPriceChangeRate(filtered)
             setSortedETFs(sorted)
@@ -32,7 +79,7 @@ export default function ETFList() {
         } else {
             setSortedETFs([])
         }
-    }, [etfs, searchTerm])
+    }, [etfs, searchTerm, showFavoritesOnly, favorites])
 
     const sortByPriceChangeRate = (etfs) => {
         return [...etfs].sort((a, b) => {
@@ -63,10 +110,35 @@ export default function ETFList() {
         }
     }
 
-    const slideTo = (index) => {
-        if (swiperRef) {
-            swiperRef.slideTo(index - 1, 500)
-        }
+    const handleETFClick = (etfCode) => {
+        navigate(`/etf/${etfCode}`)
+    }
+
+    const toggleFavorite = (event, etfCode) => {
+        event.stopPropagation()
+        setFavorites((prev) => {
+            const newFavorites = prev.includes(etfCode) ? prev.filter((code) => code !== etfCode) : [...prev, etfCode]
+            localStorage.setItem('etfFavorites', JSON.stringify(newFavorites))
+            return newFavorites
+        })
+    }
+
+    const toggleCompare = (event, etfCode) => {
+        event.stopPropagation()
+        setCompareList((prev) => {
+            if (prev.includes(etfCode)) {
+                return prev.filter((code) => code !== etfCode)
+            }
+            if (prev.length >= 3) {
+                alert('최대 3개까지만 비교할 수 있습니다.')
+                return prev
+            }
+            return [...prev, etfCode]
+        })
+    }
+
+    const removeFromCompare = (etfCode) => {
+        setCompareList((prev) => prev.filter((code) => code !== etfCode))
     }
 
     const indexOfLastItem = currentPage * itemsPerPage
@@ -80,7 +152,6 @@ export default function ETFList() {
                 <span className="mbti-banner-text">투자성향 MBTI 분석하러 가기</span>
                 <span className="mbti-banner-arrow">→</span>
             </div>
-
             <h1 className="text-3xl font-bold mb-8">ETF 찾기</h1>
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -93,16 +164,25 @@ export default function ETFList() {
                     </button>
                 </div>
             )}
-            <div className="search-box">
-                <input
-                    type="text"
-                    placeholder="ETF를 검색해보세요"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button className="search-btn">
-                    <Search className="w-5 h-5 text-gray-500" />
-                </button>
+            <div className="search-controls">
+                <div className="search-box">
+                    <input
+                        type="text"
+                        placeholder="ETF를 검색해보세요"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="filter-controls">
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showFavoritesOnly}
+                            onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+                        />
+                        즐겨찾기만 보기
+                    </label>
+                </div>
             </div>
             <div className="etf-list mb-4">
                 <div className="list-header">
@@ -125,6 +205,8 @@ export default function ETFList() {
                         <br />
                         등락률
                     </div>
+                    <div>즐겨찾기</div>
+                    <div>비교</div>
                 </div>
                 {loading ? (
                     <div className="text-center py-8">로딩 중...</div>
@@ -132,7 +214,12 @@ export default function ETFList() {
                     <div className="text-center py-8">{error ? '' : '검색 결과가 없습니다'}</div>
                 ) : (
                     currentItems.map((etf) => (
-                        <div key={etf.code} className="etf-item">
+                        <div
+                            key={etf.code}
+                            className="etf-item"
+                            onClick={() => handleETFClick(etf.code)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className="company-name">{etf.company || 'N/A'}</div>
                             <div className="text-left">{etf.name}</div>
                             <div>{etf.currentPrice || '0'}원</div>
@@ -148,10 +235,42 @@ export default function ETFList() {
                             <div className={`${Number(etf.priceChangeRate) >= 0 ? 'up' : 'down'}`}>
                                 {etf.priceChangeRate || '0'}%
                             </div>
+                            <div>
+                                <button
+                                    onClick={(e) => toggleFavorite(e, etf.code)}
+                                    className={`favorite-btn ${favorites.includes(etf.code) ? 'active' : ''}`}
+                                >
+                                    {favorites.includes(etf.code) ? '★' : '☆'}
+                                </button>
+                            </div>
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    checked={compareList.includes(etf.code)}
+                                    onChange={(e) => toggleCompare(e, etf.code)}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            </div>
                         </div>
                     ))
                 )}
             </div>
+            <div className="compare-controls">
+                <button
+                    onClick={() => setShowComparePopup(true)}
+                    disabled={compareList.length === 0}
+                    className="compare-btn"
+                >
+                    선택한 ETF 비교하기 ({compareList.length}/3)
+                </button>
+            </div>
+            {showComparePopup && (
+                <ComparePopup
+                    etfCodes={compareList}
+                    onClose={() => setShowComparePopup(false)}
+                    removeETF={removeFromCompare}
+                />
+            )}
             {!loading && sortedETFs.length > 0 && (
                 <div className="pagination-controls">
                     <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
@@ -176,9 +295,9 @@ export default function ETFList() {
                 <Swiper
                     modules={[Virtual, Navigation, Pagination]}
                     onSwiper={setSwiperRef}
-                    slidesPerView={3}
+                    slidesPerView={5}
                     centeredSlides={false}
-                    spaceBetween={16}
+                    spaceBetween={28}
                     navigation={true}
                     pagination={{
                         type: 'fraction',
@@ -191,21 +310,48 @@ export default function ETFList() {
                         },
                         640: {
                             slidesPerView: 2,
-                            spaceBetween: 12,
+                            spaceBetween: 15,
                         },
                         768: {
                             slidesPerView: 3,
-                            spaceBetween: 14,
+                            spaceBetween: 15,
+                        },
+                        1024: {
+                            slidesPerView: 4,
+                            spaceBetween: 20,
+                        },
+                        1280: {
+                            slidesPerView: 5,
+                            spaceBetween: 20,
                         },
                     }}
                     virtual
                     className="bestETFSwiper"
                 >
                     {sortedETFs.map((etf, index) => (
-                        <SwiperSlide key={etf.code} virtualIndex={index}>
+                        <SwiperSlide
+                            key={etf.code}
+                            virtualIndex={index}
+                            onClick={() => handleETFClick(etf.code)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className="bg-white rounded-2xl shadow-md p-4 relative h-full">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="text-lg font-medium text-gray-900">{index + 1}</span>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={(e) => toggleFavorite(e, etf.code)}
+                                            className={`favorite-btn ${favorites.includes(etf.code) ? 'active' : ''}`}
+                                        >
+                                            {favorites.includes(etf.code) ? '★' : '☆'}
+                                        </button>
+                                        <input
+                                            type="checkbox"
+                                            checked={compareList.includes(etf.code)}
+                                            onChange={(e) => toggleCompare(e, etf.code)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="flex items-start gap-2 mb-6">
                                     <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center"></div>
@@ -214,7 +360,9 @@ export default function ETFList() {
                                         <p className="text-xs text-gray-500 mt-1">{etf.code}</p>
                                     </div>
                                 </div>
-                                <div className="text-2xl font-bold mb-2">{etf.priceChangeRate}%</div>
+                                <div className={`priceChangeRate ${Number(etf.priceChangeRate) >= 0 ? 'up' : 'down'}`}>
+                                    {etf.priceChangeRate || '0'}%
+                                </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-gray-500">현재가</span>
                                     <span className="text-sm font-medium">

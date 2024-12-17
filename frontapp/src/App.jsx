@@ -6,13 +6,13 @@ import Article from './pages/Article'
 import Nav from './components/Nav'
 import Register from './pages/Register'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import Survey from './pages/Survey'
+import Profile from './pages/profile'
+import Survey from './components/Survey'
 import Result from './pages/Result'
 import QuizShowList from './pages/QuizshowList'
 import ETFList from './pages/ETFList'
-import ETFDetail from './pages/ETFDetail'
+import ETFDetail from './components/ETFDetail'
 import PrivateRoute from './components/PrivateRoute'
-import Profile from './pages/profile'
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
