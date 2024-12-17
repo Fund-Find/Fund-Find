@@ -1,19 +1,19 @@
 package com.example.domain.quizShow.service;
 
 import com.example.domain.quizShow.dto.QuizShowDTO;
-import com.example.domain.quizShow.entity.Quiz;
-import com.example.domain.quizShow.entity.QuizChoice;
-import com.example.domain.quizShow.entity.QuizShow;
-import com.example.domain.quizShow.entity.QuizShowCategory;
-import com.example.domain.quizShow.repository.QuizRepository;
-import com.example.domain.quizShow.repository.QuizShowCategoryRepository;
-import com.example.domain.quizShow.repository.QuizShowRepository;
-import com.example.domain.quizShow.repository.QuizTypeRepository;
+import com.example.domain.quizShow.entity.*;
+import com.example.domain.quizShow.repository.*;
 import com.example.domain.quizShow.request.QuizRequest;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
+import com.example.domain.quizShow.request.QuizSubmitRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
+import com.example.domain.quizShow.response.QuizSubmitResponse;
 import com.example.domain.quizShow.validator.QuizValidator;
+import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.entity.UserQuizResult;
+import com.example.domain.user.repository.UserQuizResultRepository;
+import com.example.domain.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +30,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +44,9 @@ public class QuizShowService {
     private final QuizRepository quizRepository;
     private final QuizValidator quizValidator;
     private final QuizTypeRepository quizTypeRepository;
+    private final UserService userService;
+    private final QuizAnswerRepository quizAnswerRepository;
+    private final UserQuizResultRepository userQuizResultRepository;
 
     @Value("${custom.upload.dir}")
     private String uploadDir;
@@ -82,6 +83,88 @@ public class QuizShowService {
             log.error("퀴즈쇼 조회 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("퀴즈쇼 조회에 실패했습니다.", e);
         }
+    }
+
+    @Transactional
+    public QuizSubmitResponse submitAndSaveResult(
+            Long quizShowId,
+            List<QuizSubmitRequest.QuizAnswer> answers,
+            Long userId) {
+
+        // 퀴즈쇼 조회
+        QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(quizShowId)
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
+
+        // 사용자 조회
+        SiteUser user = userService.getUser(userId);
+
+        // 답안 채점 및 결과 저장
+        Map<Long, Boolean> results = new HashMap<>();
+        Map<Long, Integer> correctAnswers = new HashMap<>();
+        int totalScore = 0;
+
+        // 각 답안 처리
+        for (QuizSubmitRequest.QuizAnswer answer : answers) {
+            Quiz quiz = quizShow.getQuizzes().stream()
+                    .filter(q -> q.getId().equals(answer.getQuizId()))
+                    .findFirst()
+                    .orElseThrow(() -> new EntityNotFoundException("퀴즈를 찾을 수 없습니다."));
+
+            // 정답 찾기
+            int correctAnswerIndex = findCorrectAnswerIndex(quiz);
+            correctAnswers.put(quiz.getId(), correctAnswerIndex);
+
+            // 정답 확인
+            boolean isCorrect = answer.getAnswer() == correctAnswerIndex;
+            results.put(quiz.getId(), isCorrect);
+
+            if (isCorrect) {
+                totalScore += quiz.getQuizScore();
+            }
+
+            // 답안 기록 저장
+            saveQuizAnswer(quiz, user, answer.getAnswer(), isCorrect);
+        }
+
+        // 최종 결과 저장
+        saveUserQuizResult(user, quizShow, totalScore);
+
+        return QuizSubmitResponse.builder()
+                .score(totalScore)
+                .results(results)
+                .correctAnswers(correctAnswers)
+                .build();
+    }
+
+    private int findCorrectAnswerIndex(Quiz quiz) {
+        for (int i = 0; i < quiz.getChoices().size(); i++) {
+            if (quiz.getChoices().get(i).getIsCorrect()) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("정답이 설정되지 않은 퀴즈가 있습니다.");
+    }
+
+    private void saveQuizAnswer(Quiz quiz, SiteUser user, int userAnswer, boolean isCorrect) {
+        QuizAnswer quizAnswer = QuizAnswer.builder()
+                .quiz(quiz)
+                .user(user)
+                .userAnswer(String.valueOf(userAnswer))
+                .isCorrect(isCorrect)
+                .answeredAt(LocalDateTime.now())
+                .build();
+
+        quizAnswerRepository.save(quizAnswer);
+    }
+
+    private void saveUserQuizResult(SiteUser user, QuizShow quizShow, int totalScore) {
+        UserQuizResult quizResult = UserQuizResult.builder()
+                .user(user)
+                .quizShow(quizShow)
+                .score(totalScore)
+                .build();
+
+        userQuizResultRepository.save(quizResult);
     }
 
     @Transactional

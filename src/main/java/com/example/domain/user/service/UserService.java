@@ -109,6 +109,10 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
+    public SiteUser getUser(Long userId) {
+        return this.userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    }
 
     // 사용자 정보 조회
     public Optional<SiteUser> findUserByUsername(String username) {
