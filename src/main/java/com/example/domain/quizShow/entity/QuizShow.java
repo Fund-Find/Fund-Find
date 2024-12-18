@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,8 @@ public class QuizShow extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer view;
+
+    private LocalDateTime lastViewedAt;
 
     @ManyToMany
     @ColumnDefault("0")

@@ -14,7 +14,7 @@ function QuizShowList() {
 
     const fetchQuizShows = async (page) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/quizshow?page=${page}&size=9`);
+            const response = await fetch(`http://localhost:8080/api/v1/quizshow?page=${page}&size=9&sort=id,desc`);
             if (!response.ok) {
                 throw new Error('퀴즈쇼 데이터를 불러오는데 실패했습니다.');
             }

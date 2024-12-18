@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,18 +65,36 @@ public class QuizShowService {
                 quizShowPage.getNumber());
     }
 
+    @Transactional
     public QuizShowDTO getQuizShow(Long id) {
         try {
             // 1. 퀴즈쇼와 퀴즈 목록을 가져옵니다
             QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(id)
                     .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
 
+            // 마지막 조회 시간 체크 로직 추가
+            LocalDateTime now = LocalDateTime.now();
+            if (quizShow.getLastViewedAt() == null ||
+                    Duration.between(quizShow.getLastViewedAt(), now).getSeconds() > 5) {  // 5초 간격으로 제한
+
+                quizShow = quizShowRepository.save(
+                        quizShow.toBuilder()
+                                .view(quizShow.getView() + 1)
+                                .lastViewedAt(now)
+                                .build()
+                );
+            }
             // 2. 해당 퀴즈쇼의 모든 퀴즈와 선택지를 가져옵니다
             List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(id);
 
             // 3. 선택지 순서 랜덤화
-            for (Quiz quiz : quizzesWithChoices) {
-                Collections.shuffle(quiz.getChoices());
+            // 퀴즈는 순서대로 유지하고 선택지만 랜덤화
+            if (quizShow.getQuizzes() != null) {
+                quizShow.getQuizzes().forEach(quiz -> {
+                    if (quiz.getChoices() != null) {
+                        Collections.shuffle(quiz.getChoices());
+                    }
+                });
             }
 
             // 4. 랜덤화된 퀴즈 데이터를 퀴즈쇼에 설정
