@@ -78,6 +78,11 @@ public class QuizShowService {
                 Collections.shuffle(quiz.getChoices());
             }
 
+            // 4. 랜덤화된 퀴즈 데이터를 퀴즈쇼에 설정
+            quizShow = quizShow.toBuilder()
+                    .quizzes(quizzesWithChoices)
+                    .build();
+
             return new QuizShowDTO(quizShow);
         } catch (Exception e) {
             log.error("퀴즈쇼 조회 중 오류 발생: {}", e.getMessage());
