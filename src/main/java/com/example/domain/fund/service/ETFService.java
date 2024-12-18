@@ -180,7 +180,7 @@ public class ETFService {
                 if (jsonResponse.has("output2") && jsonResponse.get("output2").isArray()) {
                     JsonNode output2 = jsonResponse.get("output2");
                     if (output2.size() > 0) {
-                        result.append(String.format("%-20s %-10s %-15s %-20s %-20s\n", "종목명", "종목코드", "구성종목 시가총액(억 원)", "비중에 따른 시가총액(억 원)", "비중(%)"));
+//                        result.append(String.format("%-20s %-10s %-15s %-20s %-20s\n", "종목명", "종목코드", "구성종목 시가총액(억 원)", "비중에 따른 시가총액(억 원)", "비중(%)"));
 
                         // "=" 이걸 120번 반복 출력
                         // 결과 : "============================================================"

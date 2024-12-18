@@ -1,0 +1,148 @@
+.etfDetailContainer {
+    width: 100%;
+    padding: 20px;
+}
+
+.backButton {
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    backgroundcolor: #f0f0f0;
+    border: none;
+    borderradius: 4px;
+    cursor: pointer;
+}
+
+.backButton:hover {
+    backgroundcolor: #e0e0e0;
+}
+
+.etfInfo h2 {
+    fontsize: 20px;
+    marginbottom: 20px;
+}
+
+/* 기본 정보 테이블 */
+.infoTable {
+    width: 100%;
+    bordercollapse: collapse;
+    marginbottom: 30px;
+    tablelayout: fixed;
+}
+
+.infoTable th {
+    background: #f8f9fa;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    fontweight: bold;
+    whitespace: nowrap;
+    overflow: hidden;
+    textoverflow: ellipsis;
+    fontsize: 14px;
+}
+
+.infoTable td {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    textalign: center;
+    whitespace: nowrap;
+    overflow: hidden;
+    textoverflow: ellipsis;
+    fontsize: 14px;
+}
+
+/* 구성종목 정보 테이블 */
+.componentTitle {
+    fontsize: 18px;
+    margin: 20px 0;
+    fontweight: bold;
+}
+
+.componentTable {
+    width: 100%;
+    bordercollapse: collapse;
+    tablelayout: fixed;
+}
+
+.componentTable th {
+    background: #f8f9fa;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    fontweight: bold;
+    textalign: center;
+    whitespace: nowrap;
+    overflow: hidden;
+    textoverflow: ellipsis;
+    fontsize: 14px;
+}
+
+.componentTable td {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    textalign: center;
+    whitespace: nowrap;
+    overflow: hidden;
+    textoverflow: ellipsis;
+    fontsize: 14px;
+}
+
+/* 구성종목 테이블 열 너비 조정 */
+.componentTable th:nthchild(1),
+.componentTable td:nthchild(1) {
+    width: 20%;
+}
+
+.componentTable th:nthchild(2),
+.componentTable td:nthchild(2) {
+    width: 15%;
+}
+
+.componentTable th:nthchild(3),
+.componentTable td:nthchild(3),
+.componentTable th:nthchild(4),
+.componentTable td:nthchild(4) {
+    width: 25%;
+}
+
+.componentTable th:nthchild(5),
+.componentTable td:nthchild(5) {
+    width: 15%;
+}
+
+.positive {
+    color: #d60000;
+    fontweight: bold;
+}
+
+.negative {
+    color: #0051c7;
+    fontweight: bold;
+}
+
+.noData {
+    textalign: center;
+    padding: 24px;
+    color: #666;
+}
+
+@media (maxwidth: 768px) {
+    .etfDetailContainer {
+        padding: 10px;
+    }
+
+    .infoTableWrapper {
+        overflowx: auto;
+    }
+
+    .infoTable,
+    .componentTable {
+        minwidth: 800px;
+    }
+
+    .infoTable th,
+    .infoTable td,
+    .componentTable th,
+    .componentTable td {
+        padding: 8px;
+        fontsize: 12px;
+    }
+}

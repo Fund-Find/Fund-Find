@@ -1,6 +1,5 @@
 .etf-detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
     padding: 20px;
 }
 
@@ -18,65 +17,95 @@
 }
 
 .etf-info h2 {
+    font-size: 20px;
     margin-bottom: 20px;
-    font-size: 24px;
 }
 
-.info-table-wrapper {
-    overflow-x: auto;
-    margin-top: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
+/* 기본 정보 테이블 */
 .info-table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid #e0e0e0;
     margin-bottom: 30px;
-}
-
-.info-table th,
-.info-table td {
-    padding: 15px 20px; /* 패딩 증가 */
-    text-align: left; /* 왼쪽 정렬로 변경 */
-    border: 1px solid #e0e0e0;
-    line-height: 1.5;
+    table-layout: fixed;
 }
 
 .info-table th {
-    background-color: #f8f9fa;
+    background: #f8f9fa;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
     font-weight: bold;
-    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
 }
 
 .info-table td {
-    background-color: #fff;
-    color: #666;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
 }
 
-/* 숫자 데이터는 오른쪽 정렬 */
-.info-table td.number {
-    text-align: right;
+/* 구성종목 정보 테이블 */
+.component-title {
+    font-size: 18px;
+    margin: 20px 0;
+    font-weight: bold;
 }
 
-.info-table tr:hover td {
-    background-color: #f5f5f5;
+.component-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
-/* 레이블 스타일 추가 */
-.data-label {
-    font-weight: 600;
-    color: #666;
-    margin-right: 10px;
+.component-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
 }
 
-/* 구분선 추가 */
-.section-divider {
-    height: 2px;
-    background-color: #f0f0f0;
-    margin: 30px 0;
+.component-table td {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+}
+
+/* 구성종목 테이블 열 너비 조정 */
+.component-table th:nth-child(1),
+.component-table td:nth-child(1) {
+    width: 20%;
+}
+
+.component-table th:nth-child(2),
+.component-table td:nth-child(2) {
+    width: 15%;
+}
+
+.component-table th:nth-child(3),
+.component-table td:nth-child(3),
+.component-table th:nth-child(4),
+.component-table td:nth-child(4) {
+    width: 25%;
+}
+
+.component-table th:nth-child(5),
+.component-table td:nth-child(5) {
+    width: 15%;
 }
 
 .positive {
@@ -89,47 +118,31 @@
     font-weight: bold;
 }
 
-.component-title {
-    margin: 30px 0 15px 0;
-    font-size: 20px;
-}
-
-.component-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    border: 1px solid #e0e0e0;
-}
-
-.component-table th,
-.component-table td {
-    padding: 12px;
+.no-data {
     text-align: center;
-    border: 1px solid #e0e0e0;
-}
-
-.component-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    color: #333;
-}
-
-.component-table tr:hover td {
-    background-color: #f5f5f5;
+    padding: 24px;
+    color: #666;
 }
 
 @media (max-width: 768px) {
-    .info-table-wrapper {
-        margin: 0 -20px;
-        border-radius: 0;
+    .etf-detail-container {
+        padding: 10px;
     }
 
-    .info-table {
-        font-size: 14px;
+    .info-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .info-table,
+    .component-table {
+        min-width: 800px;
     }
 
     .info-table th,
-    .info-table td {
-        padding: 10px;
+    .info-table td,
+    .component-table th,
+    .component-table td {
+        padding: 8px;
+        font-size: 12px;
     }
 }

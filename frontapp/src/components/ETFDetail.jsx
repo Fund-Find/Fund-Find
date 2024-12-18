@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import styles from '../assets/css/module/ETFDetail.module.css'
 
 function ETFDetail() {
     const [etfInfo, setEtfInfo] = useState(null)
@@ -80,8 +81,8 @@ function ETFDetail() {
     }
 
     return (
-        <div className="etf-detail-container">
-            <button onClick={handleGoBack} className="back-button">
+        <div className={styles.etfDetailContainer}>
+            <button onClick={handleGoBack} className={styles.backButton}>
                 뒤로 가기
             </button>
             {loading ? (
@@ -89,10 +90,10 @@ function ETFDetail() {
             ) : error ? (
                 <div>에러 발생: {error}</div>
             ) : etfInfo ? (
-                <div className="etf-info">
+                <div className={styles.etfInfo}>
                     <h2>ETF 상세 정보</h2>
-                    <div className="info-table-wrapper">
-                        <table className="info-table">
+                    <div className={styles.infoTableWrapper}>
+                        <table className={styles.infoTable}>
                             <thead>
                                 <tr>
                                     <th>종목명</th>
@@ -121,8 +122,8 @@ function ETFDetail() {
                                     <td
                                         className={
                                             Number(etfInfo.basicInfo['전일대비'].replace(/[^-\d.]/g, '')) > 0
-                                                ? 'positive'
-                                                : 'negative'
+                                                ? styles.positive
+                                                : styles.negative
                                         }
                                     >
                                         {etfInfo.basicInfo['전일대비']} ({etfInfo.basicInfo['등락률']})
@@ -130,8 +131,8 @@ function ETFDetail() {
                                 </tr>
                             </tbody>
                         </table>
-                        <h3 className="component-title">구성종목 정보</h3>
-                        <table className="component-table">
+                        <h3 className={styles.componentTitle}>구성종목 정보</h3>
+                        <table className={styles.componentTable}>
                             <thead>
                                 <tr>
                                     <th>종목명</th>
@@ -154,7 +155,7 @@ function ETFDetail() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="no-data">
+                                        <td colSpan="5" className={styles.noData}>
                                             해당 ETF는 주식 종목을 갖고 있지 않습니다.
                                         </td>
                                     </tr>

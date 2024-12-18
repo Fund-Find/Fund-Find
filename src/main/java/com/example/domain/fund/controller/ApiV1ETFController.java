@@ -34,8 +34,6 @@ public class ApiV1ETFController {
     private final AccessTokenManager accessTokenManager; // 토큰 상태 테스트 용
     private final UserService userService;
 
-
-
     @GetMapping("/{code}")
     public RsData<String> getETFInfo(@PathVariable("code") String code) {
         try {

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../assets/css/survey.css'
 
-function Survey() {
+function Survey({ onClose, onSubmitSuccess }) {
     const navigate = useNavigate()
     const [answers, setAnswers] = useState({
         q1: '',
@@ -11,7 +11,6 @@ function Survey() {
         q4: '',
     })
 
-    // 라디오 버튼 변경 핸들러
     const handleRadioChange = (event) => {
         const { name, value } = event.target
         setAnswers((prev) => ({
@@ -20,9 +19,7 @@ function Survey() {
         }))
     }
 
-    // 제출 핸들러
     const handleSubmit = async () => {
-        // 모든 질문에 답변했는지 확인
         if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
             alert('모든 질문에 답변해주세요.')
             return
@@ -42,6 +39,10 @@ function Survey() {
 
             if (result.resultCode === '200') {
                 alert('설문 제출 완료!')
+                if (typeof onClose === 'function') {
+                    // onClose가 함수인지 확인
+                    onClose() // 팝업 닫기
+                }
                 navigate('/result', {
                     state: { propensityId: result.data },
                 })
