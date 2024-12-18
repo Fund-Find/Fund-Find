@@ -3,7 +3,9 @@ package com.example.domain.user.service;
 import com.example.domain.user.dto.request.UserPatchRequest;
 import com.example.domain.user.dto.request.UserRequest;
 import com.example.domain.user.dto.response.UserResponse;
+import com.example.domain.user.entity.PasswordResetToken;
 import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.repository.PasswordResetTokenRepository;
 import com.example.domain.user.repository.UserRepository;
 import com.example.global.Jwt.JwtProvider;
 import com.example.global.rsData.RsData;
@@ -15,10 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +67,7 @@ public class UserService {
 
         return savedUser;
     }
+
     public RsData<String> refreshAccessToken(String refreshToken) {
         if (!jwtProvider.verify(refreshToken)) {
             return RsData.of("403", "Refresh Token이 유효하지 않습니다.");
@@ -95,8 +95,8 @@ public class UserService {
                 fileStorageService.deleteFile(existingUser.getThumbnailImg());
             }
             String newImageUrl = fileStorageService.storeFile(updatedData.getThumbnailImg());
-            System.out.println("이미지 :http://localhost:8080/uploads/"+newImageUrl);
-            existingUser.setThumbnailImg("http://localhost:8080/uploads/"+newImageUrl.substring(newImageUrl.lastIndexOf("\\") + 1)); //
+            System.out.println("이미지 :http://localhost:8080/uploads/" + newImageUrl);
+            existingUser.setThumbnailImg("http://localhost:8080/uploads/" + newImageUrl.substring(newImageUrl.lastIndexOf("\\") + 1)); //
         }
 
         SiteUser updatedUser = userRepository.save(existingUser);
@@ -108,7 +108,6 @@ public class UserService {
         return this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
-
 
 
     // 사용자 정보 조회
@@ -123,6 +122,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         this.userRepository.delete(user);
     }
+
     public boolean validateToken(String accessToken) {
         return jwtProvider.verify(accessToken);
     }
@@ -136,6 +136,7 @@ public class UserService {
 
         return new SecurityUser(id, username, "", authorities);
     }
+
     public SiteUser getSiteUserFromAccessToken(String accessToken) {
         // JWT 토큰에서 클레임 추출
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
@@ -159,6 +160,81 @@ public class UserService {
 
         // SiteUser 객체 반환
         return siteUser;
+    }
+
+    public SiteUser getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElse(null); // 유저가 없으면 null 반환
+    }
+
+    public SiteUser findByUsernameAndEmail(String username, String email) {
+        return userRepository.findByUsernameAndEmail(username, email).orElse(null);
+    }
+
+
+    private final PasswordResetTokenRepository tokenRepository;
+
+    // 비밀번호 재설정 토큰 생성
+    public String createPasswordResetToken(SiteUser user) {
+        // 기존 토큰이 있는지 확인
+        Optional<PasswordResetToken> existingToken = this.tokenRepository.findByUser(user);
+        if (existingToken.isPresent()) {
+            // 기존 토큰 삭제
+            tokenRepository.delete(existingToken.get());
+
+            log.info("기존 비밀번호 재설정 토큰을 삭제했습니다. 사용자 ID: {}", user.getId());
+            System.out.println("있어선 안될 값 : " + tokenRepository.findByUser(user));
+        } else {
+            log.info("기존 비밀번호 재설정 토큰이 존재하지 않습니다. 사용자 ID: {}", user.getId());
+        }
+
+        // 새로운 토큰 생성 및 저장
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken(token, user);
+        tokenRepository.save(resetToken);
+        log.info("새로운 비밀번호 재설정 토큰을 생성했습니다. 사용자 ID: {}", user.getId());
+        return token;
+    }
+
+    public SiteUser verifyPasswordResetToken(String token) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token).orElse(null);
+        if (resetToken == null || resetToken.isExpired()) {
+            return null;
+        }
+        return resetToken.getUser();
+    }
+
+    public String generateRandomPassword() {
+        return UUID.randomUUID().toString().substring(0, 8); // 8자리 랜덤 비밀번호
+    }
+
+    public void updatePassword(SiteUser user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+
+    @Transactional
+    public boolean changePassword(SiteUser user, String currentPassword, String newPassword, String confirmPassword) {
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("새로운 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호 저장
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return true;
+    }
+
+    public boolean checkPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }
 

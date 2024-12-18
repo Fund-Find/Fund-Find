@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import '../assets/css/profile.css'
-import { useNavigate } from 'react-router-dom' // useNavigate 추가
+import { useNavigate } from 'react-router-dom'
+import PasswordChange from '../components/PsswordChange'
 
 const API_URL = 'http://localhost:8080/api/v1/user/profile'
 const UPDATE_API_URL = 'http://localhost:8080/api/v1/user/profile'
@@ -13,7 +14,10 @@ const Profile = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
+    const [nicknameError, setNicknameError] = useState('')
+    const [introError, setIntroError] = useState('')
     const navigate = useNavigate()
+    const [showPasswordChange, setShowPasswordChange] = useState(false)
 
     useEffect(() => {
         fetch(API_URL, {
@@ -26,7 +30,6 @@ const Profile = () => {
                     setUser(data.data)
                     setOriginalUser(data.data)
                     setPreviewImage(data.data.thumbnailImg)
-                    console.log(data)
                 } else {
                     setError(data.msg || '사용자 정보를 가져오는 데 실패했습니다.')
                 }
@@ -43,6 +46,16 @@ const Profile = () => {
     }
 
     const handleSave = () => {
+        if (user.nickname.length > 12) {
+            setNicknameError('닉네임은 최대 12자까지 가능합니다.')
+            return
+        }
+
+        if (user.intro.length > 500) {
+            setIntroError('자기소개는 최대 500자까지 가능합니다.')
+            return
+        }
+
         const formData = new FormData()
         formData.append('nickname', user.nickname)
         formData.append('intro', user.intro)
@@ -62,6 +75,8 @@ const Profile = () => {
                     setOriginalUser(data.data)
                     setPreviewImage(data.data.thumbnailImg)
                     setIsEditing(false)
+                    setNicknameError('')
+                    setIntroError('')
                 } else {
                     throw new Error(data.msg || '저장 실패')
                 }
@@ -75,32 +90,28 @@ const Profile = () => {
         setIsEditing(false)
         setUser(originalUser)
         setPreviewImage(originalUser.thumbnailImg)
+        setNicknameError('')
+        setIntroError('')
     }
 
-    const handleEmailUpdate = () => {
-        const newEmail = prompt('수정할 이메일을 입력하세요:', user.email)
-        if (newEmail) {
-            fetch(UPDATE_EMAIL_URL, {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({ newEmail }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.resultCode === '200') {
-                        alert('이메일이 성공적으로 수정되었습니다.')
-                        setUser((prev) => ({ ...prev, email: newEmail }))
-                    } else {
-                        throw new Error(data.msg || '이메일 수정 실패')
-                    }
-                })
-                .catch(() => {
-                    alert('이메일 수정에 실패했습니다.')
-                })
+    const handleNicknameChange = (e) => {
+        const value = e.target.value
+        if (value.length > 12) {
+            setNicknameError('닉네임은 최대 12자까지 가능합니다.')
+        } else {
+            setNicknameError('')
         }
+        setUser({ ...user, nickname: value })
+    }
+
+    const handleIntroChange = (e) => {
+        const value = e.target.value
+        if (value.length > 500) {
+            setIntroError('자기소개는 최대 500자까지 가능합니다.')
+        } else {
+            setIntroError('')
+        }
+        setUser({ ...user, intro: value })
     }
 
     if (loading) {
@@ -110,12 +121,29 @@ const Profile = () => {
     if (error) {
         return <div>{error}</div>
     }
+    // 비밀번호 변경 화면 렌더링
+    if (showPasswordChange) {
+        return <PasswordChange onBack={() => setShowPasswordChange(false)} />
+    }
 
     return (
         <div className="profile-container">
             <h2>프로필</h2>
             <div className="profile-info">
                 <div>
+                    <div className="profileupdate">
+                        {isEditing ? (
+                            <>
+                                <button onClick={handleSave}>저장</button>
+                                <button onClick={handleCancel}>취소</button>
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={handleEdit}>프로필 변경</button>
+                            </>
+                        )}
+                    </div>
+
                     <strong>프로필 이미지:</strong>
                     {isEditing ? (
                         <>
@@ -146,11 +174,10 @@ const Profile = () => {
                 <div>
                     <strong>닉네임:</strong>
                     {isEditing ? (
-                        <input
-                            type="text"
-                            value={user.nickname}
-                            onChange={(e) => setUser({ ...user, nickname: e.target.value })}
-                        />
+                        <>
+                            <input type="text" value={user.nickname} onChange={handleNicknameChange} />
+                            {nicknameError && <div style={{ color: 'red' }}>{nicknameError}</div>}
+                        </>
                     ) : (
                         user.nickname
                     )}
@@ -163,12 +190,14 @@ const Profile = () => {
                         readOnly
                         style={{ backgroundColor: '#f0f0f0', border: 'red' }}
                     />
-                    <button onClick={handleEmailUpdate}>이메일 수정</button>
                 </div>
                 <div>
                     <strong>소개:</strong>
                     {isEditing ? (
-                        <textarea value={user.intro} onChange={(e) => setUser({ ...user, intro: e.target.value })} />
+                        <>
+                            <textarea value={user.intro} onChange={handleIntroChange} />
+                            {introError && <div style={{ color: 'red' }}>{introError}</div>}
+                        </>
                     ) : (
                         user.intro
                     )}
@@ -176,43 +205,36 @@ const Profile = () => {
                 <div>
                     <strong>투자성향 MBTI:</strong>
                     {user.propensity ? (
-                        <>
-                            <div>
-                                <input
-                                    type="text"
-                                    value={user.propensity.surveyResult}
-                                    readOnly
-                                    style={{ backgroundColor: '#f0f0f0', border: 'none', marginRight: '10px' }}
-                                />
-                                {!isEditing && (
-                                    <button
-                                        onClick={() => {
-                                            // navigate 함수 사용
-                                            navigate('/result', {
-                                                state: { propensityId: user.propensity.propensityId },
-                                            })
-                                        }}
-                                    >
-                                        내 성향에 맞는 펀드 목록 보기 !
-                                    </button>
-                                )}
-                            </div>
-                        </>
+                        <div>
+                            <input
+                                type="text"
+                                value={user.propensity.surveyResult}
+                                readOnly
+                                style={{ backgroundColor: '#f0f0f0', border: 'none', marginRight: '10px' }}
+                            />
+                            {!isEditing && (
+                                <button
+                                    className="myfundlist"
+                                    onClick={() => {
+                                        navigate('/result', {
+                                            state: { propensityId: user.propensity.propensityId },
+                                        })
+                                    }}
+                                >
+                                    내 성향에 맞는 펀드 목록 보기 !
+                                </button>
+                            )}
+                        </div>
                     ) : (
                         <span>
-                            <a href="/survey">설문조사를 통해 투자성향을 알아보세요!</a>
+                            <a className="surveyanchor" href="/survey">
+                                설문조사를 통해 투자성향을 알아보세요!
+                            </a>
                         </span>
                     )}
                 </div>
             </div>
-            {isEditing ? (
-                <>
-                    <button onClick={handleSave}>저장</button>
-                    <button onClick={handleCancel}>취소</button>
-                </>
-            ) : (
-                <button onClick={handleEdit}>수정</button>
-            )}
+            <button onClick={() => setShowPasswordChange(true)}>비밀번호 변경</button>
         </div>
     )
 }

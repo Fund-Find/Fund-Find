@@ -68,7 +68,8 @@ dependencies {
 	//log
 	implementation 'org.slf4j:slf4j-api:2.0.9'
 
-
+	//이메일 서버 통신
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 }
 

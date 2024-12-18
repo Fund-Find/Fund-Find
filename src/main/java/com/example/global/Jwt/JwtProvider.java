@@ -143,4 +143,6 @@ public class JwtProvider {
         Date expiration = claims.getExpiration();
         return expiration.getTime(); // 만료 시간의 타임스탬프 (ms 단위)
     }
+
+
 }
