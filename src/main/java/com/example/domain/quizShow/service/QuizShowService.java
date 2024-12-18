@@ -66,19 +66,15 @@ public class QuizShowService {
 
     public QuizShowDTO getQuizShow(Long id) {
         try {
-            // 기본 정보 조회
-            QuizShow quizShow = quizShowRepository.findQuizShowById(id)
+            QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(id)
                     .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
 
-            // 퀴즈와 선택지 조회
-            List<Quiz> quizzes = quizRepository.findQuizzesByQuizShowId(id);
+            // 선택지 순서 랜덤화
+            for (Quiz quiz : quizShow.getQuizzes()) {
+                Collections.shuffle(quiz.getChoices());
+            }
 
-            // DTO로 변환하면서 필요한 데이터 조합
-            QuizShowDTO quizShowDTO = new QuizShowDTO(quizShow);
-            // 필요한 경우 퀴즈 정보도 DTO에 설정
-
-            return quizShowDTO;
-
+            return new QuizShowDTO(quizShow);
         } catch (Exception e) {
             log.error("퀴즈쇼 조회 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("퀴즈쇼 조회에 실패했습니다.", e);
@@ -251,19 +247,33 @@ public class QuizShowService {
 
     private void createQuizzes(QuizShow quizShow, List<QuizRequest> quizRequests) {
         for (QuizRequest quizReq : quizRequests) {
-            QuizShowCategory quizQuizShowCategory = quizCategoryRepository.findById(quizReq.getQuizTypeId())
-                    .orElseThrow(() -> new EntityNotFoundException("퀴즈 카테고리를 찾을 수 없습니다."));
+            QuizType quizType = quizTypeRepository.findById(quizReq.getQuizTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
             Quiz quiz = Quiz.builder()
                     .quizShow(quizShow)
                     .quizContent(quizReq.getQuizContent())
                     .quizScore(quizReq.getQuizScore())
+                    .quizType(quizType)  // 퀴즈 타입 설정
                     .choices(new ArrayList<>())
                     .build();
 
             createChoices(quiz, quizReq.getChoices());
             quizValidator.validateQuiz(quiz, quizReq.getQuizTypeId());
             quizRepository.save(quiz);
+        }
+    }
+
+    private void createChoices(Quiz quiz, List<QuizChoice> choices) {
+        if (choices != null) {
+            for (QuizChoice choice : choices) {
+                QuizChoice newChoice = QuizChoice.builder()
+                        .quiz(quiz)
+                        .choiceContent(choice.getChoiceContent())
+                        .isCorrect(choice.getIsCorrect())
+                        .build();
+                quiz.getChoices().add(newChoice);
+            }
         }
     }
 
@@ -285,10 +295,14 @@ public class QuizShowService {
     }
 
     private Quiz createNewQuiz(QuizShow quizShow, QuizRequest request) {
+        QuizType quizType = quizTypeRepository.findById(request.getQuizTypeId())
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+
         Quiz quiz = Quiz.builder()
                 .quizShow(quizShow)
                 .quizContent(request.getQuizContent())
                 .quizScore(request.getQuizScore())
+                .quizType(quizType)
                 .choices(new ArrayList<>())
                 .build();
 
@@ -298,27 +312,19 @@ public class QuizShowService {
     }
 
     private void updateExistingQuiz(Quiz quiz, QuizRequest request) {
+        QuizType quizType = quizTypeRepository.findById(request.getQuizTypeId())
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+
         quiz.getChoices().clear();
         Quiz updatedQuiz = quiz.toBuilder()
                 .quizContent(request.getQuizContent())
                 .quizScore(request.getQuizScore())
+                .quizType(quizType)
                 .build();
 
         createChoices(updatedQuiz, request.getChoices());
         quizValidator.validateQuiz(updatedQuiz, request.getQuizTypeId());
         quizRepository.save(updatedQuiz);
-    }
-
-    private void createChoices(Quiz quiz, List<String> choiceContents) {
-        if (choiceContents != null) {
-            for (String choiceContent : choiceContents) {
-                QuizChoice choice = QuizChoice.builder()
-                        .quiz(quiz)
-                        .choiceContent(choiceContent)
-                        .build();
-                quiz.getChoices().add(choice);
-            }
-        }
     }
 
     private String saveImage(MultipartFile file) {
