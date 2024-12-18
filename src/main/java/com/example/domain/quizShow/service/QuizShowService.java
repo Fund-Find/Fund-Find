@@ -66,11 +66,15 @@ public class QuizShowService {
 
     public QuizShowDTO getQuizShow(Long id) {
         try {
-            QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(id)
+            // 1. 퀴즈쇼와 퀴즈 목록을 가져옵니다
+            QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(id)
                     .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
 
-            // 선택지 순서 랜덤화
-            for (Quiz quiz : quizShow.getQuizzes()) {
+            // 2. 해당 퀴즈쇼의 모든 퀴즈와 선택지를 가져옵니다
+            List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(id);
+
+            // 3. 선택지 순서 랜덤화
+            for (Quiz quiz : quizzesWithChoices) {
                 Collections.shuffle(quiz.getChoices());
             }
 
@@ -87,11 +91,16 @@ public class QuizShowService {
             List<QuizSubmitRequest.QuizAnswer> answers,
             Long userId) {
 
-        // 퀴즈쇼 조회
-        QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(quizShowId)
+        // 1. 퀴즈쇼와 퀴즈 목록 조회
+        QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(quizShowId)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-        // 사용자 조회
+        // 2. 퀴즈와 선택지 조회
+        List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(quizShowId);
+        Map<Long, Quiz> quizMap = quizzesWithChoices.stream()
+                .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
+
+        // 3. 사용자 조회
         SiteUser user = userService.getUser(userId);
 
         // 답안 채점 및 결과 저장
@@ -101,10 +110,10 @@ public class QuizShowService {
 
         // 각 답안 처리
         for (QuizSubmitRequest.QuizAnswer answer : answers) {
-            Quiz quiz = quizShow.getQuizzes().stream()
-                    .filter(q -> q.getId().equals(answer.getQuizId()))
-                    .findFirst()
-                    .orElseThrow(() -> new EntityNotFoundException("퀴즈를 찾을 수 없습니다."));
+            Quiz quiz = quizMap.get(answer.getQuizId());
+            if (quiz == null) {
+                throw new EntityNotFoundException("퀴즈를 찾을 수 없습니다.");
+            }
 
             // 정답 찾기
             int correctAnswerIndex = findCorrectAnswerIndex(quiz);
@@ -193,9 +202,11 @@ public class QuizShowService {
 
     @Transactional
     public QuizShowDTO modify(Long id, QuizShowModifyRequest request) {
-        QuizShow quizShow = quizShowRepository.findByIdWithQuizzesAndChoices(id)
+        // 1. 퀴즈쇼와 퀴즈 목록 조회
+        QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
+        // 2. 이미지 처리 로직
         String imagePath = quizShow.getCustomImagePath();
         if (request.isUseCustomImage()) {
             if (request.getImageFile() != null) {
@@ -211,6 +222,7 @@ public class QuizShowService {
             }
         }
 
+        // 3. 퀴즈쇼 업데이트
         QuizShow updatedQuizShow = quizShow.toBuilder()
                 .showName(request.getShowName())
                 .category(request.getCategory())
@@ -223,11 +235,37 @@ public class QuizShowService {
 
         quizShowRepository.save(updatedQuizShow);
 
+        // 4. 퀴즈 업데이트
         if (request.getQuizzes() != null) {
-            updateQuizzes(updatedQuizShow, request.getQuizzes());
+            // 기존 퀴즈와 선택지 정보 로드
+            List<Quiz> existingQuizzes = quizRepository.findQuizzesWithChoicesByQuizShowId(id);
+            Map<Long, Quiz> existingQuizMap = existingQuizzes.stream()
+                    .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
+
+            updateQuizzes(updatedQuizShow, request.getQuizzes(), existingQuizMap);
         }
 
         return new QuizShowDTO(updatedQuizShow);
+    }
+
+    // updateQuizzes 메소드도 수정
+    private void updateQuizzes(QuizShow quizShow, List<QuizRequest> quizRequests, Map<Long, Quiz> existingQuizMap) {
+        for (QuizRequest quizRequest : quizRequests) {
+            if (quizRequest.getId() == null) {
+                createNewQuiz(quizShow, quizRequest);
+            } else {
+                Quiz existingQuiz = existingQuizMap.get(quizRequest.getId());
+                if (existingQuiz == null) {
+                    throw new EntityNotFoundException("퀴즈를 찾을 수 없습니다.");
+                }
+
+                if (Boolean.TRUE.equals(quizRequest.getIsDeleted())) {
+                    quizRepository.delete(existingQuiz);
+                } else {
+                    updateExistingQuiz(existingQuiz, quizRequest);
+                }
+            }
+        }
     }
 
     @Transactional
