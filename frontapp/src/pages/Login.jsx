@@ -1,19 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../assets/css/login.css'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 function Login() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    // 로그인 전 접근하려 했던 경로를 가져옵니다. 없으면 '/'로 기본 설정
+    const from = location.state?.from || '/'
+    useEffect(() => {
+        // 로그인 페이지 접근 시 메시지가 있으면 alert로 표시
+        if (location.state?.message) {
+            alert(location.state.message) // JavaScript 경고창
+        }
+    }, [location.state])
 
     const handleLogin = async (e) => {
         e.preventDefault()
-        const requestData = {
-            username,
-            password,
-        }
+        const requestData = { username, password }
 
-        // _xsrf 쿠키에서 CSRF 토큰을 가져오기 (필요한 경우)
         const xsrfToken = getCookie('_xsrf')
 
         try {
@@ -21,42 +29,50 @@ function Login() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': xsrfToken, // CSRF 토큰 필요 시 사용
+                    'X-XSRF-TOKEN': xsrfToken,
                 },
                 body: JSON.stringify(requestData),
-                credentials: 'include', // 쿠키를 포함하여 요청
+                credentials: 'include',
             })
 
             const data = await response.json()
+            console.log('로그인 응답:', JSON.stringify(data, null, 2))
+
             if (response.ok) {
-                // 서버 응답에 expirationTime 포함 가정
-                if (data && data.data) {
-                    const { expirationTime, username, accessToken } = data.data
-                    if (expirationTime) {
-                        // expirationTime을 localStorage에 저장
-                        localStorage.setItem('expirationTime', expirationTime)
-                    }
+                // msg에서 accessToken 추출
+                const msg = data.msg
+                const accessTokenMatch = msg.match(/토큰 발급 성공: (.+)/)
+                const extractedAccessToken = accessTokenMatch ? accessTokenMatch[1] : null
 
-                    if (accessToken) {
-                        localStorage.setItem('accessToken', accessToken)
-                    }
-
-                    console.log('로그인 성공:', username)
-                    console.log('로그인 응답:', data)
-                    console.log('로그인 응답 전체:', JSON.stringify(data, null, 2))
-
-                    alert('로그인 성공')
-
-                    // Nav 등 다른 컴포넌트에서 localStorage의 expirationTime 사용 가능
-                    // 로그인 성공 후 원하는 페이지로 이동
-                    window.history.back()
+                if (extractedAccessToken) {
+                    console.log('추출된 Access Token:', extractedAccessToken)
+                    localStorage.setItem('accessToken', extractedAccessToken)
                 } else {
-                    setErrorMessage('로그인 응답에 필요한 정보가 없습니다.')
+                    console.error('Access Token이 응답에 포함되지 않았습니다.')
+                    setErrorMessage('로그인 응답에서 토큰을 확인할 수 없습니다.')
+                    return
                 }
+
+                // expirationTime 저장
+                const { expirationTime } = data.data
+                if (expirationTime) {
+                    console.log('Expiration Time 저장:', expirationTime)
+                    localStorage.setItem('expirationTime', expirationTime)
+                }
+
+                alert('로그인 성공')
+                console.log('리디렉션할 페이지:', from) // 디버깅용 로그
+                console.log('location.state?.from : ', location.state?.from)
+                console.log('document.referrer : ', document.referrer)
+                navigate(from, { replace: true }) // 항상 원래 경로로 이동
+
+                // 인증 상태 강제로 반영 (새로고침 없이 동작)
+                window.dispatchEvent(new Event('storage'))
             } else {
                 setErrorMessage(data.message || '로그인에 실패했습니다.')
             }
         } catch (error) {
+            console.error('로그인 요청 실패:', error)
             setErrorMessage('서버와 연결할 수 없습니다.')
         }
     }

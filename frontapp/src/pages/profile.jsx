@@ -184,20 +184,24 @@ const Profile = () => {
                                     readOnly
                                     style={{ backgroundColor: '#f0f0f0', border: 'none', marginRight: '10px' }}
                                 />
-                                <button
-                                    onClick={() => {
-                                        // navigate 함수 사용
-                                        navigate('/result', {
-                                            state: { propensityId: user.propensity.propensityId },
-                                        })
-                                    }}
-                                >
-                                    내 성향에 맞는 펀드 목록 보기 !
-                                </button>
+                                {!isEditing && (
+                                    <button
+                                        onClick={() => {
+                                            // navigate 함수 사용
+                                            navigate('/result', {
+                                                state: { propensityId: user.propensity.propensityId },
+                                            })
+                                        }}
+                                    >
+                                        내 성향에 맞는 펀드 목록 보기 !
+                                    </button>
+                                )}
                             </div>
                         </>
                     ) : (
-                        <span>설문조사를 통해 투자성향을 알아보세요!</span>
+                        <span>
+                            <a href="/survey">설문조사를 통해 투자성향을 알아보세요!</a>
+                        </span>
                     )}
                 </div>
             </div>
