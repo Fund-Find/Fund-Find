@@ -13,7 +13,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
-    const navigate = useNavigate() // useNavigate 훅 사용
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetch(API_URL, {

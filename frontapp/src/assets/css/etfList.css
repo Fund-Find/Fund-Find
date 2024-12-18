@@ -1,9 +1,13 @@
+#body {
+    font-size: 20px;
+}
+
 .container {
     margin: 0 auto;
     padding: 20px;
+    overflow-x: hidden;
 }
 
-/* MBTI Banner */
 .mbti-banner {
     background: #e1d9fe;
     padding: 16px;
@@ -30,7 +34,6 @@
     font-size: 1.2em;
 }
 
-/* Search Controls */
 .search-controls {
     display: flex;
     align-items: center;
@@ -62,7 +65,6 @@
     cursor: pointer;
 }
 
-/* Filter Controls */
 .filter-controls {
     display: flex;
     align-items: center;
@@ -80,7 +82,6 @@
     cursor: pointer;
 }
 
-/* ETF List */
 .etf-list {
     background: white;
     border-radius: 8px;
@@ -89,7 +90,7 @@
 
 .list-header {
     display: grid;
-    grid-template-columns: repeat(13, 1fr);
+    grid-template-columns: repeat(13, 1fr); /* 13개의 컬럼으로 변경 */
     padding: 16px;
     background: #f8f9fa;
     font-weight: bold;
@@ -99,7 +100,7 @@
 
 .etf-item {
     display: grid;
-    grid-template-columns: repeat(13, 1fr);
+    grid-template-columns: repeat(13, 1fr); /* 13개의 컬럼으로 변경 */
     padding: 12px 16px;
     border-bottom: 1px solid #e0e0e0;
     transition: background-color 0.2s ease;
@@ -114,7 +115,6 @@
     padding: 4px;
 }
 
-/* Price Change Indicators */
 .up {
     color: #d60000;
     font-weight: bold;
@@ -125,7 +125,6 @@
     font-weight: bold;
 }
 
-/* Favorite Button */
 .favorite-btn {
     background: none !important;
     border: none !important;
@@ -134,8 +133,8 @@
     padding: 4px;
     color: #808080;
     transition: all 0.2s ease;
-    outline: none !important;
-    box-shadow: none !important;
+    outline: none !important; /* 호버 시 아웃라인 제거(부트스트랩과 충돌) */
+    box-shadow: none !important; /* 호버 시 그림자 제거(부트스트랩과 충돌) */
 }
 
 .favorite-btn.active {
@@ -154,33 +153,84 @@
     box-shadow: none !important;
 }
 
-/* Compare Controls */
-.compare-controls {
-    margin-top: 20px;
+.pagination-controls {
     display: flex;
     justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
 }
 
-.compare-btn {
-    padding: 8px 16px;
-    background: #4caf50;
-    color: white;
+.pagination-controls button {
+    padding: 8px 12px;
     border: none;
+    background: #e1d9fe;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    color: #333;
+    font-weight: 500;
 }
 
-.compare-btn:disabled {
-    background: #ccc;
+.pagination-controls button:disabled {
+    opacity: 0.7;
     cursor: not-allowed;
+    background: #bdb2df; /* 비활성화 상태의 배경색 변경 */
+    color: #4b4b4b; /* 비활성화 상태의 텍스트 색상 변경 */
 }
 
-.compare-btn:hover:not(:disabled) {
-    background: #45a049;
+.pagination-controls button:hover:not(:disabled) {
+    background: #f4f1fe;
 }
 
-/* Compare Popup */
+.pagination-controls span {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.bestETFSwiper {
+    width: 100%; /* 뷰포트 전체 너비 사용 */
+    margin-left: calc(-50vw + 50%); /* 화면 중앙 정렬 */
+    margin-right: calc(-50vw + 50%);
+    position: relative;
+    padding: 20px 20px 60px; /* 좌우 패딩으로 네비게이션 버튼 공간 확보 */
+    overflow: hidden;
+}
+
+.bestETFSwiper .swiper-pagination {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+}
+
+/* Swiper 네비게이션 버튼 스타일 수정 */
+.swiper-button-prev,
+.swiper-button-next {
+    width: 40px; /* 버튼 너비 지정 */
+    height: 40px; /* 버튼 높이 지정 */
+    background-color: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
+    border-radius: 50%; /* 원형 버튼 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 그림자 효과 */
+}
+
+.swiper-button-prev {
+    left: 20px;
+    z-index: 10; /* z-index 추가 */
+}
+
+.swiper-button-next {
+    right: 20px;
+    z-index: 10; /* z-index 추가 */
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+    font-size: 18px; /* 화살표 아이콘 크기 */
+    color: #333; /* 화살표 색상 */
+}
+
 .compare-popup-overlay {
     position: fixed;
     top: 0;
@@ -220,11 +270,46 @@
 
 .compare-item iframe {
     width: 100%;
-    height: calc(100% - 40px);
+    height: 100%;
     border: none;
 }
 
-/* Popup Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.compare-controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.compare-btn {
+    padding: 8px 16px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.compare-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.compare-btn:hover:not(:disabled) {
+    background: #45a049;
+}
+
+/* 추가 css */
 .popup-close-btn {
     position: absolute;
     top: 10px;
@@ -252,7 +337,6 @@
     background: #cc0000;
 }
 
-/* Compare Item Header */
 .compare-item-header {
     display: flex;
     justify-content: space-between;
@@ -284,77 +368,12 @@
     color: #333;
 }
 
-/* Pagination Controls */
-.pagination-controls {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
-}
-
-.pagination-controls button {
-    padding: 8px 12px;
-    border: none;
-    background: #e1d9fe;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #333;
-    font-weight: 500;
-}
-
-.pagination-controls button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    background: #bdb2df;
-    color: #4b4b4b;
-}
-
-.pagination-controls button:hover:not(:disabled) {
-    background: #f4f1fe;
-}
-
-.pagination-controls span {
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-}
-
-/* Best ETF Swiper */
-.bestETFSwiper {
+.compare-item iframe {
     width: 100%;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    position: relative;
-    padding: 20px 40px 60px;
-    overflow: hidden;
+    height: calc(100% - 40px);
+    border: none;
 }
 
-.swiper-button-prev,
-.swiper-button-next {
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.swiper-button-prev {
-    left: 20px;
-    z-index: 10;
-}
-
-.swiper-button-next {
-    right: 20px;
-    z-index: 10;
-}
-
-.swiper-button-prev::after,
-.swiper-button-next::after {
-    font-size: 18px;
-    color: #333;
-}
-
-/* Media Queries */
 @media (max-width: 1024px) {
     .list-header,
     .etf-item {

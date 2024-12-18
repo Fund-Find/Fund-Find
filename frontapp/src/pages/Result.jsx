@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Survey from '../components/Survey'
 import '../assets/css/result.css'
 
 function Result() {
@@ -7,13 +8,14 @@ function Result() {
     const [recommendedEtfs, setRecommendedEtfs] = useState([])
     const location = useLocation()
     const navigate = useNavigate()
+    const [showSurveyPopup, setShowSurveyPopup] = useState(false)
 
     useEffect(() => {
         const propensityId = location.state?.propensityId
 
         if (!propensityId) {
             alert('잘못된 접근입니다.')
-            navigate('/survey')
+            navigate('/')
             return
         }
 
@@ -22,7 +24,7 @@ function Result() {
             .then((response) => response.json())
             .then((data) => {
                 if (data.resultCode === '200') {
-                    setMbti(data.data.surveyResult) // MBTI 결과 저장
+                    setMbti(data.data.surveyResult)
                 }
             })
 
@@ -40,7 +42,7 @@ function Result() {
                 console.error('Error:', error)
                 alert('결과를 가져오는데 실패했습니다.')
             })
-    }, [navigate])
+    }, [location.state?.propensityId, navigate])
 
     // MBTI 설명을 반환하는 함수
     const getMbtiDescription = (mbti) => {
@@ -121,8 +123,19 @@ function Result() {
             </div>
 
             <div className="button-container">
-                <button onClick={() => navigate('/survey')}>다시 설문하기</button>
+                <button onClick={() => setShowSurveyPopup(true)}>다시 설문하기</button>
             </div>
+
+            {showSurveyPopup && (
+                <div className="survey-popup-overlay">
+                    <div className="survey-popup">
+                        <button className="popup-close-btn" onClick={() => setShowSurveyPopup(false)}>
+                            <span>×</span>
+                        </button>
+                        <Survey onClose={() => setShowSurveyPopup(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

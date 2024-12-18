@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Virtual, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import Survey from '../components/Survey'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -60,6 +61,7 @@ export default function ETFList() {
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
     const itemsPerPage = 10
     const navigate = useNavigate()
+    const [showSurveyPopup, setShowSurveyPopup] = useState(false)
 
     useEffect(() => {
         fetchETFs()
@@ -146,9 +148,14 @@ export default function ETFList() {
     const currentItems = sortedETFs.slice(indexOfFirstItem, indexOfLastItem)
     const totalPages = Math.ceil(sortedETFs.length / itemsPerPage)
 
+    const handleSurveyClick = (e) => {
+        e.preventDefault()
+        setShowSurveyPopup(true)
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="mbti-banner" onClick={() => (window.location.href = '/survey')}>
+            <div className="mbti-banner" onClick={handleSurveyClick}>
                 <span className="mbti-banner-text">투자성향 MBTI 분석하러 가기</span>
                 <span className="mbti-banner-arrow">→</span>
             </div>
@@ -381,6 +388,17 @@ export default function ETFList() {
                     <br />· 등락률 데이터는 펀드의 과거 성과이며 향후 수익을 보장하지 않습니다
                 </p>
             </div>
+
+            {showSurveyPopup && (
+                <div className="survey-popup-overlay">
+                    <div className="survey-popup">
+                        <button className="popup-close-btn" onClick={() => setShowSurveyPopup(false)}>
+                            <span>×</span>
+                        </button>
+                        <Survey onClose={() => setShowSurveyPopup(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
