@@ -8,8 +8,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -21,90 +19,99 @@ import java.util.Arrays;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
     private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        // 인증이 필요 없는 경로 처리
-        if (isPermitAllPath(request.getRequestURI())) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
-            // accessToken 추출
-            String accessToken = extractCookieValue(request, "accessToken");
+            // Authorization 헤더에서 토큰 추출
+            String authorizationHeader = request.getHeader("Authorization");
+            String accessToken = null;
+
+            // Authorization 헤더가 있으면 Bearer 토큰 추출
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                accessToken = authorizationHeader.substring(7);
+            }
+
+            // 쿠키에서도 토큰 확인
+            if (accessToken == null) {
+                accessToken = extractAccessToken(request);
+            }
 
             if (accessToken != null && !accessToken.isBlank()) {
-                logger.debug("Access Token 검증 중: {}", accessToken);
-
-                // AccessToken 검증
-                if (!userService.validateToken(accessToken)) {
-                    logger.debug("Access Token이 만료됨. Refresh Token을 검증 중...");
-                    handleRefreshToken(request, response);
-                } else {
-                    // 유효한 accessToken이면 사용자 인증
-                    authenticateUser(accessToken);
-                }
+                handleAccessToken(accessToken, request, response);
             }
+
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private boolean isPermitAllPath(String requestURI) {
-        return requestURI.startsWith("/api/v1/quizshow") ||
-                requestURI.contains("/api/v1/user/login") ||
+        return requestURI.contains("/api/v1/user/login") ||
                 requestURI.contains("/api/v1/user/register") ||
-                requestURI.equals("/api/v1/user/logout");
+                requestURI.equals("/api/v1/user/logout") ||
+                requestURI.startsWith("/api/v1/quizshow");
     }
 
-    private String extractCookieValue(HttpServletRequest request, String cookieName) {
+    private String extractAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
+
         if (cookies == null) {
-            logger.debug("요청에 쿠키를 찾을 수 없음");
             return null;
         }
 
         return Arrays.stream(cookies)
-                .filter(cookie -> cookieName.equals(cookie.getName()))
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
     }
 
-    private void handleRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = extractCookieValue(request, "refreshToken");
-
-        if (refreshToken != null && !refreshToken.isBlank()) {
-            logger.debug("Refresh Token 검증 중: {}", refreshToken);
-
-            RsData<String> refreshResult = userService.refreshAccessToken(refreshToken);
-            if (refreshResult.isSuccess()) {
-                logger.debug("Access Token 재발급 성공");
-                addCookie(response, "accessToken", refreshResult.getData());
-            } else {
-                logger.debug("Refresh Token이 유효하지 않음");
+    private void handleAccessToken(String accessToken, HttpServletRequest request, HttpServletResponse response) {
+        if (!userService.validateToken(accessToken)) {
+            String refreshToken = extractRefreshToken(request);
+            if (refreshToken != null) {
+                refreshAccessToken(refreshToken, response);
             }
+        } else {
+            authenticateUser(accessToken);
+        }
+    }
+
+    private String extractRefreshToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return null;
+        }
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+    }
+
+    private void refreshAccessToken(String refreshToken, HttpServletResponse response) {
+        RsData<String> refreshResult = userService.refreshAccessToken(refreshToken);
+        if (refreshResult.isSuccess()) {
+            addAccessTokenCookie(refreshResult.getData(), response);
         }
     }
 
     private void authenticateUser(String accessToken) {
         SecurityUser securityUser = userService.getUserFromAccessToken(accessToken);
         if (securityUser != null) {
-            logger.debug("사용자 인증 성공: {}", securityUser.getUsername());
             SecurityContextHolder.getContext().setAuthentication(securityUser.genAuthentication());
         }
     }
 
-    private void addCookie(HttpServletResponse response, String name, String value) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
+    private void addAccessTokenCookie(String token, HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("accessToken", token)
                 .path("/")
                 .sameSite("None")
                 .secure(true)

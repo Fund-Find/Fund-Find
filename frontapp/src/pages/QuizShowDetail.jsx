@@ -223,15 +223,26 @@ const QuizSolve = ({ quizShow, onBack }) => {
                 return quizAnswer;
             });
     
+            // JWT 토큰 관련 코드 추가
+            const cookies = document.cookie.split(';');
+            const accessToken = cookies.find(cookie => cookie.trim().startsWith('accessToken='));
+            
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+    
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken.split('=')[1].trim()}`;
+            }
+    
             const response = await fetch(`http://localhost:8080/api/v1/quizshow/${quizShow.id}/submit`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({ answers: answersArray }),
                 credentials: 'include'
             });
     
+            // 나머지 코드는 동일
             const data = await response.json();
             
             if (data.resultCode === "401") {

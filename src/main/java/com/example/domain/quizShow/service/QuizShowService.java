@@ -48,6 +48,7 @@ public class QuizShowService {
     private final UserService userService;
     private final QuizAnswerRepository quizAnswerRepository;
     private final UserQuizResultRepository userQuizResultRepository;
+    private static final int MAX_ANSWERS_PER_USER = 10;
 
     @Value("${custom.upload.dir}")
     private String uploadDir;
@@ -110,27 +111,17 @@ public class QuizShowService {
     }
 
     @Transactional
-    public QuizSubmitResponse submitAndSaveResult(
-            Long quizShowId,
-            List<QuizSubmitRequest.QuizAnswer> answers,
-            Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("로그인이 필요한 서비스입니다.");
-        }
+    public QuizSubmitResponse submitAndSaveResult(Long quizShowId, List<QuizSubmitRequest.QuizAnswer> answers, Long userId) {
         try {
-            // 1. 퀴즈쇼와 퀴즈 목록 조회
             QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(quizShowId)
                     .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-            // 2. 퀴즈와 선택지 조회
             List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(quizShowId);
             Map<Long, Quiz> quizMap = quizzesWithChoices.stream()
                     .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
 
-            // 3. 사용자 조회
             SiteUser user = userService.getUser(userId);
 
-            // 답안 채점 및 결과 저장
             Map<Long, Boolean> results = new HashMap<>();
             Map<Long, Integer> correctAnswers = new HashMap<>();
             int totalScore = 0;
@@ -143,25 +134,23 @@ public class QuizShowService {
                 }
 
                 QuizTypeEnum quizType = quiz.getQuizType().getType();
-                String userAnswer;
+                String userAnswer = answer.getFormattedAnswer();
                 boolean isCorrect;
 
+                // 답안 채점
                 switch (quizType) {
                     case MULTIPLE_CHOICE:
-                        userAnswer = String.valueOf(answer.getChoiceIndex());
                         // 선택한 인덱스의 선택지가 정답인지 확인
                         isCorrect = quiz.getChoices().get(answer.getChoiceIndex()).getIsCorrect();
                         break;
 
                     case TRUE_FALSE:
-                        userAnswer = answer.getChoiceIndex() == 0 ? "T" : "F";
                         // OX 문제의 경우 첫 번째 선택지와 비교
                         isCorrect = userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
                         break;
 
                     case SUBJECTIVE:
                     case SHORT_ANSWER:
-                        userAnswer = answer.getTextAnswer();
                         // 주관식/단답형의 경우 정답 목록과 비교
                         isCorrect = quiz.getChoices().stream()
                                 .anyMatch(choice -> choice.getChoiceContent()
@@ -175,11 +164,7 @@ public class QuizShowService {
 
                 results.put(quiz.getId(), isCorrect);
 
-                if (isCorrect) {
-                    totalScore += quiz.getQuizScore();
-                }
-
-                // 답안 저장
+                // 새로운 답안 저장
                 QuizAnswer quizAnswer = QuizAnswer.builder()
                         .quiz(quiz)
                         .user(user)
@@ -189,16 +174,34 @@ public class QuizShowService {
                         .build();
 
                 quizAnswerRepository.save(quizAnswer);
+
+                if (isCorrect) {
+                    totalScore += quiz.getQuizScore();
+                }
             }
 
-            // 최종 결과 저장
-            UserQuizResult quizResult = UserQuizResult.builder()
-                    .user(user)
-                    .quizShow(quizShow)
-                    .score(totalScore)
-                    .build();
+            // 오래된 답안 삭제 (선택적)
+            quizAnswerRepository.deleteOldAnswers(userId, MAX_ANSWERS_PER_USER);
 
-            userQuizResultRepository.save(quizResult);
+            // 이전 결과가 있는지 확인
+            Optional<UserQuizResult> existingResult = userQuizResultRepository
+                    .findByUserIdAndQuizShowId(userId, quizShowId);
+
+            if (existingResult.isPresent()) {
+                // 이전 결과가 있으면 점수만 업데이트
+                UserQuizResult updatedResult = existingResult.get().toBuilder()
+                        .score(totalScore)
+                        .build();
+                userQuizResultRepository.save(updatedResult);
+            } else {
+                // 이전 결과가 없으면 새로 생성
+                UserQuizResult newResult = UserQuizResult.builder()
+                        .user(user)
+                        .quizShow(quizShow)
+                        .score(totalScore)
+                        .build();
+                userQuizResultRepository.save(newResult);
+            }
 
             return QuizSubmitResponse.builder()
                     .score(totalScore)
