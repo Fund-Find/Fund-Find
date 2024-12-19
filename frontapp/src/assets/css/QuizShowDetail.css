@@ -139,6 +139,28 @@
 .recommend-button:hover {
     background-color: rgb(12, 8, 53);
     color: #0056b3; /* 호버 시 색상 변경 */
+    transform: scale(1.1);
+}
+
+.recommend-button.active {
+    color: #ff0000;  /* 빨간색 하트 */
+    transform: scale(1.1);  /* 살짝 커지는 효과 */
+}
+
+.recommend-button.active:hover {
+    transform: scale(1.2);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .quiz-section {

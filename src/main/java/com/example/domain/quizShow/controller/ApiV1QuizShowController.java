@@ -69,6 +69,23 @@ public class ApiV1QuizShowController {
         return RsData.of("200", "퀴즈 제출이 완료되었습니다.", result);
     }
 
+    @PostMapping("/{id}/vote")
+    public RsData<QuizShowDTO> toggleVote(
+            @PathVariable("id") Long quizShowId,
+            @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        if (securityUser == null) {
+            return RsData.of("401", "로그인이 필요한 서비스입니다.", null);
+        }
+
+        QuizShowDTO updatedQuizShow = quizShowService.toggleVote(quizShowId, securityUser.getId());
+        return RsData.of(
+                "200",
+                updatedQuizShow.isHasVoted() ? "추천이 완료되었습니다." : "추천이 취소되었습니다.",
+                updatedQuizShow
+        );
+    }
+
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RsData<QuizShowResponse> modify(
             @PathVariable("id") Long id,

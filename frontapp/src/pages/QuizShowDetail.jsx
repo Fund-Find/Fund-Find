@@ -56,28 +56,54 @@ const QuizShowDetail = () => {
 
     const handleVote = async (id) => {
         try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    navigate('/auth/login', { 
+                        state: { from: `/quizshow/${id}` }
+                    });
+                }
+                return;
+            }
+    
             const response = await fetch(`http://localhost:8080/api/v1/quizshow/${id}/vote`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
+                credentials: 'include'
             });
     
-            if (!response.ok) throw new Error('추천을 처리하는 데 실패했습니다.');
-    
             const result = await response.json();
+    
+            if (result.resultCode === "401") {
+                if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    navigate('/user/login', { 
+                        state: { from: `/quizshow/${id}` }
+                    });
+                }
+                return;
+            }
+    
             if (result.resultCode === "200") {
-                alert('추천 처리됐습니다.');
-                setQuizShow((prev) => ({
+                // 상태 업데이트 - 여기가 중요합니다!
+                setQuizShow(prev => ({
                     ...prev,
-                    voteCount: prev.voteCount + 1,
+                    voteCount: result.data.voteCount, // 추천 수 업데이트
+                    hasVoted: result.data.hasVoted   // 추천 상태 업데이트
                 }));
+                
+                // 상태 업데이트 이후에 alert 실행 보장
+                setTimeout(() => {
+                    alert(result.data.hasVoted ? '추천이 완료되었습니다.' : '추천이 취소되었습니다.');
+                }, 0);
             } else {
-                throw new Error(result.msg || '추천 중 오류가 발생했습니다.');
+                throw new Error(result.msg || '추천 처리 중 오류가 발생했습니다.');
             }
         } catch (err) {
-            console.error(err.message);
-            alert('추천을 처리하는 도중 문제가 발생했습니다.');
+            console.error('Error:', err);
+            alert('추천 처리 중 문제가 발생했습니다.');
         }
     };
 
@@ -108,7 +134,7 @@ const QuizShowDetail = () => {
                     </div>
                 </div>
             </div>
-            
+
             {/* 퀴즈 정보 */}
             <div className="quiz-info grid grid-cols-3 gap-6 mt-6">
                 {/* 퀴즈 설명 카드 (넓은 영역) */}
@@ -129,10 +155,10 @@ const QuizShowDetail = () => {
                             <strong>추천:</strong>
                             <span className="ml-2">{quizShow.voteCount || 0}</span>
                             <button
-                                className="recommend-button ml-2"
+                                className={`recommend-button ${quizShow.hasVoted ? 'active' : ''}`}
                                 onClick={() => handleVote(quizShow.id)}
                             >
-                                👍
+                                {quizShow.hasVoted ? '❤️' : '🤍'}
                             </button>
                         </li>
                     </ul>

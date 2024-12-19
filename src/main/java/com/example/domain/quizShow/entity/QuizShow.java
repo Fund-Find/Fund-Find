@@ -50,6 +50,36 @@ public class QuizShow extends BaseEntity {
     )
     private Set<SiteUser> votes;
 
+    @Transient
+    private boolean hasVoted = false;
+
+    public boolean hasVoted(Long userId) {
+        return this.votes.stream()
+                .anyMatch(user -> user.getId().equals(userId));
+    }
+
+    public QuizShow updateVoteStatus(SiteUser user) {
+        boolean newVoteStatus = toggleVote(user);
+        return this.toBuilder()
+                .hasVoted(newVoteStatus)
+                .build();
+    }
+
+    private boolean toggleVote(SiteUser user) {
+        if (votes.contains(user)) {
+            votes.remove(user);
+            return false;
+        } else {
+            votes.add(user);
+            return true;
+        }
+    }
+
+    public boolean checkUserVoted(Long userId) {
+        return this.votes.stream()
+                .anyMatch(user -> user.getId().equals(userId));
+    }
+
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")  // id 기준으로 정렬
     @BatchSize(size = 100)  // batch size 설정
