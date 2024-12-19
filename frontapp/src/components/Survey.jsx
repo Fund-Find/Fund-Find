@@ -40,8 +40,10 @@ function Survey({ onClose, onSubmitSuccess }) {
             if (result.resultCode === '200') {
                 alert('설문 제출 완료!')
                 if (typeof onClose === 'function') {
-                    // onClose가 함수인지 확인
                     onClose() // 팝업 닫기
+                }
+                if (typeof onSubmitSuccess === 'function') {
+                    onSubmitSuccess(result.data) // propensityId 전달
                 }
                 navigate('/result', {
                     state: { propensityId: result.data },
