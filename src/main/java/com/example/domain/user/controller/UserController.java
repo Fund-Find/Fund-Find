@@ -1,10 +1,9 @@
 package com.example.domain.user.controller;
 
-import com.example.domain.user.dto.request.UserLoginRequest;
-import com.example.domain.user.dto.request.UserPatchRequest;
-import com.example.domain.user.dto.request.UserRequest;
+import com.example.domain.user.dto.request.*;
 import com.example.domain.user.dto.response.UserResponse;
 import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.service.EmailService;
 import com.example.domain.user.service.UserService;
 import com.example.global.Jwt.JwtProvider;
 import com.example.global.rsData.RsData;
@@ -14,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +45,15 @@ public class UserController {
     public RsData<UserResponse> login (@Valid @RequestBody UserLoginRequest Request, HttpServletResponse res) {
 
         SiteUser user = this.userService.getUser(Request.getUsername());
+        if (user == null) {
+            return RsData.of("404", "사용자를 찾을 수 없습니다.", null);
+        }
+
+        // 2. 비밀번호 검증
+        boolean isPasswordValid = userService.checkPassword(Request.getPassword(), user.getPassword());
+        if (!isPasswordValid) {
+            return RsData.of("401", "비밀번호가 일치하지 않습니다.", null);
+        }
 
         String accessToken = jwtProvider.genAccessToken(user);
         Cookie accessTokenCookie  = new Cookie("accessToken", accessToken);
@@ -187,6 +196,119 @@ public class UserController {
             return ResponseEntity.ok(responseData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Access Token 재발급 실패");
+        }
+    }
+    @PostMapping("/find-id")
+    public RsData<?> findUserId(@Valid @RequestBody UserEmailRequest emailRequest) {
+        String email = emailRequest.getEmail();
+
+
+        // 이메일로 유저 조회
+        SiteUser user = userService.getUserByEmail(email);
+        if (user == null) {
+            return RsData.of("404", "해당 이메일로 등록된 사용자를 찾을 수 없습니다.", null);
+        }
+
+        // 아이디 반환
+        return RsData.of("200", "아이디 찾기 성공", Map.of("username", user.getUsername()));
+    }
+
+    private final EmailService emailService;
+
+
+    @PostMapping("/reset-password")
+    public RsData<?> requestPasswordReset(@RequestBody PasswordResetRequest resetRequest) {
+        String username = resetRequest.getUsername();
+        String email = resetRequest.getEmail();
+
+        // 사용자 확인
+        SiteUser user = userService.findByUsernameAndEmail(username, email);
+        if (user == null) {
+            return RsData.of("404", "아이디와 이메일이 일치하는 사용자를 찾을 수 없습니다.", null);
+        }
+
+        // 인증 토큰 생성
+        String token = userService.createPasswordResetToken(user);
+
+        // 이메일 발송
+        emailService.sendPasswordResetEmail(email, token);
+
+        return RsData.of("200", "비밀번호 재설정 이메일이 발송되었습니다.", null);
+    }
+
+    @GetMapping(value = "/reset-password/confirm", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String confirmResetPassword(@RequestParam("token") String token) {
+        // 1. 토큰 검증
+        SiteUser user = userService.verifyPasswordResetToken(token);
+
+        if (user == null) {
+            return "<html><body>" +
+                    "<h1>비밀번호 재설정 실패</h1>" +
+                    "<p>유효하지 않거나 만료된 토큰입니다.</p>" +
+                    "</body></html>";
+        }
+
+        // 2. 새로운 비밀번호 생성
+        String newPassword = userService.generateRandomPassword();
+
+        // 3. 새 비밀번호 저장
+        userService.updatePassword(user, newPassword);
+
+        // 4. HTML로 새 비밀번호 표시
+        return "<html><body>" +
+                "<h1>비밀번호 재설정 완료</h1>" +
+                "<p>새로운 비밀번호는 다음과 같습니다:</p>" +
+                "<p style='font-weight: bold; color: green;'>" + newPassword + "</p>" +
+                "<p>로그인 후 비밀번호를 변경해 주세요.</p>" +
+                "</body></html>";
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @CookieValue(value = "accessToken", required = false) String accessToken,
+            @RequestBody @Valid PasswordChangeRequest passwordChangeRequest) {
+
+        if (accessToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "resultCode", "401",
+                    "message", "Access Token이 없습니다."
+            ));
+        }
+
+        try {
+            // Access Token으로 사용자 조회
+            SiteUser user = userService.getSiteUserFromAccessToken(accessToken);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "resultCode", "401",
+                        "message", "유효하지 않은 토큰입니다."
+                ));
+            }
+
+            // 비밀번호 변경 요청 처리
+            userService.changePassword(
+                    user,
+                    passwordChangeRequest.getCurrentPassword(),
+                    passwordChangeRequest.getNewPassword(),
+                    passwordChangeRequest.getConfirmPassword()
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "resultCode", "200",
+                    "message", "비밀번호가 성공적으로 변경되었습니다."
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "resultCode", "400",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "resultCode", "500",
+                    "message", "서버 오류가 발생했습니다."
+            ));
         }
     }
 

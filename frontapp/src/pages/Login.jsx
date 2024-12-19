@@ -49,7 +49,8 @@ function Login() {
                     localStorage.setItem('accessToken', extractedAccessToken)
                 } else {
                     console.error('Access Token이 응답에 포함되지 않았습니다.')
-                    setErrorMessage('로그인 응답에서 토큰을 확인할 수 없습니다.')
+                    setErrorMessage(data.msg || '로그인 응답에서 토큰을 확인할 수 없습니다.')
+
                     return
                 }
 
@@ -121,9 +122,9 @@ function Login() {
                         />
                     </div>
                     <div className="add">
-                        <a href="/user/find-account">아이디 찾기</a>
+                        <a href="/user/findId">아이디 찾기</a>
                         <span> | </span>
-                        <a href="/user/find-account">비밀번호 재설정</a>
+                        <a href="/user/resetpw">비밀번호 재발급</a>
                         <span> | </span>
                         <a href="/user/register">회원가입</a>
                     </div>

@@ -181,7 +181,7 @@ function Nav() {
             {/* faFacebook 로고  */}
             <div className="logo">
                 <Link to="/">
-                    <FontAwesomeIcon icon={faFacebook} />
+                    <img src="/images/fflogo.webp" alt="FF Logo" />
                 </Link>
             </div>
 
@@ -194,17 +194,24 @@ function Nav() {
                     <Link to="/">홈</Link>
                 </li>
                 <li>
-                    <Link to="/article/list">게시글 목록</Link>
+                    <Link to="/etf/list">ETF 목록</Link>
                 </li>
             </ul>
 
             <ul className="User__menulist">
                 {!isLoggedIn ? (
-                    <li>
-                        <Link to="/auth/login" state={{ from: location.pathname }}>
-                            로그인
-                        </Link>
-                    </li>
+                    <>
+                        <li>
+                            <Link to="/user/login" state={{ from: location.pathname }}>
+                                로그인
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/user/register" state={{ from: location.pathname }}>
+                                회원가입
+                            </Link>
+                        </li>
+                    </>
                 ) : (
                     <>
                         <li>

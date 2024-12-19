@@ -22,7 +22,7 @@ function PrivateRoute({ element: Element }) {
 
         // 로그인 페이지로 리디렉션하며 원래 경로 저장
         return (
-            <Navigate to="/auth/login" replace state={{ from: location.pathname, message: '로그인이 필요합니다.' }} />
+            <Navigate to="/user/login" replace state={{ from: location.pathname, message: '로그인이 필요합니다.' }} />
         )
     }
 

@@ -13,6 +13,8 @@ import QuizShowList from './pages/QuizshowList'
 import ETFList from './pages/ETFList'
 import ETFDetail from './components/ETFDetail'
 import PrivateRoute from './components/PrivateRoute'
+import FindId from './pages/FindId'
+import PasswordReset from './pages/PasswordReset'
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -29,16 +31,18 @@ function App() {
             <Nav />
             <Routes>
                 <Route index element={<Main />}></Route>
-                <Route path="/auth/login" element={<Login />}></Route>
+                <Route path="/user/login" element={<Login />}></Route>
                 <Route path="/article/list" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
-                <Route path="/user/profile" element={<PrivateRoute />}></Route>
-                {/* <Route path="/survey" element={<PrivateRoute element={Survey} />} /> */}
+                <Route path="/user/profile" element={<PrivateRoute element={Profile} />} />
+{/*                 <Route path="/survey" element={<PrivateRoute element={Survey} />} /> */}
                 {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
                 <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
                 <Route path="/quizshow/list" element={<QuizShowList />}></Route>
                 <Route path="/etf/list" element={<ETFList />}></Route>
                 <Route path="/etf/:code" element={<ETFDetail />} />
+                <Route path="/user/findId" element={<FindId />} />
+                <Route path="/user/resetpw" element={<PasswordReset />} />
             </Routes>
         </BrowserRouter>
     )

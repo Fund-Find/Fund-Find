@@ -23,8 +23,18 @@ body {
 }
 
 #navi .logo {
+    width: 55px;
     margin: 0 1rem;
     font-size: 2rem;
+    display: flex; /* Flexbox 레이아웃을 사용 */
+    justify-content: center; /* 가로 방향으로 중앙 정렬 */
+    align-items: center; /* 세로 방향으로 중앙 정렬 */
+    height: 100%;
+    line-height: 0;
+}
+#navi .logo img {
+    width: 55px; /* 원하는 너비 (픽셀 또는 비율로 조정 가능) */
+    height: auto; /* 자동으로 비율에 맞게 높이를 조정 */
 }
 
 .Nav__menulist {
@@ -113,6 +123,9 @@ body {
 
     #navi .user {
         display: block;
+    }
+    #navi .logo {
+        line-height: 1.6;
     }
 }
 /* 새로고침 버튼 컨테이너 */
