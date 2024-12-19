@@ -36,7 +36,7 @@ function App() {
                 <Route path="/article/list" element={<Article />}></Route>
                 <Route path="/user/register" element={<Register />}></Route>
                 <Route path="/user/profile" element={<PrivateRoute element={Profile} />} />
-{/*                 <Route path="/survey" element={<PrivateRoute element={Survey} />} /> */}
+                {/* <Route path="/survey" element={<PrivateRoute element={Survey} />} /> */}
                 {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
                 <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
                 <Route path="/quizshow/list" element={<QuizShowList />}></Route>

@@ -105,7 +105,7 @@ function ETFDetail() {
                                     <th>전일 대비 NAV</th>
                                     <th>배당주기</th>
                                     <th>현재가</th>
-                                    <th>전일대비</th>
+                                    <th>전일대비 가격 변화(등락률)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -118,7 +118,16 @@ function ETFDetail() {
                                     <td>{etfInfo.basicInfo['전일 최종 NAV']}</td>
                                     <td>{etfInfo.basicInfo['전일 대비 NAV 변동액']}</td>
                                     <td>{etfInfo.basicInfo['ETF 배당주기']}</td>
-                                    <td>{etfInfo.basicInfo['현재가']}</td>
+                                    {/* <td>{etfInfo.basicInfo['현재가']}</td> */}
+                                    <td
+                                        className={
+                                            Number(etfInfo.basicInfo['현재가'].replace(/[^-\d.]/g, '')) > 0
+                                                ? styles.positive
+                                                : styles.negative
+                                        }
+                                    >
+                                        {etfInfo.basicInfo['현재가']}
+                                    </td>
                                     <td
                                         className={
                                             Number(etfInfo.basicInfo['전일대비'].replace(/[^-\d.]/g, '')) > 0
@@ -131,7 +140,13 @@ function ETFDetail() {
                                 </tr>
                             </tbody>
                         </table>
-                        <h3 className={styles.componentTitle}>구성종목 정보</h3>
+                        <div className={styles.componentTitleWrapper}>
+                            <h3 className={styles.componentTitle}>구성종목 정보</h3>
+                            <div className={styles.componentTooltip}>
+                                구성종목 정보는 주식에 대한 정보만 포함하고 있어 <strong>구성종목 수</strong>와 다를 수
+                                있습니다
+                            </div>
+                        </div>
                         <table className={styles.componentTable}>
                             <thead>
                                 <tr>

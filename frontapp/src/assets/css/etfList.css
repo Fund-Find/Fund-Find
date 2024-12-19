@@ -9,7 +9,7 @@
 }
 
 .mbti-banner {
-    background: #e1d9fe;
+    background: #cdc0fe;
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 24px;
@@ -21,17 +21,12 @@
 }
 
 .mbti-banner:hover {
-    background: #c5b6fc;
+    background: #b7a3fe;
 }
 
 .mbti-banner-text {
     font-weight: 600;
     color: #690069;
-}
-
-.mbti-banner-arrow {
-    color: #690069;
-    font-size: 1.2em;
 }
 
 .search-controls {
@@ -86,6 +81,43 @@
     background: white;
     border-radius: 8px;
     overflow: hidden;
+}
+
+.nav-column {
+    position: relative;
+}
+
+.nav-tooltip {
+    visibility: hidden;
+    position: absolute;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    width: 200px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.nav-column:hover .nav-tooltip {
+    visibility: visible;
+}
+
+/* 화살표 추가 */
+.nav-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 5px 5px 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
 }
 
 .list-header {

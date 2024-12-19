@@ -50,6 +50,47 @@
     font-size: 14px;
 }
 
+.componentTitleWrapper {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.componentTooltip {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    width: 300px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 100%;
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.4;
+    z-index: 100;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.componentTitleWrapper:hover .componentTooltip {
+    display: block;
+}
+
+/* 툴팁 화살표 */
+.componentTooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
 /* 구성종목 정보 테이블 */
 .component-title {
     font-size: 18px;

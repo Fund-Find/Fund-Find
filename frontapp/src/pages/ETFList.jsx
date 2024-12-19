@@ -156,8 +156,7 @@ export default function ETFList() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mbti-banner" onClick={handleSurveyClick}>
-                <span className="mbti-banner-text">투자성향 MBTI 분석하러 가기</span>
-                <span className="mbti-banner-arrow">→</span>
+                <span className="mbti-banner-text">투자성향 MBTI 분석하러 가기 →</span>
             </div>
             <h1 className="text-3xl font-bold mb-8">ETF 찾기</h1>
             {error && (
@@ -198,7 +197,17 @@ export default function ETFList() {
                     <div>가격</div>
                     <div>ETF 구성종목 수</div>
                     <div>ETF 순자산 총액</div>
-                    <div>NAV</div>
+                    <div className="nav-column">
+                        NAV
+                        <div className="nav-tooltip">
+                            NAV = (총 자산 - 총 부채) / 발행 주식수
+                            <br />
+                            <br />
+                            프리미엄: 시장가격 &gt; NAV
+                            <br />
+                            디스카운트: 시장가격 &lt; NAV
+                        </div>
+                    </div>
                     <div>전일 최종 NAV</div>
                     <div>NAV 변동액</div>
                     <div>ETF 배당주기</div>
@@ -229,7 +238,10 @@ export default function ETFList() {
                         >
                             <div className="company-name">{etf.company || 'N/A'}</div>
                             <div className="text-left">{etf.name}</div>
-                            <div>{etf.currentPrice || '0'}원</div>
+                            <div className={`${Number(etf.currentPrice) >= 0 ? 'up' : 'down'}`}>
+                                {etf.currentPrice || '0'}원
+                            </div>
+                            {/* <div>{etf.currentPrice || '0'}원</div> */}
                             <div>{etf.componentCount || '0'}개</div>
                             <div>{etf.netAsset || '0'}억원</div>
                             <div>{etf.nav || '0'}원</div>
