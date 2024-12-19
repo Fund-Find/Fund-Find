@@ -181,7 +181,7 @@ function Nav() {
             {/* faFacebook 로고  */}
             <div className="logo">
                 <Link to="/">
-                    <FontAwesomeIcon icon={faFacebook} />
+                    <img src="/images/fflogo.webp" alt="FF Logo" />
                 </Link>
             </div>
 

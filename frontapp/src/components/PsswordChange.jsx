@@ -110,7 +110,7 @@ const PasswordChange = () => {
                     {loading ? '변경 중...' : '비밀번호 변경'}
                 </button>
             </form>
-            <button className="back-button" onClick={() => navigate(-1)}>
+            <button className="back-button" onClick={() => window.location.reload()}>
                 뒤로가기
             </button>
         </div>
