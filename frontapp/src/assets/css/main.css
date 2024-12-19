@@ -30,11 +30,13 @@ li {
     gap: 20px;
     margin-bottom: 20px;
 }
+.top-banner-section .login-form > input {
+    width: auto;
+}
 
 /* MBTI 배너 */
-.mbti-banner {
+.top-banner-section > .mbti-banner {
     flex: 1;
-    background: linear-gradient(90deg, #4a90e2, #357abd);
     color: white;
     padding: 20px;
     border-radius: 8px;
@@ -149,6 +151,16 @@ li {
     color: #ccc;
 }
 
+.top-banner-section .logged-in-section {
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 15px;
+}
+
 /* 퀴즈 섹션 */
 .quiz-section {
     margin: 40px auto;
@@ -191,14 +203,21 @@ li {
 }
 
 /* Best ETF 섹션 */
-.best-etf-section {
+.home-container > .best-etf-section {
     margin: 40px auto;
     width: 100%;
     max-width: 1200px;
+    height: auto;
     padding: 0 20px;
-    position: relative;
+    display: flex; /* 부모 요소를 flexbox로 설정 */
+    flex-direction: column; /* 자식 요소들이 세로로 쌓이도록 설정 */
+    justify-content: center; /* 세로 방향 중앙 정렬 */
+    align-items: center;
 }
 
+.home-container > .best-etf-section > p {
+    align-self: flex-start;
+}
 /* Swiper 컨테이너 */
 .bestETFSwiper {
     width: 100%;
@@ -263,12 +282,6 @@ li {
 
 .close-button:hover {
     color: #000;
-}
-
-.swiper-initialized {
-    display: flex;
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
 }
 
 /* 반응형 디자인 */

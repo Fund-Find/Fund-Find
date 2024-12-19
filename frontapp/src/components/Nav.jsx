@@ -116,6 +116,7 @@ function Nav() {
                 setIsLoggedIn(false)
                 setRemainingTime(0)
                 alert('로그아웃되었습니다.')
+                window.dispatchEvent(new Event('storage'))
 
                 // 보호된 경로라면 홈으로 이동, 아니라면 현재 경로 유지
                 if (isProtectedRoute) {
@@ -178,7 +179,7 @@ function Nav() {
                 <FontAwesomeIcon icon={!isToggled ? faBars : faTimes} />
             </div>
 
-            {/* faFacebook 로고  */}
+            {/* FF 로고  */}
             <div className="logo">
                 <Link to="/">
                     <img src="/images/fflogo.webp" alt="FF Logo" />

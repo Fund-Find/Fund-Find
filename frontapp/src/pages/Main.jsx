@@ -15,11 +15,62 @@ function Home() {
     const [sortedETFs, setSortedETFs] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
 
-    // handleLogin 함수 추가
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [profileData, setProfileData] = useState(null)
+
+    const fetchProfile = async () => {
+        try {
+            const token = localStorage.getItem('accessToken')
+            const expirationTimeStr = localStorage.getItem('expirationTime')
+            const now = Date.now()
+
+            if (token && expirationTimeStr) {
+                const expirationTime = parseInt(expirationTimeStr, 10)
+                if (now < expirationTime) {
+                    const response = await fetch('http://localhost:8080/api/v1/user/profile', {
+                        method: 'GET',
+                        credentials: 'include',
+                    })
+                    const data = await response.json()
+                    if (data.resultCode === '200') {
+                        setProfileData(data.data)
+                        setIsLoggedIn(true)
+                        return
+                    }
+                }
+            }
+            // 토큰이 없거나 만료되었거나 프로필 fetch 실패 시
+            setProfileData(null)
+            setIsLoggedIn(false)
+        } catch (error) {
+            console.error('프로필 정보를 가져오는데 실패했습니다: ', error)
+            setProfileData(null)
+            setIsLoggedIn(false)
+        }
+    }
+
+    // 페이지 로딩 시 한 번 상태 체크
+    useEffect(() => {
+        fetchProfile()
+    }, [])
+
+    // storage 이벤트를 통해 localStorage 변경 감지
+    useEffect(() => {
+        const handleStorageChange = () => {
+            fetchProfile()
+        }
+
+        window.addEventListener('storage', handleStorageChange)
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+        }
+    }, [])
+
     const handleLogin = async (e) => {
         e.preventDefault()
         const requestData = { username, password }
@@ -51,6 +102,7 @@ function Home() {
                     }
 
                     alert('로그인 성공')
+                    // storage 이벤트 발생 -> Main에서 감지
                     window.dispatchEvent(new Event('storage'))
                 }
             } else {
@@ -68,7 +120,6 @@ function Home() {
         { id: 3, title: '인기 퀴즈3' },
     ]
 
-    // ETF 데이터 가져오기 및 정렬
     useEffect(() => {
         fetchETFs()
     }, [])
@@ -126,38 +177,56 @@ function Home() {
                     </div>
                 </div>
 
-                {/* 로그인 폼 */}
+                {/* 로그인 섹션 */}
                 <div className="login-banner">
-                    <form onSubmit={handleLogin} className="login-form">
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="아이디를 입력하세요"
-                            className="login-input"
-                        />
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="비밀번호를 입력하세요"
-                            className="login-input"
-                        />
-                        <button type="submit" className="login-btn">
-                            로그인
-                        </button>
-                        <div className="login-links">
-                            <a href="/user/find-account">아이디 찾기</a>
-                            <span>|</span>
-                            <a href="/user/find-account">비밀번호 재설정</a>
-                            <span>|</span>
-                            <a href="/user/register">회원가입</a>
+                    {!isLoggedIn ? (
+                        <form onSubmit={handleLogin} className="login-form">
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="아이디를 입력하세요"
+                                className="login-input"
+                            />
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="비밀번호를 입력하세요"
+                                className="login-input"
+                            />
+                            {errorMessage && <div className="error-message">{errorMessage}</div>}
+                            <button type="submit" className="login-btn">
+                                로그인
+                            </button>
+                            <div className="login-links">
+                                <a href="/user/find-account">아이디 찾기</a>
+                                <span>|</span>
+                                <a href="/user/find-account">비밀번호 재설정</a>
+                                <span>|</span>
+                                <a href="/user/register">회원가입</a>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="logged-in-section">
+                            {profileData && profileData.thumbnailImg ? (
+                                <img
+                                    src={profileData.thumbnailImg}
+                                    alt="프로필 이미지"
+                                    className="profile-thumbnail"
+                                    style={{ width: '80px', height: '80px', borderRadius: '50%' }}
+                                />
+                            ) : (
+                                <div className="no-profile-image">프로필 이미지 없음</div>
+                            )}
+                            <div className="welcome-message">
+                                <span>{profileData?.nickname || profileData?.username}님 환영합니다!</span>
+                            </div>
                         </div>
-                    </form>
+                    )}
                 </div>
             </div>
 
-            {/* Survey 팝업 */}
             {showSurveyPopup && (
                 <div className="survey-popup-overlay">
                     <div className="survey-popup">
@@ -169,7 +238,6 @@ function Home() {
                 </div>
             )}
 
-            {/* 퀴즈 섹션 */}
             <div className="quiz-section">
                 <h2>인기 퀴즈</h2>
                 <div className="quiz-grid">
@@ -182,7 +250,6 @@ function Home() {
                 </div>
             </div>
 
-            {/* 등락률 Best 펀드 섹션 수정 */}
             <div className="best-etf-section">
                 <h2 className="text-2xl font-bold mb-6">등락률 Best 펀드</h2>
                 {loading ? (
@@ -192,7 +259,7 @@ function Home() {
                 ) : (
                     <Swiper
                         modules={[Virtual, Navigation, Pagination]}
-                        slidesPerView="auto" // 자동으로 슬라이드 개수 조정
+                        slidesPerView="auto"
                         spaceBetween={20}
                         centeredSlides={false}
                         navigation={true}
