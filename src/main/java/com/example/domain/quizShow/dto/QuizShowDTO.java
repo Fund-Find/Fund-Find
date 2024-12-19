@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -22,6 +24,9 @@ public class QuizShowDTO {
     private Integer voteCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<QuizDTO> quizzes;  // 추가된 필드
+    private String customImagePath;  // 추가된 필드
+    private boolean useCustomImage;  // 추가된 필드
 
     public QuizShowDTO(QuizShow quizShow) {
         this.id = quizShow.getId();
@@ -34,5 +39,13 @@ public class QuizShowDTO {
         this.voteCount = quizShow.getVotes() != null ? quizShow.getVotes().size() : 0;
         this.createdAt = quizShow.getCreatedDate();
         this.updatedAt = quizShow.getModifiedDate();
+        this.customImagePath = quizShow.getCustomImagePath();
+        this.useCustomImage = quizShow.isUseCustomImage();
+
+        if (quizShow.getQuizzes() != null) {
+            this.quizzes = quizShow.getQuizzes().stream()
+                    .map(QuizDTO::new)  // 수정된 QuizDTO 생성자 사용
+                    .collect(Collectors.toList());
+        }
     }
 }

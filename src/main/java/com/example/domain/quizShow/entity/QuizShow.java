@@ -8,8 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +39,8 @@ public class QuizShow extends BaseEntity {
     @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer view;
 
+    private LocalDateTime lastViewedAt;
+
     @ManyToMany
     @ColumnDefault("0")
     @JoinTable(
@@ -47,6 +51,8 @@ public class QuizShow extends BaseEntity {
     private Set<SiteUser> votes;
 
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")  // id 기준으로 정렬
+    @BatchSize(size = 100)  // batch size 설정
     private List<Quiz> quizzes;
 
     @Column

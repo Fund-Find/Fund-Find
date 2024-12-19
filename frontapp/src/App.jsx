@@ -15,6 +15,7 @@ import ETFDetail from './components/ETFDetail'
 import PrivateRoute from './components/PrivateRoute'
 import FindId from './pages/FindId'
 import PasswordReset from './pages/PasswordReset'
+import QuizShowDetail from './pages/QuizShowDetail'
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -39,6 +40,7 @@ function App() {
                 {/* /survey 경로에 Survey 컴포넌트 렌더링 */}
                 <Route path="/result" element={<Result />} /> {/* 결과 페이지 경로 추가 */}
                 <Route path="/quizshow/list" element={<QuizShowList />}></Route>
+                <Route path="/quizshow/:id" element={<QuizShowDetail />}></Route>
                 <Route path="/etf/list" element={<ETFList />}></Route>
                 <Route path="/etf/:code" element={<ETFDetail />} />
                 <Route path="/user/findId" element={<FindId />} />

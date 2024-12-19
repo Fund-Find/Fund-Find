@@ -40,6 +40,7 @@ public class ApiSecurityConfig {
 
 
                                 .requestMatchers(HttpMethod.GET,"/api/*/quizshow/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/*/quizshow/*/submit").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/*/articles").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/*/articles/*").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/*/user/login").permitAll()
@@ -69,6 +70,7 @@ public class ApiSecurityConfig {
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
+        configuration.addExposedHeader("Authorization"); // Authorization 헤더 노출
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

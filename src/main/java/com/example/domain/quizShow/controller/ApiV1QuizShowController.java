@@ -3,15 +3,19 @@ package com.example.domain.quizShow.controller;
 import com.example.domain.quizShow.dto.QuizShowDTO;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
+import com.example.domain.quizShow.request.QuizSubmitRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
 import com.example.domain.quizShow.response.QuizShowResponse;
+import com.example.domain.quizShow.response.QuizSubmitResponse;
 import com.example.domain.quizShow.service.QuizShowService;
 import com.example.global.rsData.RsData;
+import com.example.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +47,26 @@ public class ApiV1QuizShowController {
         }
         QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
         return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
+    }
+
+    @PostMapping("/{id}/submit")
+    public RsData<QuizSubmitResponse> submitQuiz(
+            @PathVariable("id") Long quizShowId,
+            @Valid @RequestBody QuizSubmitRequest request,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+
+        // 로그인 체크 추가
+        if (securityUser == null) {
+            return RsData.of("401", "로그인이 필요한 서비스입니다.", null);
+        }
+
+        QuizSubmitResponse result = quizShowService.submitAndSaveResult(
+                quizShowId,
+                request.getAnswers(),
+                securityUser.getId()
+        );
+
+        return RsData.of("200", "퀴즈 제출이 완료되었습니다.", result);
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
