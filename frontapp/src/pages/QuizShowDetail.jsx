@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
+import '../assets/css/QuizShowDetail.css';
 
 const QuizShowDetail = () => {
     const { id } = useParams();

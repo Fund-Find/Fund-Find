@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import '../assets/css/QuizShowList.css';
 
 function QuizShowList() {
     const [quizShowList, setQuizShowList] = useState([]);
@@ -60,16 +61,24 @@ function QuizShowList() {
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {quizShowList.map((quizShow) => (
+                    {quizShowList.map((quizShow) => {
+                        const imagePath = quizShow.useCustomImage ? 
+                            `http://localhost:8080/uploads/${quizShow.customImagePath}` : 
+                            `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`;
+
+                        console.log('Image path:', imagePath);  // 실제 경로 확인용
+                        console.log('Category:', quizShow.quizCategory);  // 카테고리 값 확인용
+
+                        return (
                             <div key={quizShow.id} 
                                 className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
-                                <div className="aspect-w-16 aspect-h-9">
-                                    <img 
-                                        src={quizShow.useCustomImage ? 
-                                            `http://localhost:8080/uploads/${quizShow.customImagePath}` : 
-                                            `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`}
+                                <div className="quiz-image-container">
+                                    <img
+                                        src={imagePath}
                                         alt={quizShow.showName}
-                                        className="object-cover w-full h-48"
+                                        onError={(e) => {
+                                            e.target.src = '/images/fflogo.webp';
+                                        }}
                                     />
                                 </div>
                                 <div className="p-4">
@@ -98,8 +107,9 @@ function QuizShowList() {
                                     </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })}
+                </div>
                     
                     <div className="mt-8 flex justify-center gap-2">
                         <button
