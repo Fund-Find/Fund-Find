@@ -1,4 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 import '../assets/css/QuizShowList.css';
 
 function QuizShowList() {
@@ -55,97 +60,114 @@ function QuizShowList() {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-6">퀴즈쇼 목록</h1>
-            
+    
             {quizShowList.length === 0 ? (
                 <p className="text-center text-gray-500">등록된 퀴즈쇼가 없습니다.</p>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {quizShowList.map((quizShow) => {
-                        const imagePath = quizShow.useCustomImage ? 
-                            `http://localhost:8080/uploads/${quizShow.customImagePath}` : 
-                            `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`;
-
-                        console.log('Image path:', imagePath);  // 실제 경로 확인용
-                        console.log('Category:', quizShow.quizCategory);  // 카테고리 값 확인용
-
-                        return (
-                            <div key={quizShow.id} 
-                                className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
-                                <div className="quiz-image-container">
-                                    <img
-                                        src={imagePath}
-                                        alt={quizShow.showName}
-                                        onError={(e) => {
-                                            e.target.src = '/images/fflogo.webp';
-                                        }}
-                                    />
-                                </div>
-                                <div className="p-4">
-                                    <h2 className="text-xl font-semibold mb-2">{quizShow.showName}</h2>
-                                    <p className="text-gray-600 mb-4 line-clamp-2">{quizShow.showDescription}</p>
-                                    <div className="text-sm text-gray-500 space-y-1">
-                                        <div>카테고리: {quizShow.quizCategory}</div>
-                                        <div className="flex justify-between">
-                                            <span>문제 수: {quizShow.totalQuizCount}</span>
-                                            <span>총점: {quizShow.totalScore}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>조회수: {quizShow.view}</span>
-                                            <span>추천: {quizShow.voteCount}</span>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4">
-                                        <button 
-                                            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                                            onClick={() => {
-                                                window.location.href = `/quizshow/${quizShow.id}`;
+                    {/* 3x3 그리드 레이아웃 */}
+                    <div className="quizshow-grid">
+                        {quizShowList.map((quizShow) => {
+                            const imagePath = quizShow.useCustomImage
+                                ? `http://localhost:8080/uploads/${quizShow.customImagePath}`
+                                : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`;
+    
+                            return (
+                                <div
+                                    key={quizShow.id}
+                                    className="quizshow-item border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
+                                    onClick={() => {
+                                        window.location.href = `/quizshow/${quizShow.id}`;
+                                    }} // 퀴즈쇼 클릭 시 상세 페이지로 이동
+                                >
+                                    <div className="quiz-image-container">
+                                        <img
+                                            src={imagePath}
+                                            alt={quizShow.showName}
+                                            onError={(e) => {
+                                                e.target.src = '/images/fflogo.webp';
                                             }}
-                                        >
-                                            상세보기
-                                        </button>
+                                        />
+                                    </div>
+                                    <div className="p-4">
+                                        <h2 className="text-xl font-semibold mb-2">{quizShow.showName}</h2>
+                                        <p className="text-gray-600 mb-4 line-clamp-2">{quizShow.showDescription}</p>
+                                        <div className="text-sm text-gray-500 space-y-1">
+                                            <div>카테고리: {quizShow.quizCategory}</div>
+                                            <div className="flex justify-between">
+                                                <span>문제 수: {quizShow.totalQuizCount}</span>
+                                                <span>총점: {quizShow.totalScore}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>조회수: {quizShow.view}</span>
+                                                <span>추천: {quizShow.voteCount}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
-                    
-                    <div className="mt-8 flex justify-center gap-2">
+                            );
+                        })}
+                    </div>
+    
+                    {/* 페이지네이션 */}
+                    <div className="pagination-controls">
+                        {/* 첫 페이지로 이동 |< */}
+                        <button
+                            onClick={() => handlePageChange(0)}
+                            disabled={currentPage === 0}
+                            className={`pagination-button ${currentPage === 0 ? 'disabled' : ''}`}
+                        >
+                            &lt;&lt;&lt;
+                        </button>
+
+                        {/* 10페이지 뒤로 이동 << */}
+                        <button
+                            onClick={() => handlePageChange(Math.max(0, currentPage - 10))}
+                            disabled={currentPage < 10}
+                            className={`pagination-button ${currentPage < 10 ? 'disabled' : ''}`}
+                        >
+                            &lt;&lt;
+                        </button>
+
+                        {/* 이전 페이지로 이동 < */}
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 0}
-                            className={`px-4 py-2 rounded ${
-                                currentPage === 0 
-                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                                : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }`}
+                            className={`pagination-button ${currentPage === 0 ? 'disabled' : ''}`}
                         >
-                            이전
+                            &lt;
                         </button>
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => handlePageChange(i)}
-                                className={`px-4 py-2 rounded ${
-                                    currentPage === i
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 hover:bg-gray-300'
-                                }`}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
+
+                        {/* 현재 페이지 / 전체 페이지 표시 */}
+                        <span className="pagination-info">
+                            {currentPage + 1} / {totalPages}
+                        </span>
+
+                        {/* 다음 페이지로 이동 > */}
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages - 1}
-                            className={`px-4 py-2 rounded ${
-                                currentPage === totalPages - 1
-                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }`}
+                            className={`pagination-button ${currentPage === totalPages - 1 ? 'disabled' : ''}`}
                         >
-                            다음
+                            &gt;
+                        </button>
+
+                        {/* 10페이지 앞으로 이동 >> */}
+                        <button
+                            onClick={() => handlePageChange(Math.min(totalPages - 1, currentPage + 10))}
+                            disabled={currentPage >= totalPages - 10}
+                            className={`pagination-button ${currentPage >= totalPages - 10 ? 'disabled' : ''}`}
+                        >
+                            &gt;&gt;
+                        </button>
+
+                        {/* 마지막 페이지로 이동 >| */}
+                        <button
+                            onClick={() => handlePageChange(totalPages - 1)}
+                            disabled={currentPage === totalPages - 1}
+                            className={`pagination-button ${currentPage === totalPages - 1 ? 'disabled' : ''}`}
+                        >
+                            &gt;&gt;&gt;
                         </button>
                     </div>
                 </>

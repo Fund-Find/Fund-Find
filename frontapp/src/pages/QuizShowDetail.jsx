@@ -61,7 +61,7 @@ const QuizShowDetail = () => {
                     className="mb-4 flex items-center text-gray-600 hover:text-gray-900"
                     onClick={() => navigate('/quizshow/list')}>
                     <span className="mr-2">←</span>
-                    목록으로 돌아가기
+                    목록으로
                 </button>
 
                 <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
@@ -278,79 +278,108 @@ const QuizSolve = ({ quizShow, onBack }) => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-4">
-            <div className="flex justify-between items-center mb-6">
-                <button 
-                    className="flex items-center text-gray-600 hover:text-gray-900"
-                    onClick={onBack}>
-                    <span className="mr-2">←</span>
-                    퀴즈 설명으로 돌아가기
-                </button>
-                {submitted && (
-                    <div className="text-xl font-bold">
-                        최종 점수: {result.score} / {quizShow.totalScore}점
+        <div className="quiz-detail-container bg-gray-100 min-h-screen">
+            <button
+                className="back-button flex items-center"
+                onClick={() => navigate('/quizshow/list')}
+            >
+                ← 목록으로
+            </button>
+    
+            {/* 헤더 영역 */}
+            <div className="quiz-header">
+                <div className="quiz-image-container">
+                    <img
+                        src={
+                            quizShow.useCustomImage
+                                ? `http://localhost:8080/uploads/${quizShow.customImagePath}`
+                                : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`
+                        }
+                        alt={quizShow.showName}
+                        className="quiz-image"
+                    />
+                    <div className="quiz-title-overlay">
+                        <h1 className="text-3xl font-bold">{quizShow.showName}</h1>
                     </div>
-                )}
-            </div>
-
-            {error && (
-                <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
                 </div>
-            )}
-
-            <div className="space-y-6">
-                {quizShow.quizzes.map((quiz, index) => (
-                    <div 
-                        key={quiz.id}
-                        className={`p-6 rounded-lg mb-4 ${
-                            submitted ? (result.results[quiz.id] ? 'bg-green-50' : 'bg-red-50') : 'bg-gray-50'
-                        }`}>
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-lg font-semibold">
+            </div>
+    
+            {/* 퀴즈 정보 */}
+            <div className="quiz-info">
+                <div className="info-card">
+                    <h2 className="text-xl font-semibold mb-4">퀴즈 정보</h2>
+                    <ul className="text-gray-600 space-y-2">
+                        <li>카테고리: {quizShow.quizCategory}</li>
+                        <li>총 문제 수: {quizShow.totalQuizCount} 문제</li>
+                        <li>총점: {quizShow.totalScore}점</li>
+                    </ul>
+                </div>
+                <div className="info-card">
+                    <h2 className="text-xl font-semibold mb-4">통계</h2>
+                    <ul className="text-gray-600 space-y-2">
+                        <li>조회수: {quizShow.view || 0}</li>
+                        <li>추천수: {quizShow.voteCount || 0}</li>
+                    </ul>
+                </div>
+            </div>
+    
+            {/* 퀴즈 섹션 */}
+            <div className="quiz-section">
+                <h2 className="text-2xl font-semibold mb-6">퀴즈 풀기</h2>
+                <div className="space-y-6">
+                    {quizShow.quizzes.map((quiz, index) => (
+                        <div
+                            key={quiz.id}
+                            className={`quiz-question ${
+                                submitted
+                                    ? result.results[quiz.id]
+                                        ? 'correct'
+                                        : 'incorrect'
+                                    : ''
+                            }`}
+                        >
+                            <h3 className="text-lg font-semibold mb-2">
                                 문제 {index + 1}
-                                <span className="text-sm text-gray-500 ml-2">
-                                    (배점: {quiz.quizScore}점)
-                                </span>
+                                <span className="text-sm text-gray-500 ml-2">(배점: {quiz.quizScore}점)</span>
                             </h3>
-                            {submitted && (
-                                <span className={`px-3 py-1 rounded ${
-                                    result.results[quiz.id] ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                                }`}>
-                                    {result.results[quiz.id] ? '정답' : '오답'}
-                                </span>
+                            <p className="text-gray-800 mb-4">{quiz.quizContent}</p>
+    
+                            <div className="quiz-choices">
+                                {renderAnswerInput(quiz)}
+                            </div>
+    
+                            {submitted && quiz.explanation && (
+                                <div className="mt-4 p-4 bg-gray-50 rounded">
+                                    <p className="font-semibold">해설:</p>
+                                    <p className="text-gray-600">{quiz.explanation}</p>
+                                </div>
                             )}
                         </div>
-
-                        <div className="mb-4">
-                            <p className="text-gray-800">{quiz.quizContent}</p>
-                        </div>
-
-                        <div className="space-y-2">
-                            {renderAnswerInput(quiz)}
-                        </div>
-
-                        {submitted && quiz.explanation && (
-                            <div className="mt-4 p-4 bg-white rounded">
-                                <p className="font-semibold">해설:</p>
-                                <p className="text-gray-600">{quiz.explanation}</p>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-
+    
+            {/* 제출 버튼 */}
             {!submitted && (
-                <div className="mt-8 flex justify-center">
-                    <button 
-                        className="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition-transform transform hover:scale-105"
-                        onClick={handleSubmit}>
-                        제출하기
-                    </button>
+                <button
+                    className="submit-button"
+                    onClick={handleSubmit}
+                >
+                    제출하기
+                </button>
+            )}
+    
+            {/* 결과 화면 */}
+            {submitted && (
+                <div className="quiz-result">
+                    <h2 className="text-2xl font-semibold mb-4">최종 결과</h2>
+                    <p className="text-lg">
+                        점수: {result.score} / {quizShow.totalScore}점
+                    </p>
                 </div>
             )}
         </div>
-    );
+    );    
 };
 
 export default QuizShowDetail;
