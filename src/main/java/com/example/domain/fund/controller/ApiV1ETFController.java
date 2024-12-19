@@ -46,6 +46,7 @@ public class ApiV1ETFController {
             String etfInfo = etfService.getETFInfo(code);
             log.info("ETF 정보 조회 결과: {}", etfInfo);
 
+
             return RsData.of("200", "ETF 정보 조회 성공", etfInfo);
         } catch (Exception e) {
             return RsData.of("500", "ETF 정보 조회 실패: " + e.getMessage());

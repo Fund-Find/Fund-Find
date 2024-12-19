@@ -161,7 +161,7 @@ function ETFDetail() {
                                 {etfInfo.componentInfo.length > 0 ? (
                                     etfInfo.componentInfo.map((item, index) => (
                                         <tr key={index}>
-                                            <td>{item.stockName}</td>
+                                            <td>{item.stockName.split(' ').join(' ')}</td>
                                             <td>{item.stockCode}</td>
                                             <td>{item.marketCap}</td>
                                             <td>{item.weightedMarketCap}</td>

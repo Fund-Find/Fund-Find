@@ -104,49 +104,24 @@
     table-layout: fixed;
 }
 
-.component-table th {
+.componentTable th,
+.componentTable td {
+    padding: 12px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    border: none;
+}
+
+.componentTable th {
     background: #f8f9fa;
-    padding: 12px;
-    border: 1px solid #e0e0e0;
     font-weight: bold;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
 }
 
-.component-table td {
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-}
-
-/* 구성종목 테이블 열 너비 조정 */
-.component-table th:nth-child(1),
-.component-table td:nth-child(1) {
-    width: 20%;
-}
-
-.component-table th:nth-child(2),
-.component-table td:nth-child(2) {
-    width: 15%;
-}
-
-.component-table th:nth-child(3),
-.component-table td:nth-child(3),
-.component-table th:nth-child(4),
-.component-table td:nth-child(4) {
-    width: 25%;
-}
-
-.component-table th:nth-child(5),
-.component-table td:nth-child(5) {
-    width: 15%;
+.componentTable td {
+    border-bottom: none;
 }
 
 .positive {
@@ -163,6 +138,13 @@
     text-align: center;
     padding: 24px;
     color: #666;
+}
+
+/* 테이블 스크롤을 위한 컨테이너 */
+.info-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
 }
 
 @media (max-width: 768px) {
