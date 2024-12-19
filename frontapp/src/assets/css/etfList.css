@@ -2,10 +2,11 @@
     font-size: 20px;
 }
 
-.container {
+.container.mx-auto.px-4.py-8 {
     margin: 0 auto;
     padding: 20px;
     overflow-x: hidden;
+    max-width: 99%;
 }
 
 .mbti-banner {

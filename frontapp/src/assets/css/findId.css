@@ -1,7 +1,8 @@
 /* 전체 컨테이너 스타일 */
 .find-id-container {
     max-width: 400px;
-    margin: 50px auto;
+    margin: 250px auto !important;
+    justify-content: center;
     text-align: center;
     padding: 20px;
     border: 1px solid #ddd;

@@ -200,10 +200,10 @@ function Home() {
                                 로그인
                             </button>
                             <div className="login-links">
-                                <a href="/user/find-account">아이디 찾기</a>
-                                <span>|</span>
-                                <a href="/user/find-account">비밀번호 재설정</a>
-                                <span>|</span>
+                                <a href="/user/findId">아이디 찾기</a>
+                                <span> | </span>
+                                <a href="/user/resetpw">비밀번호 재발급</a>
+                                <span> | </span>
                                 <a href="/user/register">회원가입</a>
                             </div>
                         </form>
