@@ -63,9 +63,12 @@ spring:
   logging:
     level:
       org.hibernate.SQL: DEBUG  # SQL 쿼리 로그 출력
+      com.example.domain.quizShow: DEBUG
+      org.springframework.web: DEBUG
       org.hibernate.orm.jdbc.bind: TRACE  # 바인딩 파라미터 출력
       org.hibernate.orm.jdbc.extract: TRACE  # 추출 파라미터 출력
       org.springframework.transaction.interceptor: TRACE  # 트랜잭션 디버깅
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # 기본 프로필 이미지 설정
 default:

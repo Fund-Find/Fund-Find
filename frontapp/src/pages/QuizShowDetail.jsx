@@ -126,54 +126,134 @@ const QuizSolve = ({ quizShow, onBack }) => {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
 
-    const handleAnswer = (quizId, answer) => {
-        setUserAnswers(prev => ({
-            ...prev,
-            [quizId]: answer
-        }));
+    const renderAnswerInput = (quiz) => {
+        switch (quiz.quizType) {
+            case 'MULTIPLE_CHOICE':
+            case 'TRUE_FALSE':
+                return quiz.choices.map((choice, choiceIndex) => (
+                    <div key={choice.id} className="flex items-center">
+                        <input
+                            type="radio"
+                            id={`quiz-${quiz.id}-choice-${choiceIndex}`}
+                            name={`quiz-${quiz.id}`}
+                            value={choiceIndex}
+                            checked={userAnswers[quiz.id] === choiceIndex}
+                            onChange={() => setUserAnswers({
+                                ...userAnswers,
+                                [quiz.id]: choiceIndex
+                            })}
+                            disabled={submitted}
+                            className="mr-3"
+                        />
+                        <label htmlFor={`quiz-${quiz.id}-choice-${choiceIndex}`}>
+                            {choice.choiceContent}
+                        </label>
+                    </div>
+                ));
+            case 'SUBJECTIVE':
+            case 'SHORT_ANSWER':
+                return (
+                    <input
+                        type="text"
+                        value={userAnswers[quiz.id] || ''}
+                        onChange={(e) => setUserAnswers({
+                            ...userAnswers,
+                            [quiz.id]: e.target.value
+                        })}
+                        disabled={submitted}
+                        className="w-full p-2 border rounded"
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    const validateAnswers = (answers, quizzes) => {
+        for (const [quizId, answer] of Object.entries(answers)) {
+            const quiz = quizzes.find(q => q.id === parseInt(quizId));
+            if (!quiz) {
+                throw new Error(`퀴즈 ID ${quizId}를 찾을 수 없습니다.`);
+            }
+            
+            switch (quiz.quizType) {
+                case 'MULTIPLE_CHOICE':
+                case 'TRUE_FALSE':
+                    if (typeof answer !== 'number' || answer < 0 || answer >= quiz.choices.length) {
+                        throw new Error(`퀴즈 ${quizId}의 답안이 유효하지 않습니다.`);
+                    }
+                    break;
+                case 'SUBJECTIVE':
+                case 'SHORT_ANSWER':
+                    if (typeof answer !== 'string' || !answer.trim()) {
+                        throw new Error(`퀴즈 ${quizId}의 답안이 유효하지 않습니다.`);
+                    }
+                    break;
+            }
+        }
+        return true;
     };
 
     const handleSubmit = async () => {
-        if (!quizShow.quizzes || quizShow.quizzes.length === 0) {
-            setError("퀴즈 데이터가 없습니다.");
-            return;
-        }
-
         try {
-            const unansweredQuestions = quizShow.quizzes.filter(quiz => 
-                userAnswers[quiz.id] === undefined
-            );
-
-            if (unansweredQuestions.length > 0) {
-                alert(`아직 ${unansweredQuestions.length}개의 문제를 풀지 않았습니다.`);
-                return;
-            }
-
+            const answersArray = Object.entries(userAnswers).map(([quizId, answer]) => {
+                const quiz = quizShow.quizzes.find(q => q.id === parseInt(quizId));
+                if (!quiz) {
+                    throw new Error(`퀴즈 ID ${quizId}를 찾을 수 없습니다.`);
+                }
+    
+                const quizAnswer = {
+                    quizId: parseInt(quizId),
+                    quizType: quiz.quizType
+                };
+    
+                switch (quiz.quizType) {
+                    case 'MULTIPLE_CHOICE':
+                    case 'TRUE_FALSE':
+                        quizAnswer.choiceIndex = answer;
+                        break;
+                    case 'SUBJECTIVE':
+                    case 'SHORT_ANSWER':
+                        quizAnswer.textAnswer = answer;
+                        break;
+                    default:
+                        throw new Error(`지원하지 않는 퀴즈 타입입니다: ${quiz.quizType}`);
+                }
+    
+                return quizAnswer;
+            });
+    
             const response = await fetch(`http://localhost:8080/api/v1/quizshow/${quizShow.id}/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    answers: Object.entries(userAnswers).map(([quizId, answer]) => ({
-                        quizId: parseInt(quizId),
-                        answer: answer
-                    }))
-                }),
+                body: JSON.stringify({ answers: answersArray }),
                 credentials: 'include'
             });
-
-            if (!response.ok) throw new Error('답안 제출에 실패했습니다.');
-
-            const resultData = await response.json();
-            if (resultData.resultCode === "200") {
-                setResult(resultData.data);
+    
+            const data = await response.json();
+            
+            if (data.resultCode === "401") {
+                if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
+    
+            if (!response.ok) {
+                throw new Error(data.msg || '답안 제출에 실패했습니다.');
+            }
+    
+            if (data.resultCode === "200") {
+                setResult(data.data);
                 setSubmitted(true);
             } else {
-                throw new Error(resultData.msg || '채점 중 오류가 발생했습니다.');
+                throw new Error(data.msg || '채점 중 오류가 발생했습니다.');
             }
         } catch (err) {
             setError(err.message);
+            console.error('Error:', err);
         }
     };
 
@@ -235,28 +315,7 @@ const QuizSolve = ({ quizShow, onBack }) => {
                         </div>
 
                         <div className="space-y-2">
-                            {quiz.choices.map((choice, choiceIndex) => (
-                                <div key={choice.id} className="flex items-center">
-                                    <input
-                                        type="radio"
-                                        id={`quiz-${quiz.id}-choice-${choiceIndex}`}
-                                        name={`quiz-${quiz.id}`}
-                                        value={choiceIndex}
-                                        checked={userAnswers[quiz.id] === choiceIndex}
-                                        onChange={() => handleAnswer(quiz.id, choiceIndex)}
-                                        disabled={submitted}
-                                        className="mr-3"
-                                    />
-                                    <label 
-                                        htmlFor={`quiz-${quiz.id}-choice-${choiceIndex}`}
-                                        className={`flex-1 p-2 rounded ${
-                                            submitted && choice.isCorrect ? 'bg-green-100' : ''
-                                        }`}
-                                    >
-                                        {choice.choiceContent}
-                                    </label>
-                                </div>
-                            ))}
+                            {renderAnswerInput(quiz)}
                         </div>
 
                         {submitted && quiz.explanation && (

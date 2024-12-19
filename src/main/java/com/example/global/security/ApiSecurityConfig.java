@@ -40,6 +40,7 @@ public class ApiSecurityConfig {
 
 
                                 .requestMatchers(HttpMethod.GET,"/api/*/quizshow/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/*/quizshow/*/submit").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/*/articles").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/*/articles/*").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/*/user/login").permitAll()

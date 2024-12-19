@@ -55,6 +55,11 @@ public class ApiV1QuizShowController {
             @Valid @RequestBody QuizSubmitRequest request,
             @AuthenticationPrincipal SecurityUser securityUser) {
 
+        // 로그인 체크 추가
+        if (securityUser == null) {
+            return RsData.of("401", "로그인이 필요한 서비스입니다.", null);
+        }
+
         QuizSubmitResponse result = quizShowService.submitAndSaveResult(
                 quizShowId,
                 request.getAnswers(),

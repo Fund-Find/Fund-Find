@@ -114,55 +114,102 @@ public class QuizShowService {
             Long quizShowId,
             List<QuizSubmitRequest.QuizAnswer> answers,
             Long userId) {
-
-        // 1. 퀴즈쇼와 퀴즈 목록 조회
-        QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(quizShowId)
-                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
-
-        // 2. 퀴즈와 선택지 조회
-        List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(quizShowId);
-        Map<Long, Quiz> quizMap = quizzesWithChoices.stream()
-                .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
-
-        // 3. 사용자 조회
-        SiteUser user = userService.getUser(userId);
-
-        // 답안 채점 및 결과 저장
-        Map<Long, Boolean> results = new HashMap<>();
-        Map<Long, Integer> correctAnswers = new HashMap<>();
-        int totalScore = 0;
-
-        // 각 답안 처리
-        for (QuizSubmitRequest.QuizAnswer answer : answers) {
-            Quiz quiz = quizMap.get(answer.getQuizId());
-            if (quiz == null) {
-                throw new EntityNotFoundException("퀴즈를 찾을 수 없습니다.");
-            }
-
-            // 정답 찾기
-            int correctAnswerIndex = findCorrectAnswerIndex(quiz);
-            correctAnswers.put(quiz.getId(), correctAnswerIndex);
-
-            // 정답 확인
-            boolean isCorrect = answer.getAnswer() == correctAnswerIndex;
-            results.put(quiz.getId(), isCorrect);
-
-            if (isCorrect) {
-                totalScore += quiz.getQuizScore();
-            }
-
-            // 답안 기록 저장
-            saveQuizAnswer(quiz, user, answer.getAnswer(), isCorrect);
+        if (userId == null) {
+            throw new IllegalArgumentException("로그인이 필요한 서비스입니다.");
         }
+        try {
+            // 1. 퀴즈쇼와 퀴즈 목록 조회
+            QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(quizShowId)
+                    .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
-        // 최종 결과 저장
-        saveUserQuizResult(user, quizShow, totalScore);
+            // 2. 퀴즈와 선택지 조회
+            List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(quizShowId);
+            Map<Long, Quiz> quizMap = quizzesWithChoices.stream()
+                    .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
 
-        return QuizSubmitResponse.builder()
-                .score(totalScore)
-                .results(results)
-                .correctAnswers(correctAnswers)
-                .build();
+            // 3. 사용자 조회
+            SiteUser user = userService.getUser(userId);
+
+            // 답안 채점 및 결과 저장
+            Map<Long, Boolean> results = new HashMap<>();
+            Map<Long, Integer> correctAnswers = new HashMap<>();
+            int totalScore = 0;
+
+            // 각 답안 처리
+            for (QuizSubmitRequest.QuizAnswer answer : answers) {
+                Quiz quiz = quizMap.get(answer.getQuizId());
+                if (quiz == null) {
+                    throw new EntityNotFoundException("퀴즈를 찾을 수 없습니다.");
+                }
+
+                QuizTypeEnum quizType = quiz.getQuizType().getType();
+                String userAnswer;
+                boolean isCorrect;
+
+                switch (quizType) {
+                    case MULTIPLE_CHOICE:
+                        userAnswer = String.valueOf(answer.getChoiceIndex());
+                        // 선택한 인덱스의 선택지가 정답인지 확인
+                        isCorrect = quiz.getChoices().get(answer.getChoiceIndex()).getIsCorrect();
+                        break;
+
+                    case TRUE_FALSE:
+                        userAnswer = answer.getChoiceIndex() == 0 ? "T" : "F";
+                        // OX 문제의 경우 첫 번째 선택지와 비교
+                        isCorrect = userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
+                        break;
+
+                    case SUBJECTIVE:
+                    case SHORT_ANSWER:
+                        userAnswer = answer.getTextAnswer();
+                        // 주관식/단답형의 경우 정답 목록과 비교
+                        isCorrect = quiz.getChoices().stream()
+                                .anyMatch(choice -> choice.getChoiceContent()
+                                        .trim()
+                                        .equalsIgnoreCase(userAnswer.trim()));
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("지원하지 않는 퀴즈 타입입니다.");
+                }
+
+                results.put(quiz.getId(), isCorrect);
+
+                if (isCorrect) {
+                    totalScore += quiz.getQuizScore();
+                }
+
+                // 답안 저장
+                QuizAnswer quizAnswer = QuizAnswer.builder()
+                        .quiz(quiz)
+                        .user(user)
+                        .userAnswer(userAnswer)
+                        .isCorrect(isCorrect)
+                        .answeredAt(LocalDateTime.now())
+                        .build();
+
+                quizAnswerRepository.save(quizAnswer);
+            }
+
+            // 최종 결과 저장
+            UserQuizResult quizResult = UserQuizResult.builder()
+                    .user(user)
+                    .quizShow(quizShow)
+                    .score(totalScore)
+                    .build();
+
+            userQuizResultRepository.save(quizResult);
+
+            return QuizSubmitResponse.builder()
+                    .score(totalScore)
+                    .results(results)
+                    .correctAnswers(correctAnswers)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("퀴즈 제출 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("퀴즈 제출 처리 중 오류가 발생했습니다.", e);
+        }
     }
 
     private int findCorrectAnswerIndex(Quiz quiz) {

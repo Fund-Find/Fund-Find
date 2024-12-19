@@ -22,7 +22,7 @@ public interface QuizShowRepository extends JpaRepository<QuizShow, Long> {
     @Query(value = "SELECT DISTINCT qs FROM QuizShow qs " +
             "LEFT JOIN qs.quizzes q " +
             "LEFT JOIN q.choices " +
-            "ORDER BY qs.id ASC",  // id로 정렬 추가
+            "ORDER BY qs.id DESC",  // id로 정렬 추가
             countQuery = "SELECT COUNT(DISTINCT qs) FROM QuizShow qs")
     Page<QuizShow> findAllWithQuizzesAndChoices(Pageable pageable);
 }
