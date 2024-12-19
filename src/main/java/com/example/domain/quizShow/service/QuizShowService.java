@@ -14,6 +14,7 @@ import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.entity.UserQuizResult;
 import com.example.domain.user.repository.UserQuizResultRepository;
 import com.example.domain.user.service.UserService;
+import com.example.global.security.SecurityUser;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -73,10 +76,20 @@ public class QuizShowService {
             QuizShow quizShow = quizShowRepository.findByIdWithQuizzes(id)
                     .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈쇼를 찾을 수 없습니다."));
 
-            // 마지막 조회 시간 체크 로직 추가
+            // 2. 현재 로그인한 사용자의 추천 여부 확인 (이 부분 추가)
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+                SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+                boolean hasVoted = quizShow.checkUserVoted(securityUser.getId());
+                quizShow = quizShow.toBuilder()
+                        .hasVoted(hasVoted)
+                        .build();
+            }
+
+            // 3. 마지막 조회 시간 체크 및 조회수 증가 로직
             LocalDateTime now = LocalDateTime.now();
             if (quizShow.getLastViewedAt() == null ||
-                    Duration.between(quizShow.getLastViewedAt(), now).getSeconds() > 5) {  // 5초 간격으로 제한
+                    Duration.between(quizShow.getLastViewedAt(), now).getSeconds() > 5) {
 
                 quizShow = quizShowRepository.save(
                         quizShow.toBuilder()
@@ -85,11 +98,11 @@ public class QuizShowService {
                                 .build()
                 );
             }
-            // 2. 해당 퀴즈쇼의 모든 퀴즈와 선택지를 가져옵니다
+
+            // 4. 해당 퀴즈쇼의 모든 퀴즈와 선택지를 가져옵니다
             List<Quiz> quizzesWithChoices = quizRepository.findQuizzesWithChoicesByQuizShowId(id);
 
-            // 3. 선택지 순서 랜덤화
-            // 퀴즈는 순서대로 유지하고 선택지만 랜덤화
+            // 5. 선택지 순서 랜덤화
             if (quizShow.getQuizzes() != null) {
                 quizShow.getQuizzes().forEach(quiz -> {
                     if (quiz.getChoices() != null) {
@@ -98,7 +111,7 @@ public class QuizShowService {
                 });
             }
 
-            // 4. 랜덤화된 퀴즈 데이터를 퀴즈쇼에 설정
+            // 6. 랜덤화된 퀴즈 데이터를 퀴즈쇼에 설정
             quizShow = quizShow.toBuilder()
                     .quizzes(quizzesWithChoices)
                     .build();
@@ -437,6 +450,17 @@ public class QuizShowService {
         createChoices(updatedQuiz, request.getChoices());
         quizValidator.validateQuiz(updatedQuiz, request.getQuizTypeId());
         quizRepository.save(updatedQuiz);
+    }
+
+    @Transactional
+    public QuizShowDTO toggleVote(Long quizShowId, Long userId) {
+        QuizShow quizShow = quizShowRepository.findById(quizShowId)
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
+
+        SiteUser user = userService.getUser(userId);
+        QuizShow updatedQuizShow = quizShow.updateVoteStatus(user);
+
+        return new QuizShowDTO(quizShowRepository.save(updatedQuizShow));
     }
 
     private String saveImage(MultipartFile file) {

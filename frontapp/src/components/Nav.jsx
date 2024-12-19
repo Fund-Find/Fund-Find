@@ -196,6 +196,9 @@ function Nav() {
                 <li>
                     <Link to="/etf/list">ETF 목록</Link>
                 </li>
+                <li>
+                    <Link to="/quizshow/list">퀴즈쇼</Link>
+                </li>
             </ul>
 
             <ul className="User__menulist">
