@@ -187,17 +187,41 @@ public class ETFService {
                         result.append("=".repeat(120)).append("\n");
 
                         for (JsonNode item : output2) {
-                            String stockName = item.path("hts_kor_isnm").asText("N/A"); // 종목명
+                            String stockName = item.path("hts_kor_isnm").asText("N/A").trim(); // 종목명
+
+                            if (stockName.contains(" ")) {
+                                // "KODEX 인버스"와 같이 공백을 포함하는 종목명 데이터를 하나의 문자열로 만듭니다.
+                                String[] nameParts = stockName.split(" ");
+                                stockName =""+nameParts[0]+nameParts[1];
+                            }
+//                            String stockName = "\"" + item.path("hts_kor_isnm").asText("N/A").trim() + "\"";
                             String stockCodeFromETF = item.path("stck_shrn_iscd").asText("N/A"); // 종목코드
-                            String marketCapHts = item.path("hts_avls").asText("N/A"); // 해당종목 시가총액
+                            String marketCapHts = item.path("hts_avls").asText("N/A"); // 구성종목 시가총액
                             String marketCap = item.path("etf_cnfg_issu_avls").asText("0"); // 비중 시가총액
                             String weight = item.path("etf_cnfg_issu_rlim").asText("0"); // 비중
                             // - : 왼쪽정렬,
                             // 20 : 출력할 문자열 최소 폭 지정
                             // 20보다 짧으면 나머지는 공백으로 채워짐
                             // 20보다 길면 잘리지 않고 그대로 출력
-                            result.append(String.format("%-20s %-10s %-15s %-20s %-20s%%\n",
-                                    stockName, stockCodeFromETF, formatNumber(marketCapHts), formatNumber(marketCap), formatWeight(weight)));
+//                            result.append(String.format("%-15s %-10s %-25s %-25s %-10s%%\n",
+//                                    stockName.trim(), stockCodeFromETF, formatNumber(marketCapHts), formatNumber(marketCap), formatWeight(weight)));
+
+                            // 문자열 연결 연산자를 사용하여 직접 포맷팅
+//                            String formattedLine = String.format("%-20s", stockName) +
+//                                    String.format("%-15s", stockCodeFromETF) +
+//                                    String.format("%-20s", formatNumber(marketCapHts)) +
+//                                    String.format("%-25s", formatNumber(marketCap)) +
+//                                    String.format("%-10s%%", formatWeight(weight)) + "\n";
+//                            result.append(formattedLine);
+
+                            StringBuilder line = new StringBuilder();
+                            line.append(stockName).append("\t")
+                                    .append(stockCodeFromETF).append("\t")
+                                    .append(formatNumber(marketCapHts)).append("\t")
+                                    .append(formatNumber(marketCap)).append("\t")
+                                    .append(formatWeight(weight)).append("%\n");
+
+                            result.append(line);
                         }
                     } else {
                         result.append("구성종목 정보가 없습니다.\n");
