@@ -115,9 +115,9 @@ function Home() {
     }
 
     const quizImages = [
-        { id: 1, title: '인기 퀴즈1' },
-        { id: 2, title: '인기 퀴즈2' },
-        { id: 3, title: '인기 퀴즈3' },
+        { id: 384, title: '인기 퀴즈1' },
+        { id: 385, title: '인기 퀴즈2' },
+        { id: 386, title: '인기 퀴즈3' },
     ]
 
     useEffect(() => {
@@ -242,12 +242,17 @@ function Home() {
                 <h2>인기 퀴즈</h2>
                 <div className="quiz-grid">
                     {quizImages.map((quiz) => (
-                        <div key={quiz.id} className="quiz-card" onClick={() => navigate(`/quiz/${quiz.id}`)}>
-                            <div className="quiz-image-placeholder"></div>
+                        <div key={quiz.id} className="quiz-card" onClick={() => navigate(`/quizshow/${quiz.id}`)}>
+                            <div className="quiz-image-placeholder">
+                                <img src="/images/quizShow/cryptocurrency.jpg" alt="" />
+                            </div>
                             <h3>{quiz.title}</h3>
                         </div>
                     ))}
                 </div>
+                <button className="gotoquizlists" onClick={() => navigate('/quizshow/list')}>
+                    퀴즈 전체 목록 보기
+                </button>
             </div>
 
             <div className="best-etf-section">

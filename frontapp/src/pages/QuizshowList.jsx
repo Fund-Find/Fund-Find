@@ -1,66 +1,62 @@
-import { useState, useEffect, useRef } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import '../assets/css/QuizShowList.css';
+import { useState, useEffect, useRef } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+import '../assets/css/QuizShowList.css'
 
 function QuizShowList() {
-    const [quizShowList, setQuizShowList] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
+    const [quizShowList, setQuizShowList] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [currentPage, setCurrentPage] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
+    const [totalElements, setTotalElements] = useState(0)
 
     useEffect(() => {
-        fetchQuizShows(currentPage);
-    }, [currentPage]);
+        fetchQuizShows(currentPage)
+    }, [currentPage])
 
     const fetchQuizShows = async (page) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/quizshow?page=${page}&size=9&sort=id,desc`);
+            const response = await fetch(`http://localhost:8080/api/v1/quizshow?page=${page}&size=9&sort=id,desc`)
             if (!response.ok) {
-                throw new Error('퀴즈쇼 데이터를 불러오는데 실패했습니다.');
+                throw new Error('퀴즈쇼 데이터를 불러오는데 실패했습니다.')
             }
-            const result = await response.json();
-            if (result.resultCode === "200") {
-                setQuizShowList(result.data.quizShows);
-                setTotalPages(result.data.totalPages);
-                setTotalElements(result.data.totalElements);
+            const result = await response.json()
+            if (result.resultCode === '200') {
+                setQuizShowList(result.data.quizShows)
+                setTotalPages(result.data.totalPages)
+                setTotalElements(result.data.totalElements)
             }
-            setIsLoading(false);
+            setIsLoading(false)
         } catch (err) {
-            setError(err.message);
-            setIsLoading(false);
+            setError(err.message)
+            setIsLoading(false)
         }
-    };
+    }
 
     const handlePageChange = (newPage) => {
-        setCurrentPage(newPage);
-    };
+        setCurrentPage(newPage)
+    }
 
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
             </div>
-        );
+        )
     }
 
     if (error) {
-        return (
-            <div className="container mx-auto p-4 text-red-500 text-center">
-                Error: {error}
-            </div>
-        );
+        return <div className="container mx-auto p-4 text-red-500 text-center">Error: {error}</div>
     }
 
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-6">퀴즈쇼 목록</h1>
-    
+
             {quizShowList.length === 0 ? (
                 <p className="text-center text-gray-500">등록된 퀴즈쇼가 없습니다.</p>
             ) : (
@@ -70,14 +66,14 @@ function QuizShowList() {
                         {quizShowList.map((quizShow) => {
                             const imagePath = quizShow.useCustomImage
                                 ? `http://localhost:8080/uploads/${quizShow.customImagePath}`
-                                : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`;
-    
+                                : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`
+
                             return (
                                 <div
                                     key={quizShow.id}
                                     className="quizshow-item border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white"
                                     onClick={() => {
-                                        window.location.href = `/quizshow/${quizShow.id}`;
+                                        window.location.href = `/quizshow/${quizShow.id}`
                                     }} // 퀴즈쇼 클릭 시 상세 페이지로 이동
                                 >
                                     <div className="quiz-image-container">
@@ -85,7 +81,7 @@ function QuizShowList() {
                                             src={imagePath}
                                             alt={quizShow.showName}
                                             onError={(e) => {
-                                                e.target.src = '/images/fflogo.webp';
+                                                e.target.src = '/images/fflogo.webp'
                                             }}
                                         />
                                     </div>
@@ -105,10 +101,10 @@ function QuizShowList() {
                                         </div>
                                     </div>
                                 </div>
-                            );
+                            )
                         })}
                     </div>
-    
+
                     {/* 페이지네이션 */}
                     <div className="pagination-controls">
                         {/* 첫 페이지로 이동 |< */}
@@ -173,7 +169,7 @@ function QuizShowList() {
                 </>
             )}
         </div>
-    );
+    )
 }
 
-export default QuizShowList;
+export default QuizShowList
