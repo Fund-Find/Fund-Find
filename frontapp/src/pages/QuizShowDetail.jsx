@@ -275,7 +275,9 @@ const QuizSolve = ({ quizShow, onBack }) => {
                 switch (quiz.quizType) {
                     case 'MULTIPLE_CHOICE':
                     case 'TRUE_FALSE':
-                        quizAnswer.choiceIndex = answer;
+                        // 선택한 인덱스의 선택지 ID를 전송
+                        const selectedChoice = quiz.choices[answer];
+                        quizAnswer.choiceId = selectedChoice.id;
                         break;
                     case 'SUBJECTIVE':
                     case 'SHORT_ANSWER':

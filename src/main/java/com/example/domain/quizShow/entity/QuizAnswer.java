@@ -48,15 +48,21 @@ public class QuizAnswer extends BaseEntity {
     }
 
     private boolean validateMultipleChoice() {
-        // 선택한 번호가 정답인지 확인
+        // 선택지 ID로 정답 여부 확인
         return quiz.getChoices().stream()
-                .filter(QuizChoice::getIsCorrect)
-                .anyMatch(choice -> choice.getId().toString().equals(userAnswer));
+                .filter(choice -> choice.getId().toString().equals(userAnswer))
+                .findFirst()
+                .map(QuizChoice::getIsCorrect)
+                .orElse(false);
     }
 
     private boolean validateTrueFalse() {
-        // OX 정답 확인
-        return userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
+        // 선택지 ID로 정답 여부 확인
+        return quiz.getChoices().stream()
+                .filter(choice -> choice.getId().toString().equals(userAnswer))
+                .findFirst()
+                .map(QuizChoice::getIsCorrect)
+                .orElse(false);
     }
 
     private boolean validateSubjective() {

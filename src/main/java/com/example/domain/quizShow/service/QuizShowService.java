@@ -147,30 +147,28 @@ public class QuizShowService {
                 }
 
                 QuizTypeEnum quizType = quiz.getQuizType().getType();
-                String userAnswer = answer.getFormattedAnswer();
                 boolean isCorrect;
 
-                // 답안 채점
                 switch (quizType) {
                     case MULTIPLE_CHOICE:
-                        // 선택한 인덱스의 선택지가 정답인지 확인
-                        isCorrect = quiz.getChoices().get(answer.getChoiceIndex()).getIsCorrect();
-                        break;
-
                     case TRUE_FALSE:
-                        // OX 문제의 경우 첫 번째 선택지와 비교
-                        isCorrect = userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
+                        // ID로 선택지를 찾아 정답 여부 확인
+                        isCorrect = quiz.getChoices().stream()
+                                .filter(choice -> choice.getId() != null &&
+                                        choice.getId().longValue() == answer.getChoiceId().longValue())
+                                .filter(QuizChoice::getIsCorrect)  // 정답인 것만 필터링
+                                .findAny()  // 있으면 true, 없으면 false
+                                .isPresent();
                         break;
-
                     case SUBJECTIVE:
                     case SHORT_ANSWER:
-                        // 주관식/단답형의 경우 정답 목록과 비교
+                        // 기존 로직 유지
+                        String userAnswer = answer.getTextAnswer();
                         isCorrect = quiz.getChoices().stream()
                                 .anyMatch(choice -> choice.getChoiceContent()
                                         .trim()
                                         .equalsIgnoreCase(userAnswer.trim()));
                         break;
-
                     default:
                         throw new IllegalArgumentException("지원하지 않는 퀴즈 타입입니다.");
                 }
@@ -181,7 +179,7 @@ public class QuizShowService {
                 QuizAnswer quizAnswer = QuizAnswer.builder()
                         .quiz(quiz)
                         .user(user)
-                        .userAnswer(userAnswer)
+                        .userAnswer(answer.getChoiceId().toString())  // choiceId를 문자열로 저장
                         .isCorrect(isCorrect)
                         .answeredAt(LocalDateTime.now())
                         .build();
