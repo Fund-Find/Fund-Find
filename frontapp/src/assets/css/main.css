@@ -34,6 +34,10 @@ li {
     width: auto;
 }
 
+.home-container .quiz-image-placeholder > img {
+    width: 100%;
+}
+
 /* MBTI 배너 */
 .top-banner-section > .mbti-banner {
     flex: 1;
@@ -341,4 +345,18 @@ li {
     border-radius: 15px;
     color: #333;
     font-size: 14px;
+}
+
+.gotoquizlists {
+    background: none;
+    border: none;
+    padding: 10px;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+.gotoquizlists:hover {
+    color: white;
+    background-color: #19076bd4;
 }
