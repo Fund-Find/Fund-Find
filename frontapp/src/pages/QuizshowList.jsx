@@ -3,6 +3,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import '../assets/css/QuizShowList.css';
+import QuizShowCreateModal from '../components/QuizShowCreateModal';
 
 function QuizShowList() {
     const [quizShowList, setQuizShowList] = useState([]);
@@ -11,6 +12,7 @@ function QuizShowList() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         fetchQuizShows(currentPage);
@@ -55,15 +57,53 @@ function QuizShowList() {
         );
     }
 
+    const handleCreateQuizShow = async (formData) => {
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/quizshow', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.resultCode === "200") {
+                alert('퀴즈쇼가 생성되었습니다.');
+                fetchQuizShows(currentPage);
+            } else {
+                throw new Error(data.msg || '퀴즈쇼 생성에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('퀴즈쇼 생성 실패:', error);
+            alert('퀴즈쇼 생성에 실패했습니다.');
+        }
+    };
+
+    const handleCreateClick = () => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            if (window.confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+                navigate('/user/login', { 
+                    state: { from: '/quizshow/list' }
+                });
+            }
+            return;
+        }
+        setShowCreateModal(true);
+    };
+
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-6">퀴즈쇼 목록</h1>
             <button
-                    onClick={() => setShowCreatePopup(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                    퀴즈쇼 생성
+                onClick={handleCreateClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                퀴즈쇼 생성
             </button>
+            {showCreateModal && (
+                <QuizShowCreateModal
+                    onClose={() => setShowCreateModal(false)}
+                    onSubmit={handleCreateQuizShow}
+                />
+            )}
             {quizShowList.length === 0 ? (
                 <p className="text-center text-gray-500">등록된 퀴즈쇼가 없습니다.</p>
             ) : (

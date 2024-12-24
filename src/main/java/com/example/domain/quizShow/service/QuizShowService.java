@@ -155,10 +155,8 @@ public class QuizShowService {
                         // ID로 선택지를 찾아 정답 여부 확인
                         isCorrect = quiz.getChoices().stream()
                                 .filter(choice -> choice.getId() != null &&
-                                        choice.getId().longValue() == answer.getChoiceId().longValue())
-                                .filter(QuizChoice::getIsCorrect)  // 정답인 것만 필터링
-                                .findAny()  // 있으면 true, 없으면 false
-                                .isPresent();
+                                        choice.getId() == answer.getChoiceId().longValue())
+                                .anyMatch(QuizChoice::getIsCorrect);
                         break;
                     case SUBJECTIVE:
                     case SHORT_ANSWER:
@@ -176,15 +174,37 @@ public class QuizShowService {
                 results.put(quiz.getId(), isCorrect);
 
                 // 새로운 답안 저장
-                QuizAnswer quizAnswer = QuizAnswer.builder()
-                        .quiz(quiz)
-                        .user(user)
-                        .userAnswer(answer.getChoiceId().toString())  // choiceId를 문자열로 저장
-                        .isCorrect(isCorrect)
-                        .answeredAt(LocalDateTime.now())
-                        .build();
+                QuizAnswer quizAnswer;
 
+                if (quizType == QuizTypeEnum.MULTIPLE_CHOICE || quizType == QuizTypeEnum.TRUE_FALSE) {
+                    if (answer.getChoiceId() == null) {
+                        throw new IllegalArgumentException("선택형 퀴즈는 choiceId가 필수입니다.");
+                    }
+                    quizAnswer = QuizAnswer.builder()
+                            .quiz(quiz)
+                            .user(user)
+                            .userAnswer(answer.getChoiceId().toString()) // choiceId를 문자열로 저장
+                            .isCorrect(isCorrect)
+                            .answeredAt(LocalDateTime.now())
+                            .build();
+                } else if (quizType == QuizTypeEnum.SUBJECTIVE || quizType == QuizTypeEnum.SHORT_ANSWER) {
+                    if (answer.getTextAnswer() == null || answer.getTextAnswer().trim().isEmpty()) {
+                        throw new IllegalArgumentException("주관식 퀴즈는 텍스트 답변이 필수입니다.");
+                    }
+                    quizAnswer = QuizAnswer.builder()
+                            .quiz(quiz)
+                            .user(user)
+                            .userAnswer(answer.getTextAnswer().trim()) // ChoiceContent에 텍스트 답변 저장
+                            .isCorrect(isCorrect)
+                            .answeredAt(LocalDateTime.now())
+                            .build();
+                } else {
+                    throw new IllegalArgumentException("지원하지 않는 퀴즈 타입입니다.");
+                }
+
+// 답안 저장
                 quizAnswerRepository.save(quizAnswer);
+
 
                 if (isCorrect) {
                     totalScore += quiz.getQuizScore();
