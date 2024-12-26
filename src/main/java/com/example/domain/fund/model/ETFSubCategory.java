@@ -14,9 +14,14 @@ public enum ETFSubCategory {
     PRECIOUS_METAL("귀금속"),
     ENERGY("에너지"),
     //섹터(SECTOR)
-    IT_SEMICONDUCTOR("IT/반도체"),
-    FINANCE("금융"),
+    ELECTRONIC_COMPONENTS_AND_MATERIALS("전자부품 및 소재"),
+    IT_ROBOT("IT/로봇"),
+    DIGITAL_PLATFORM("디지털 플랫폼"),
     HEALTHCARE("헬스케어"),
+    FINANCE("금융"),
+    CONSTRUCTION_SHIP("건설 및 조선 해운"),
+    ECO_FRIENDLY("친환경"),
+    ESG("ESG"),
     //고위험(HighLisk)
     LEVERAGE("레버리지"),
     INVERSE("인버스");

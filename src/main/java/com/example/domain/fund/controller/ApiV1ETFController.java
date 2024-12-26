@@ -37,15 +37,14 @@ public class ApiV1ETFController {
     @GetMapping("/{code}")
     public RsData<String> getETFInfo(@PathVariable("code") String code) {
         try {
-            log.info("ETF 정보 조회 시작 - 종목코드: {}", code);
+//            log.info("ETF 정보 조회 시작 - 종목코드: {}", code);
 
             // 토큰 상태 확인
             String token = accessTokenManager.getAccessToken();
-            log.info("현재 사용 중인 토큰: {}", token);
+//            log.info("현재 사용 중인 토큰: {}", token);
 
             String etfInfo = etfService.getETFInfo(code);
-            log.info("ETF 정보 조회 결과: {}", etfInfo);
-
+//            log.info("ETF 정보 조회 결과: {}", etfInfo);
 
             return RsData.of("200", "ETF 정보 조회 성공", etfInfo);
         } catch (Exception e) {
@@ -64,7 +63,6 @@ public class ApiV1ETFController {
             String mbti = propensityService.calculateMBTI(answers);
 
             SiteUser user = this.userService.getSiteUserFromAccessToken(accessToken);
-
 
             PropensityDTO savedPropensity = propensityService.processAndSavePropensity(answers, user);
 
@@ -109,19 +107,36 @@ public class ApiV1ETFController {
                     log.error("실시간 데이터 조회 실패", e);
                 }
 
-                // 기본값 설정
+                // 기본 데이터 설정
                 details.putIfAbsent("currentPrice", etf.getPrice());
-                details.putIfAbsent("componentCount", etf.getComponentCount());
-                details.putIfAbsent("netAsset", etf.getNetAsset());
                 details.putIfAbsent("nav", etf.getNav());
-                details.putIfAbsent("prevNav", etf.getPrevNav());
-                details.putIfAbsent("navChange", etf.getNavChange());
-                details.putIfAbsent("dividendCycle", etf.getDividendCycle());
-                details.putIfAbsent("company", etf.getCompany());
-                details.putIfAbsent("priceChange", etf.getPriceChange());
-                details.putIfAbsent("priceChangeRate", etf.getPriceChangeRate());
 
-                etfDetails.add(details);
+                // NAV와 currentPrice 비교
+                String navStr = details.get("nav");
+                String currentPriceStr = details.get("currentPrice");
+
+                if (navStr != null && currentPriceStr != null) {
+                    try {
+                        double nav = Double.parseDouble(navStr.replaceAll("[^0-9.]", ""));
+                        double currentPrice = Double.parseDouble(currentPriceStr.replaceAll("[^0-9.]", ""));
+
+                        // NAV가 currentPrice보다 큰 경우만 나머지 정보 추가
+                        if (nav > currentPrice) {
+                            details.putIfAbsent("componentCount", etf.getComponentCount());
+                            details.putIfAbsent("netAsset", etf.getNetAsset());
+                            details.putIfAbsent("prevNav", etf.getPrevNav());
+                            details.putIfAbsent("navChange", etf.getNavChange());
+                            details.putIfAbsent("dividendCycle", etf.getDividendCycle());
+                            details.putIfAbsent("company", etf.getCompany());
+                            details.putIfAbsent("priceChange", etf.getPriceChange());
+                            details.putIfAbsent("priceChangeRate", etf.getPriceChangeRate());
+
+                            etfDetails.add(details);
+                        }
+                    } catch (NumberFormatException e) {
+                        log.error("NAV 또는 현재가격 파싱 실패", e);
+                    }
+                }
                 Thread.sleep(100);
             }
 
@@ -155,7 +170,7 @@ public class ApiV1ETFController {
                         details.putAll(apiDetails);
                     }
                 } catch (Exception e) {
-                    log.error("실시간 데이터 조회 실패", e);
+//                    log.error("실시간 데이터 조회 실패", e);
                 }
 
                 // 실시간 데이터 조회 실패시 기본값 설정
@@ -176,11 +191,8 @@ public class ApiV1ETFController {
 
             return RsData.of("200", "ETF 목록 조회 성공", etfDetails);
         } catch (Exception e) {
-            log.error("ETF 목록 조회 중 오류 발생", e);
+//            log.error("ETF 목록 조회 중 오류 발생", e);
             return RsData.of("500", "ETF 목록 조회 실패: " + e.getMessage(), null);
         }
     }
-
-
-
 }

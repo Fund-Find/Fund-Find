@@ -16,4 +16,14 @@ public class ETFDTO {
     private String name;
     private ETFCategory category;
     private ETFSubCategory subCategory;
+    private String price;
+    private String componentCount;
+    private String netAsset;
+    private String nav;
+    private String prevNav;
+    private String navChange;
+    private String dividendCycle;
+    private String company;
+    private String priceChange;
+    private String priceChangeRate;
 }

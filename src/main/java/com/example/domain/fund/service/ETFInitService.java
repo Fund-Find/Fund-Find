@@ -23,6 +23,9 @@ public class ETFInitService {
 
     @Transactional
     public void initializeETFData() {
+
+        // ---------------------------------------- 주식형 ETF --------------------------------------
+
         // 주식형 ETF - 대형주 (8개)
         saveETF("069500", "KODEX 200", STOCK, LARGE_CAP);
         saveETF("102110", "TIGER 200", STOCK, LARGE_CAP);
@@ -44,6 +47,9 @@ public class ETFInitService {
         saveETF("301400", "PLUS KOSDAQ 150", STOCK, SMALL_MID_CAP);
         saveETF("354500", "ACE KOSDAQ 150", STOCK, SMALL_MID_CAP);
         saveETF("304770", "HANARO KOSDAQ 150", STOCK, SMALL_MID_CAP);
+
+
+        // ----------------------------------------- 채권형 ETF ---------------------------------------
 
         // 채권형 ETF - 국내채권 (9개)
         saveETF("447770", "TIGER 테슬라채권혼합Fn", BOND, DOMESTIC_BOND);
@@ -67,6 +73,8 @@ public class ETFInitService {
         saveETF("329750", "TIGER 미국달러단기채권액티브", BOND, FOREIGN_BOND);
 
 
+        // ----------------------------------- 원자재 ETF -------------------------------------------
+
         // 원자재 ETF - 귀금속 (6개)
         saveETF("319640", "TIGER 골드선물(H)", COMMODITY, PRECIOUS_METAL);
         saveETF("132030", "KODEX 골드선물(H)", COMMODITY, PRECIOUS_METAL);
@@ -84,16 +92,70 @@ public class ETFInitService {
         saveETF("217770", "TIGER 원유선물인버스(H)", COMMODITY, ENERGY);
 
 
-        // 섹터별 ETF - IT/반도체 (9개)
-        saveETF("091160", "KODEX 반도체", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("091230", "TIGER 반도체", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("266370", "KODEX IT", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("139260", "TIGER 200 IT", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("469150", "ACE AI반도체포커스", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("494340", "ACE 글로벌AI맞춤형반도체", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("446770", "ACE 글로벌반도체TOP4 Plus SOLACTIVE", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("480040", "ACE 미국반도체데일리타겟커버드콜(합성)", SECTOR, IT_SEMICONDUCTOR);
-        saveETF("469160", "ACE 일본반도체", SECTOR, IT_SEMICONDUCTOR);
+        // ---------------------------------------------- 섹터별 ETF ----------------------------------------------
+
+        // 섹터별 ETF - 전자부품 및 소재 (19개)
+        saveETF("091160", "KODEX 반도체", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("091230", "TIGER 반도체", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("469150", "ACE AI반도체포커스", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS); // 이거 데이터 이상함...
+        saveETF("494340", "ACE 글로벌AI맞춤형반도체", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("446770", "ACE 글로벌반도체TOP4 Plus SOLACTIVE", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("480040", "ACE 미국반도체데일리타겟커버드콜(합성)", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("469160", "ACE 일본반도체", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("466810", "BNK 2차전지양극재", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("305720", "KODEX 2차전지산업", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("461950", "KODEX 2차전지핵심소재10", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS); // 이거 데이터 이상함...
+        saveETF("465330", "RISE 2차전지TOP10", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("422420", "RISE 2차전지액티브", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS); // 이거 데이터 이상함...
+        saveETF("455860", "SOL 2차전지소부장Fn", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("429980", "SOL 한국형글로벌전기차&2차전지액티브", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("364980", "TIGER 2차전지TOP10", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("462010", "TIGER 2차전지소재Fn", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("305540", "TIGER 2차전지테마", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("414270", "ACE G2전기차&자율주행액티브", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+        saveETF("394660", "TIGER 글로벌자율주행&전기차SOLACTIVE", SECTOR, ELECTRONIC_COMPONENTS_AND_MATERIALS);
+
+        // 섹터별 ETF - IT/로봇 (17개)
+        saveETF("266370", "KODEX IT", SECTOR, IT_ROBOT);
+        saveETF("139260", "TIGER 200 IT", SECTOR, IT_ROBOT);
+        saveETF("326240", "RISE IT플러스", SECTOR, IT_ROBOT);
+        saveETF("261060", "TIGER 코스닥150IT", SECTOR, IT_ROBOT);
+        saveETF("280320", "ACE 미국IT인터넷S&P(합성 H)", SECTOR, IT_ROBOT);
+        saveETF("157490", "TIGER 소프트웨어", SECTOR, IT_ROBOT);
+        saveETF("365000", "TIGER 인터넷TOP10", SECTOR, IT_ROBOT);
+        saveETF("445290", "KODEX K-로봇액티브", SECTOR, IT_ROBOT);
+        saveETF("276990", "KODEX 글로벌로봇(합성)", SECTOR, IT_ROBOT);
+        saveETF("471040", "KoAct 글로벌AI&로봇액티브", SECTOR, IT_ROBOT);
+        saveETF("469070", "RISE AI&로봇", SECTOR, IT_ROBOT);
+        saveETF("456600", "TIMEFOLIO 글로벌AI인공지능액티브", SECTOR, IT_ROBOT);
+        saveETF("470310", "UNICORN 생성형AI강소기업액티브", SECTOR, IT_ROBOT);
+        saveETF("494340", "ACE 글로벌AI맞춤형반도체", SECTOR, IT_ROBOT);
+        saveETF("487750", "BNK 온디바이스AI", SECTOR, IT_ROBOT);
+        saveETF("418670", "TIGER 글로벌사이버보안INDXX", SECTOR, IT_ROBOT);
+        saveETF("371450", "TIGER 글로벌클라우드컴퓨팅INDXX", SECTOR, IT_ROBOT);
+
+        // 섹터별 ETF - 디지털 플랫폼 (7개)
+        saveETF("368190", "HANARO Fn K-뉴딜디지털플러스", SECTOR, DIGITAL_PLATFORM);
+        saveETF("368680", "KODEX K-뉴딜디지털플러스", SECTOR, DIGITAL_PLATFORM);
+        saveETF("412770", "TIGER 글로벌메타버스액티브", SECTOR, DIGITAL_PLATFORM);
+        saveETF("411050", "ACE 글로벌메타버스테크액티브", SECTOR, DIGITAL_PLATFORM);
+        saveETF("402460", "HANARO Fn K-메타버스MZ", SECTOR, DIGITAL_PLATFORM);
+        saveETF("419170", "HANARO 미국메타버스iSelect", SECTOR, DIGITAL_PLATFORM);
+        saveETF("401470", "KODEX K-메타버스액티브", SECTOR, DIGITAL_PLATFORM);
+
+        // 섹터별 ETF - 건설/조선 (6개)
+        saveETF("117700", "KODEX 건설", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("139220", "TIGER 200 건설", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("441540", "HANARO Fn조선해운", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("445150", "KODEX K-친환경조선해운액티브", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("466920", "SOL 조선TOP3플러스", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("494670", "TIGER 조선TOP10", SECTOR, CONSTRUCTION_SHIP);
+
+        // 섹터별 ETF - 친환경 (4개)
+        saveETF("381570", "HANARO Fn친환경에너지", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("391600", "ACE 미국친환경그린테마INDXX", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("457990", "PLUS 태양광&ESS", SECTOR, CONSTRUCTION_SHIP);
+        saveETF("413220", "SOL 차이나태양광CSI(합성)", SECTOR, CONSTRUCTION_SHIP);
 
         // 섹터별 ETF - 금융 (9개)
         saveETF("091170", "KODEX 은행", SECTOR, FINANCE);
@@ -114,6 +176,26 @@ public class ETFInitService {
         saveETF("227540", "TIGER 200 헬스케어", SECTOR, HEALTHCARE);
         saveETF("261070", "TIGER 코스닥150바이오테크", SECTOR, HEALTHCARE);
         saveETF("143860", "TIGER 헬스케어", SECTOR, HEALTHCARE);
+
+        // 섹터별 ETF - ESG (15개)
+        saveETF("399110", "SOL 미국S&P500ESG", SECTOR, HEALTHCARE);
+        saveETF("417630", "TIGER KEDI혁신기업ESG30", SECTOR, HEALTHCARE);
+        saveETF("289260", "TIGER MSCI KOREA ESG리더스", SECTOR, HEALTHCARE);
+        saveETF("289250", "TIGER MSCI KOREA ESG유니버설", SECTOR, HEALTHCARE);
+        saveETF("413930", "WON AI ESG액티브", SECTOR, HEALTHCARE);
+        saveETF("419890", "히어로즈 단기채권ESG액티브", SECTOR, HEALTHCARE);
+        saveETF("385590", "ACE ESG액티브", SECTOR, HEALTHCARE);
+        saveETF("285690", "FOCUS ESG리더스", SECTOR, HEALTHCARE);
+        saveETF("337160", "KODEX 200ESG", SECTOR, HEALTHCARE);
+        saveETF("439860", "KODEX ESG종합채권(A-이상)액티브", SECTOR, HEALTHCARE);
+        saveETF("289040", "KODEX MSCI KOREA ESG유니버설", SECTOR, HEALTHCARE);
+        saveETF("437080", "KODEX 미국종합채권ESG액티브(H)", SECTOR, HEALTHCARE);
+        saveETF("395750", "PLUS ESG가치주액티브", SECTOR, HEALTHCARE);
+        saveETF("395760", "PLUS ESG성장주액티브", SECTOR, HEALTHCARE);
+        saveETF("290130", "RISE ESG사회책임투자", SECTOR, HEALTHCARE);
+
+
+        // -------------------------------------- 고위험 ETF --------------------------------------
 
         // 고위험 ETF - 레버리지 (7개)
         saveETF("152500", "ACE 레버리지", HighLisk, LEVERAGE);

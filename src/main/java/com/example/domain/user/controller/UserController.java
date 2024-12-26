@@ -29,7 +29,6 @@ public class UserController {
     private final JwtProvider jwtProvider;
 
     // 회원가입
-
     @PostMapping("/register")
     public RsData<UserResponse> registerUser(
             @RequestPart("userRequest") @Valid UserRequest userRequest,  // JSON 데이터를 받는 부분
@@ -154,8 +153,6 @@ public class UserController {
         return RsData.of("200", "프로필 업데이트 성공", updatedUser);
     }
 
-
-
     // 사용자 삭제
     @DeleteMapping("/{username}")
     public ResponseEntity<?> deleteUser(@PathVariable String username) {
@@ -201,7 +198,6 @@ public class UserController {
     @PostMapping("/find-id")
     public RsData<?> findUserId(@Valid @RequestBody UserEmailRequest emailRequest) {
         String email = emailRequest.getEmail();
-
 
         // 이메일로 유저 조회
         SiteUser user = userService.getUserByEmail(email);

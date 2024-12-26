@@ -8,6 +8,7 @@ import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import '../assets/css/etfList.css'
 
+// 비교 팝업
 const ComparePopup = ({ etfCodes = [], onClose = () => {}, removeETF = () => {} }) => {
     if (!etfCodes || !Array.isArray(etfCodes)) {
         return null
@@ -52,28 +53,73 @@ export default function ETFList() {
     const [sortedETFs, setSortedETFs] = useState([])
     const [swiperRef, setSwiperRef] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
-    const [favorites, setFavorites] = useState(() => {
-        const saved = localStorage.getItem('etfFavorites')
-        return saved ? JSON.parse(saved) : []
-    })
+
+    // 서버 DB에서 가져온 즐겨찾기 (ETF 코드 배열) 저장
+    const [favorites, setFavorites] = useState([])
+
     const [compareList, setCompareList] = useState([])
     const [showComparePopup, setShowComparePopup] = useState(false)
+
+    // "즐겨찾기만 보기" 체크박스 상태
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+
+    // 로그인 상태 (Nav에서와 별도로, localStorage.getItem('accessToken')를 확인)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+
     const itemsPerPage = 10
     const navigate = useNavigate()
+
     const [showSurveyPopup, setShowSurveyPopup] = useState(false)
 
+    // 1) 전체 ETF 목록 fetch + 로그인 상태 확인
     useEffect(() => {
+        checkLoginStatus()
         fetchETFs()
     }, [])
 
+    // 2) storage 변경 감지(다른 탭에서 로그아웃 시) → favorites 초기화
+    useEffect(() => {
+        const handleStorageChange = () => {
+            checkLoginStatus() // isLoggedIn 업데이트
+
+            const hasToken = !!localStorage.getItem('accessToken')
+            if (!hasToken) {
+                // 토큰이 없으면 즐겨찾기 목록 비우기
+                setFavorites([])
+            } else {
+                // 토큰이 새로 생겼다면(= 다른 탭에서 로그인?)
+                // 필요시 다시 fetchFavorites() 호출 가능
+                fetchFavorites()
+            }
+        }
+
+        window.addEventListener('storage', handleStorageChange)
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+        }
+    }, [])
+
+    // 3) 로그인 상태가 true일 때만 즐겨찾기 fetch
+    useEffect(() => {
+        if (isLoggedIn) {
+            fetchFavorites()
+        } else {
+            setFavorites([])
+        }
+    }, [isLoggedIn])
+
+    // 4) ETF 목록 필터 및 정렬
     useEffect(() => {
         let filtered = etfs.filter((etf) =>
             searchTerm ? etf.name.toLowerCase().includes(searchTerm.toLowerCase()) : true,
         )
+
+        // "즐겨찾기만 보기"일 때는 favorites 배열에 포함된 ETF만 필터링
         if (showFavoritesOnly) {
             filtered = filtered.filter((etf) => favorites.includes(etf.code))
         }
+
+        // 가격등락률로 정렬
         if (filtered.length > 0) {
             const sorted = sortByPriceChangeRate(filtered)
             setSortedETFs(sorted)
@@ -82,6 +128,11 @@ export default function ETFList() {
             setSortedETFs([])
         }
     }, [etfs, searchTerm, showFavoritesOnly, favorites])
+
+    const checkLoginStatus = () => {
+        const token = localStorage.getItem('accessToken')
+        setIsLoggedIn(!!token) // 토큰 존재 여부로 로그인 상태 판단
+    }
 
     const sortByPriceChangeRate = (etfs) => {
         return [...etfs].sort((a, b) => {
@@ -96,6 +147,7 @@ export default function ETFList() {
             setLoading(true)
             const response = await fetch('http://localhost:8080/api/v1/etf/list')
             const data = await response.json()
+
             if (response.ok && data.resultCode === '200') {
                 const etfList = Array.isArray(data.data) ? data.data : []
                 setEtfs(etfList)
@@ -112,17 +164,66 @@ export default function ETFList() {
         }
     }
 
-    const handleETFClick = (etfCode) => {
-        navigate(`/etf/${etfCode}`)
+    const fetchFavorites = async () => {
+        try {
+            // 비로그인 상태면 호출하지 않음
+            if (!isLoggedIn) return
+
+            const response = await fetch('http://localhost:8080/api/v1/etf/favorites', {
+                method: 'GET',
+                credentials: 'include',
+            })
+            if (response.status === 401 || response.status === 403) {
+                // 토큰 유효하지 않으면 favorites 비움
+                setFavorites([])
+                return
+            }
+
+            const data = await response.json()
+            if (response.ok && data.resultCode === '200') {
+                setFavorites(data.data) // 서버에서 [ 'ETF001', 'ETF002', ... ] 식으로 온다고 가정
+            } else {
+                throw new Error(data.msg)
+            }
+        } catch (error) {
+            console.error('Error fetching favorites:', error)
+        }
     }
 
-    const toggleFavorite = (event, etfCode) => {
+    const toggleFavorite = async (event, etfCode) => {
         event.stopPropagation()
-        setFavorites((prev) => {
-            const newFavorites = prev.includes(etfCode) ? prev.filter((code) => code !== etfCode) : [...prev, etfCode]
-            localStorage.setItem('etfFavorites', JSON.stringify(newFavorites))
-            return newFavorites
-        })
+        if (!isLoggedIn) {
+            alert('로그인이 필요한 기능입니다.')
+            return
+        }
+
+        try {
+            const isFavorite = favorites.includes(etfCode)
+            const method = isFavorite ? 'DELETE' : 'POST'
+            const url = isFavorite
+                ? `http://localhost:8080/api/v1/etf/favorites/remove/${etfCode}`
+                : `http://localhost:8080/api/v1/etf/favorites/add/${etfCode}`
+
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            })
+
+            if (response.ok) {
+                const updatedFavorites = isFavorite
+                    ? favorites.filter((code) => code !== etfCode)
+                    : [...favorites, etfCode]
+                setFavorites(updatedFavorites)
+            } else {
+                const data = await response.json()
+                console.error('Server error:', data.msg)
+                alert(data.msg || '서버 오류로 즐겨찾기 실패.')
+            }
+        } catch (error) {
+            console.error('Network or client-side error:', error)
+            alert('네트워크, 클라이언트 오류로 즐겨찾기 실패.')
+        }
     }
 
     const toggleCompare = (event, etfCode) => {
@@ -148,6 +249,10 @@ export default function ETFList() {
     const currentItems = sortedETFs.slice(indexOfFirstItem, indexOfLastItem)
     const totalPages = Math.ceil(sortedETFs.length / itemsPerPage)
 
+    const handleETFClick = (etfCode) => {
+        navigate(`/etf/${etfCode}`)
+    }
+
     const handleSurveyClick = (e) => {
         e.preventDefault()
         setShowSurveyPopup(true)
@@ -159,6 +264,8 @@ export default function ETFList() {
                 <span className="mbti-banner-text">투자성향 MBTI 분석하러 가기 →</span>
             </div>
             <h1 className="text-3xl font-bold mb-8">ETF 찾기</h1>
+
+            {/* 에러 메시지 영역 */}
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     <p>{error}</p>
@@ -170,6 +277,8 @@ export default function ETFList() {
                     </button>
                 </div>
             )}
+
+            {/* 검색 및 즐겨찾기 필터 */}
             <div className="search-controls">
                 <div className="search-box">
                     <input
@@ -185,11 +294,14 @@ export default function ETFList() {
                             type="checkbox"
                             checked={showFavoritesOnly}
                             onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+                            disabled={!isLoggedIn} // 비로그인 시 체크박스 비활성화(옵션)
                         />
                         즐겨찾기만 보기
                     </label>
                 </div>
             </div>
+
+            {/* ETF 리스트 */}
             <div className="etf-list mb-4">
                 <div className="list-header">
                     <div>회원사 명</div>
@@ -241,7 +353,6 @@ export default function ETFList() {
                             <div className={`${Number(etf.currentPrice) >= 0 ? 'up' : 'down'}`}>
                                 {etf.currentPrice || '0'}원
                             </div>
-                            {/* <div>{etf.currentPrice || '0'}원</div> */}
                             <div>{etf.componentCount || '0'}개</div>
                             <div>{etf.netAsset || '0'}억원</div>
                             <div>{etf.nav || '0'}원</div>
@@ -254,6 +365,7 @@ export default function ETFList() {
                             <div className={`${Number(etf.priceChangeRate) >= 0 ? 'up' : 'down'}`}>
                                 {etf.priceChangeRate || '0'}%
                             </div>
+                            {/* 즐겨찾기 버튼 */}
                             <div>
                                 <button
                                     onClick={(e) => toggleFavorite(e, etf.code)}
@@ -262,6 +374,7 @@ export default function ETFList() {
                                     {favorites.includes(etf.code) ? '★' : '☆'}
                                 </button>
                             </div>
+                            {/* 비교 체크박스 */}
                             <div>
                                 <input
                                     type="checkbox"
@@ -274,6 +387,8 @@ export default function ETFList() {
                     ))
                 )}
             </div>
+
+            {/* 비교하기 버튼 */}
             <div className="compare-controls">
                 <button
                     onClick={() => setShowComparePopup(true)}
@@ -283,6 +398,8 @@ export default function ETFList() {
                     선택한 ETF 비교하기 ({compareList.length}/3)
                 </button>
             </div>
+
+            {/* 비교 팝업 */}
             {showComparePopup && (
                 <ComparePopup
                     etfCodes={compareList}
@@ -290,6 +407,8 @@ export default function ETFList() {
                     removeETF={removeFromCompare}
                 />
             )}
+
+            {/* 페이지네이션 */}
             {!loading && sortedETFs.length > 0 && (
                 <div className="pagination-controls">
                     <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
@@ -309,6 +428,8 @@ export default function ETFList() {
                     </button>
                 </div>
             )}
+
+            {/* 등락률 BEST 펀드 섹션 */}
             <div className="mt-12">
                 <h2 className="text-2xl font-bold mb-6">등락률 Best 펀드</h2>
                 <Swiper
@@ -401,6 +522,7 @@ export default function ETFList() {
                 </p>
             </div>
 
+            {/* MBTI 설문 팝업 */}
             {showSurveyPopup && (
                 <div className="survey-popup-overlay">
                     <div className="survey-popup">
