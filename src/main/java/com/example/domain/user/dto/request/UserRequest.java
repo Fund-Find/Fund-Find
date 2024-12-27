@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class UserRequest {
     @NotEmpty(message = "아이디가 비어있습니다.")
-    @Size(min = 7, max = 30, message = "아이디 길이는 7에서 30 사이어야 합니다.")
+    @Size(min = 7, max = 15, message = "아이디 길이는 7에서 15 사이어야 합니다.")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디는 영문과 숫자만 허용됩니다.")
     private String username;
 
