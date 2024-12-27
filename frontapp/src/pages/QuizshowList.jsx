@@ -13,6 +13,8 @@ function QuizShowList() {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [quizTypes, setQuizTypes] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         fetchQuizShows(currentPage);
@@ -27,6 +29,8 @@ function QuizShowList() {
             const result = await response.json();
             if (result.resultCode === "200") {
                 setQuizShowList(result.data.quizShows);
+                setQuizTypes(result.data.quizTypes); // 퀴즈 타입 정보 저장
+                setCategories(result.data.categories);
                 setTotalPages(result.data.totalPages);
                 setTotalElements(result.data.totalElements);
             }
@@ -102,6 +106,8 @@ function QuizShowList() {
                 <QuizShowCreateModal
                     onClose={() => setShowCreateModal(false)}
                     onSubmit={handleCreateQuizShow}
+                    quizTypes={quizTypes}
+                    categories={categories}
                 />
             )}
             {quizShowList.length === 0 ? (

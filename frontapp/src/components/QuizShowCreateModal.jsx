@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../assets/css/quizshow.css';
 
-const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
+const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
     const [step, setStep] = useState(1); // 1: 퀴즈쇼 기본정보, 2: 퀴즈 추가 단계
-    const [quizTypes, setQuizTypes] = useState([]);
     const [formData, setFormData] = useState({
         showName: '',
         category: 'INVESTMENT',
@@ -29,19 +28,6 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
 
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const loadQuizTypes = async () => {
-            try {
-                const types = await fetchQuizTypes(); // 퀴즈 타입을 가져오는 API 호출
-                setQuizTypes(types);
-            } catch (error) {
-                console.error('Failed to fetch quiz types:', error);
-            }
-        };
-
-        loadQuizTypes();
-    }, [fetchQuizTypes]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -95,16 +81,30 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
         setLoading(true);
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('data', JSON.stringify(formData));
+            formDataToSend.append('data', JSON.stringify(formData)); // 퀴즈 데이터
             if (imageFile) {
-                formDataToSend.append('imageFile', imageFile);
+                formDataToSend.append('imageFile', imageFile); // 이미지 파일
             }
-
-            await onSubmit(formDataToSend);
-            alert('퀴즈쇼가 성공적으로 생성되었습니다!');
-            onClose();
+    
+            // 서버 요청
+            const response = await fetch('/api/v1/quizshow', {
+                method: 'POST',
+                body: formDataToSend, // FormData 사용
+                credentials: 'include', // 필요한 경우 추가
+            });
+    
+            // 응답 처리
+            if (response.ok) {
+                const result = await response.json();
+                alert('퀴즈쇼가 성공적으로 생성되었습니다!');
+                onClose();
+            } else {
+                const errorData = await response.text();
+                console.error('서버 오류:', errorData);
+                alert('퀴즈쇼 생성 중 오류가 발생했습니다.');
+            }
         } catch (error) {
-            console.error('퀴즈쇼 생성 실패:', error);
+            console.error('요청 실패:', error);
             alert('퀴즈쇼 생성 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
@@ -122,7 +122,7 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                         <header className="header">
                             <h1>퀴즈쇼 생성</h1>
                         </header>
-                        <section className="questions">
+                        <section className="quizinfo">
                             <div>
                                 <h2>1. 퀴즈쇼 제목을 입력해주세요.</h2>
                                 <input
@@ -142,9 +142,12 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                                     onChange={handleInputChange}
                                     required
                                 >
-                                    <option value="INVESTMENT">투자</option>
-                                    <option value="SCIENCE">과학</option>
-                                    <option value="ENTERTAINMENT">오락</option>
+                                    <option value="">카테고리 선택</option>
+                                    {categories.map((category) => (
+                                        <option key={category.categoryEnum} value={category.categoryEnum}>
+                                            {category.description}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
@@ -166,8 +169,8 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                                     onChange={(e) => setImageFile(e.target.files[0])}
                                 />
                             </div>
-                            <div className="button-container">
-                                <button onClick={() => setStep(2)}>다음</button>
+                            <div className="quiz-button-container">
+                                <button className="quiz-button" onClick={() => setStep(2)}>다음</button>
                             </div>
                         </section>
                     </>
@@ -177,7 +180,7 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                         <header className="header">
                             <h1>퀴즈 추가</h1>
                         </header>
-                        <section className="questions">
+                        <section className="quizinfo">
                             <div>
                                 <h2>퀴즈 내용을 입력해주세요.</h2>
                                 <textarea
@@ -232,7 +235,7 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                                     />
                                     정답 여부
                                 </label>
-                                <button type="button" onClick={addChoice}>
+                                <button className="quiz-button" type="button" onClick={addChoice}>
                                     선택지 추가
                                 </button>
                             </div>
@@ -246,14 +249,14 @@ const QuizShowCreateModal = ({ onClose, onSubmit, fetchQuizTypes }) => {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="button-container">
-                                <button type="button" onClick={addQuiz}>
+                            <div className="quiz-button-container">
+                                <button className="quiz-button" type="button" onClick={addQuiz}>
                                     퀴즈 추가
                                 </button>
-                                <button type="button" onClick={() => setStep(1)}>
+                                <button className="quiz-button" type="button" onClick={() => setStep(1)}>
                                     이전
                                 </button>
-                                <button type="button" onClick={handleSubmit} disabled={loading}>
+                                <button className="quiz-button" type="button" onClick={handleSubmit} disabled={loading}>
                                     {loading ? '생성 중...' : '퀴즈쇼 생성하기'}
                                 </button>
                             </div>

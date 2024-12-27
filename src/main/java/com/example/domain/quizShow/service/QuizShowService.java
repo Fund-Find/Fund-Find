@@ -1,6 +1,8 @@
 package com.example.domain.quizShow.service;
 
+import com.example.domain.quizShow.dto.QuizShowCategoryDTO;
 import com.example.domain.quizShow.dto.QuizShowDTO;
+import com.example.domain.quizShow.dto.QuizTypeDTO;
 import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.*;
 import com.example.domain.quizShow.request.QuizRequest;
@@ -63,10 +65,24 @@ public class QuizShowService {
                 .map(QuizShowDTO::new)
                 .collect(Collectors.toList());
 
-        return new QuizShowListResponse(quizShows,
+        // 퀴즈 타입 정보 조회
+        List<QuizTypeDTO> quizTypes = quizTypeRepository.findAll().stream()
+                .map(type -> new QuizTypeDTO(type.getId(), type.getTypeName()))
+                .collect(Collectors.toList());
+
+        // 카테고리 조회 - Enum 기반으로 DTO 생성
+        List<QuizShowCategoryDTO> categories = Arrays.stream(QuizShowCategoryEnum.values())
+                .map(QuizShowCategoryDTO::fromEnum)
+                .collect(Collectors.toList());
+
+        return new QuizShowListResponse(
+                quizShows,
+                quizTypes,
+                categories,
                 quizShowPage.getTotalElements(),
                 quizShowPage.getTotalPages(),
-                quizShowPage.getNumber());
+                quizShowPage.getNumber()
+        );
     }
 
     @Transactional
