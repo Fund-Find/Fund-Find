@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,10 +57,9 @@ public class SiteUser extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<ETFFavorite> favorites = new ArrayList<>();
-
+  
     private LocalDate lastSurveyDate;
 
     @Column(nullable = false, columnDefinition = "integer default 0")
     private int dailySurveyCount;
-
 }
