@@ -1,0 +1,82 @@
+/* 전체 컨테이너 스타일 */
+.find-id-container {
+    max-width: 400px;
+    margin: 250px auto !important;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+/* 제목 스타일 */
+.find-id-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* 입력 필드 스타일 */
+.find-id-container input[type='email'] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.find-id-container input[type='email']:focus {
+    border-color: #007bff;
+}
+
+/* 버튼 스타일 */
+.find-id-container button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.find-id-container button:hover {
+    background-color: #0056b3;
+}
+
+/* 성공 메시지 */
+.find-id-container p.success-message {
+    color: green;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+/* 에러 메시지 */
+.find-id-container p.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* 로딩 상태 */
+.find-id-container button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.gotologin {
+    display: inline-block; /* 확대 효과를 위해 inline-block 설정 */
+    text-decoration: none; /* 기본 밑줄 제거 */
+    transition: transform 0.3s ease;
+}
+.gotologin:hover {
+    transform: scale(1.07); /* 약간 확대 */
+}

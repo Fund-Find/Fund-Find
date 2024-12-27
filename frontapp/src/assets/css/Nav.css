@@ -1,0 +1,209 @@
+/* Nav.css */
+
+/* 전체 헤더 스타일 */
+@font-face {
+    font-family: 'Pretendard';
+    font-weight: 800;
+    src: url('./pre/Pretendard-ExtraBold.otf') format('opentype');
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+}
+/* #root의 두 번째 자식 요소에 마진 추가 */
+#root > :nth-child(1) {
+    position: fixed; /* 첫 번째 자식은 화면에 고정 */
+    top: 0; /* 화면 상단에 고정 */
+    left: 0;
+    width: 100%;
+}
+
+#root > :nth-child(2) {
+    margin-top: 55px; /* 네비게이션 바가 고정되었으므로 콘텐츠는 밀림 */
+}
+
+#navi {
+    position: fixed;
+    height: 55px;
+    width: 100% !important;
+    margin: 0 auto;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    background-color: rgb(12, 8, 53);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid darkgray;
+}
+
+.user-toggled,
+.toggled {
+    z-index: 5000; /* 네비게이션 바가 다른 요소들 위에 오도록 설정 */
+    transform: translateY(0); /* 메뉴 펼쳐졌을 때 */
+}
+
+#navi .logo {
+    width: 55px;
+    margin: 0 1rem;
+    font-size: 2rem;
+    display: flex; /* Flexbox 레이아웃을 사용 */
+    justify-content: center; /* 가로 방향으로 중앙 정렬 */
+    align-items: center; /* 세로 방향으로 중앙 정렬 */
+    height: 100%;
+    line-height: 0;
+}
+#navi .logo img {
+    width: 55px; /* 원하는 너비 (픽셀 또는 비율로 조정 가능) */
+    height: auto; /* 자동으로 비율에 맞게 높이를 조정 */
+}
+
+.Nav__menulist {
+    list-style: none;
+    display: flex;
+}
+
+#navi__left {
+    display: flex;
+}
+
+.User__menulist {
+    list-style: none;
+    display: flex;
+}
+
+.User__menulist div {
+    margin: 0 1rem;
+}
+
+#navi li {
+    padding: 17px 1rem;
+    list-style: none;
+    background: inherit; /* 기본 배경색 */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+#navi li a:hover {
+    color: rgb(0, 0, 0);
+}
+
+#navi li:has(> a:hover) {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); /* 빛나는 효과 */
+    transform: scale(1.05); /* 약간 확대 */
+    background-color: #b7c5f8;
+}
+
+#navi .toggle {
+    display: none;
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+}
+
+#navi .user {
+    display: none;
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+}
+
+/* 반응형 스타일 */
+@media screen and (max-width: 768px) {
+    #navi {
+        flex-wrap: wrap;
+    }
+
+    .User__menulist {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: black;
+    }
+
+    .Nav__menulist {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: black;
+    }
+
+    .Nav__menulist li,
+    .User__menulist li {
+        margin: 1rem 0;
+        padding: 0;
+    }
+
+    #navi.toggled .Nav__menulist {
+        display: flex;
+    }
+
+    #navi.user-toggled .User__menulist {
+        display: flex;
+    }
+
+    #navi .toggle {
+        display: block;
+    }
+
+    #navi .user {
+        display: block;
+    }
+    #navi .logo {
+        line-height: 1.6;
+    }
+}
+/* 새로고침 버튼 컨테이너 */
+.refresh-button-container {
+    display: flex; /* 내부 요소를 가로로 정렬 */
+    align-items: center; /* 수직 가운데 정렬 */
+    gap: 10px; /* 남은 시간과 버튼 사이 간격 */
+    position: relative; /* 툴팁 위치를 기준으로 설정 */
+}
+
+/* 남은 시간 스타일 */
+.remaining-time {
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+/* 새로고침 버튼 스타일 */
+.User__menulist button,
+.refresh-button {
+    all: unset !important; /* 기본 스타일 초기화 */
+    background: inherit;
+    padding: 15px;
+    border: none;
+    text-align: center;
+    cursor: pointer !important;
+    font-size: 1.5rem;
+    color: #ffffff; /* 새로고침 버튼 색상 */
+}
+.refresh-button {
+    position: relative; /* 버튼을 기준으로 툴팁 포지션 */
+}
+.refresh-button:hover {
+    transform: rotate(360deg); /* 호버 시 회전 애니메이션 */
+    color: #7d2e3b;
+    background-color: inherit;
+}
+
+/* 툴팁 스타일 */
+.tooltip-text {
+    visibility: hidden;
+    width: auto;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute; /* 버튼을 기준으로 위치 */
+    top: calc(100% + 8px); /* 버튼 바로 아래 여백 추가 */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* 툴팁 활성화 */
+.refresh-button:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

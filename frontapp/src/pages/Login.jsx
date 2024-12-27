@@ -1,19 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../assets/css/login.css'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 function Login() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    // 로그인 전 접근하려 했던 경로를 가져옵니다. 없으면 '/'로 기본 설정
+    const from = location.state?.from || '/'
+    useEffect(() => {
+        // 로그인 페이지 접근 시 메시지가 있으면 alert로 표시
+        if (location.state?.message) {
+            alert(location.state.message) // JavaScript 경고창
+        }
+    }, [location.state])
 
     const handleLogin = async (e) => {
         e.preventDefault()
-        const requestData = {
-            username,
-            password,
-        }
+        const requestData = { username, password }
 
-        // _xsrf 쿠키에서 CSRF 토큰을 가져오기
         const xsrfToken = getCookie('_xsrf')
 
         try {
@@ -21,22 +29,51 @@ function Login() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': xsrfToken, // CSRF 토큰을 헤더에 포함
+                    'X-XSRF-TOKEN': xsrfToken,
                 },
                 body: JSON.stringify(requestData),
-                credentials: 'include', // 쿠키를 포함하여 요청
+                credentials: 'include',
             })
 
             const data = await response.json()
+            console.log('로그인 응답:', JSON.stringify(data, null, 2))
+
             if (response.ok) {
-                localStorage.setItem('accessToken', data.accessToken) // 로그인 후 엑세스 토큰을 localStorage에 저장
-                console.log(document.cookie) // 쿠키 값 출력
+                // msg에서 accessToken 추출
+                const msg = data.msg
+                const accessTokenMatch = msg.match(/토큰 발급 성공: (.+)/)
+                const extractedAccessToken = accessTokenMatch ? accessTokenMatch[1] : null
+
+                if (extractedAccessToken) {
+                    console.log('추출된 Access Token:', extractedAccessToken)
+                    localStorage.setItem('accessToken', extractedAccessToken)
+                } else {
+                    console.error('Access Token이 응답에 포함되지 않았습니다.')
+                    setErrorMessage(data.msg || '로그인 응답에서 토큰을 확인할 수 없습니다.')
+
+                    return
+                }
+
+                // expirationTime 저장
+                const { expirationTime } = data.data
+                if (expirationTime) {
+                    console.log('Expiration Time 저장:', expirationTime)
+                    localStorage.setItem('expirationTime', expirationTime)
+                }
+
                 alert('로그인 성공')
-                window.location.href = '/user/profile'
+                console.log('리디렉션할 페이지:', from) // 디버깅용 로그
+                console.log('location.state?.from : ', location.state?.from)
+                console.log('document.referrer : ', document.referrer)
+                navigate(from, { replace: true }) // 항상 원래 경로로 이동
+
+                // 인증 상태 강제로 반영 (새로고침 없이 동작)
+                window.dispatchEvent(new Event('storage'))
             } else {
                 setErrorMessage(data.message || '로그인에 실패했습니다.')
             }
         } catch (error) {
+            console.error('로그인 요청 실패:', error)
             setErrorMessage('서버와 연결할 수 없습니다.')
         }
     }
@@ -46,7 +83,7 @@ function Login() {
         const parts = value.split(`; ${name}=`)
         if (parts.length === 2) {
             const cookieValue = parts.pop().split(';').shift()
-            console.log(`${name} Cookie Value: `, cookieValue) // 쿠키 값 확인
+            console.log(`${name} Cookie Value: `, cookieValue)
             return cookieValue
         }
         return null
@@ -68,7 +105,7 @@ function Login() {
                             onChange={(e) => setUsername(e.target.value)}
                             required
                             className="form-control"
-                            placeholder="아이디를 입력하세요" // placeholder 추가
+                            placeholder="아이디를 입력하세요"
                         />
                     </div>
                     <div>
@@ -81,13 +118,13 @@ function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             className="form-control"
-                            placeholder="비밀번호를 입력하세요" // placeholder 추가
+                            placeholder="비밀번호를 입력하세요"
                         />
                     </div>
                     <div className="add">
-                        <a href="/user/find-account">아이디 찾기</a>
+                        <a href="/user/findId">아이디 찾기</a>
                         <span> | </span>
-                        <a href="/user/find-account">비밀번호 재설정</a>
+                        <a href="/user/resetpw">비밀번호 재발급</a>
                         <span> | </span>
                         <a href="/user/register">회원가입</a>
                     </div>

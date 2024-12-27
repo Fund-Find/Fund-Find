@@ -7,6 +7,8 @@ import com.example.domain.fund.repository.ETFRepository;
 import com.example.domain.propensity.dto.PropensityDTO;
 import com.example.domain.propensity.entity.Propensity;
 import com.example.domain.propensity.repository.PropensityRepository;
+import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class PropensityService {
 
     private final ETFRepository etfRepository;
     private final PropensityRepository propensityRepository;
+    private final UserRepository userRepository;
 
     // 설문 응답 기반 투자 성향 MBTI 계산
     public String calculateMBTI(Map<String, String> answers) {
@@ -32,13 +35,17 @@ public class PropensityService {
         return mbti.toString();
     }
 
-    public PropensityDTO processAndSavePropensity(Map<String, String> answers) {
+    public PropensityDTO processAndSavePropensity(Map<String, String> answers, SiteUser user) {
         String mbtiResult = calculateMBTI(answers);
 
         Propensity propensity = new Propensity();
         propensity.setSurveyAnswer(answers.toString());
         propensity.setSurveyResult(mbtiResult);
         Propensity savedPropensity = propensityRepository.save(propensity);
+
+        user.setPropensity(propensity);
+        System.out.println("유저의 성향등록 아이디 : " + propensity.getPropensityId());
+        this.userRepository.save(user);
 
         return PropensityDTO.builder()
                 .propensityId(savedPropensity.getPropensityId())
@@ -54,12 +61,11 @@ public class PropensityService {
         return PropensityDTO.builder()
                 .propensityId(propensity.getPropensityId())
                 .surveyAnswer(propensity.getSurveyAnswer())
-                .surveyResult(propensity.getSurveyResult())  // MBTI 결과
+                .surveyResult(propensity.getSurveyResult())
                 .build();
     }
 
     public List<ETF> getRecommendedETFsById(Long id) {
-        // PropensityRepository를 통해 데이터를 가져오고 비즈니스 로직 수행
         Propensity propensity = propensityRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 투자 성향 데이터가 존재하지 않습니다."));
 
@@ -77,13 +83,13 @@ public class PropensityService {
             case "ISFJ":  // 안정 지향적, 보수적 성향
                 return etfRepository.findByCategoryAndSubCategory(ETFCategory.STOCK, ETFSubCategory.LARGE_CAP);
             case "INFJ":  // 가치 지향적, 장기 투자 선호
-                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.HEALTHCARE);
+                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.CONSTRUCTION_SHIP);
             case "INTJ":  // 전략적, 분석적 성향
-                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.IT_SEMICONDUCTOR);
+                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.ESG);
 
             // --- 내향적(I) + 인식형(P) 성향: 신중하지만 기회 포착 중시 ---
             case "ISTP":  // 논리적, 실용적 성향
-                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.IT_SEMICONDUCTOR);
+                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.ELECTRONIC_COMPONENTS_AND_MATERIALS);
             case "ISFP":  // 예술적, 가치 중시 성향
                 return etfRepository.findByCategoryAndSubCategory(ETFCategory.COMMODITY, ETFSubCategory.PRECIOUS_METAL);
             case "INFP":  // 이상주의적, 혁신 중시
@@ -97,7 +103,7 @@ public class PropensityService {
             case "ESFP":  // 즉흥적, 기회 포착 성향
                 return etfRepository.findByCategoryAndSubCategory(ETFCategory.STOCK, ETFSubCategory.SMALL_MID_CAP);
             case "ENFP":  // 열정적, 새로운 기회 추구
-                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.IT_SEMICONDUCTOR);
+                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.IT_ROBOT);
             case "ENTP":  // 혁신적, 도전적 성향
                 return etfRepository.findByCategoryAndSubCategory(ETFCategory.HighLisk, ETFSubCategory.LEVERAGE);
 
@@ -109,7 +115,7 @@ public class PropensityService {
             case "ENFJ":  // 성장 지향적, 영향력 추구
                 return etfRepository.findByCategoryAndSubCategory(ETFCategory.STOCK, ETFSubCategory.LARGE_CAP);
             case "ENTJ":  // 전략적, 성취 지향적
-                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.IT_SEMICONDUCTOR);
+                return etfRepository.findByCategoryAndSubCategory(ETFCategory.SECTOR, ETFSubCategory.DIGITAL_PLATFORM);
 
             default:
                 // 성향을 판단할 수 없는 경우 안정적인 대형주 ETF 추천

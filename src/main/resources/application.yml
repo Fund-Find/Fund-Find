@@ -1,4 +1,9 @@
 spring:
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - file:./uploads/
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -35,7 +40,7 @@ spring:
             user-name-attribute: id
   jpa:
     hibernate:
-      ddl-auto: update  # 테이블 생성 및 업데이트
+      ddl-auto: create  # 테이블 생성 및 업데이트
     show-sql: true
     properties:
       hibernate:
@@ -43,12 +48,27 @@ spring:
         show_sql: true  # SQL 출력 활성화
         format_sql: true  # SQL 포맷팅
         use_sql_comments: true  # SQL에 주석 포함
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dudghksdyd12@gmail.com
+    password: NEED_TO_INPUT_ON_SECRET
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   logging:
     level:
       org.hibernate.SQL: DEBUG  # SQL 쿼리 로그 출력
+      com.example.domain.quizShow: DEBUG
+      org.springframework.web: DEBUG
       org.hibernate.orm.jdbc.bind: TRACE  # 바인딩 파라미터 출력
       org.hibernate.orm.jdbc.extract: TRACE  # 추출 파라미터 출력
       org.springframework.transaction.interceptor: TRACE  # 트랜잭션 디버깅
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # 기본 프로필 이미지 설정
 default:
@@ -57,3 +77,6 @@ default:
 logging:
   level:
     com.example.domain.fund: DEBUG  # 로깅 레벨 설정
+custom:
+  upload:
+    dir: C:/your/upload/path

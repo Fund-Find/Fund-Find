@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = "com.example")  // 변경
+@SpringBootApplication(scanBasePackages = "com.example")
 @EnableJpaRepositories(basePackages = "com.example")
 @EntityScan(basePackages = "com.example")
 @EnableJpaAuditing

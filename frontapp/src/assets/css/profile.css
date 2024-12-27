@@ -28,7 +28,7 @@
 }
 
 .profile-info input {
-    border: 1px solid red !important;
+    border: 1px solid #0056b3;
     width: 100%; /* 입력 필드나 텍스트를 컨테이너의 전체 너비로 확장 */
     padding: 8px;
     font-size: 14px;
@@ -56,11 +56,40 @@
     border: 1px solid #ddd;
 }
 
+.profile-info img {
+    border-radius: 5px;
+    width: 400px;
+    border: 1px solid #ddd;
+}
+
+.profile-container > button {
+    margin: 10px 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: black;
+    background-color: #fff;
+    border: 1px solid black;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-container button:hover {
+    background-color: #98949452;
+}
+
+button + button {
+    background-color: #fff;
+}
+
+button + button:hover {
+    background-color: #c82333;
+}
 .profile-info button {
     padding: 5px 10px;
     font-size: 14px;
-    color: #fff;
-    background-color: #007bff;
+    color: black;
+    background-color: #98949452;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -68,35 +97,24 @@
 }
 
 .profile-info button:hover {
-    background-color: #0056b3;
-}
-
-.profile-info img {
-    border-radius: 5px;
-    width: 400px;
-    border: 1px solid #ddd;
-}
-
-button {
-    margin: 10px 5px;
-    padding: 10px 15px;
-    font-size: 16px;
+    background-color: rgba(30, 30, 30, 0.975);
     color: #fff;
-    background-color: #28a745;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-button:hover {
-    background-color: #218838;
+.surveyanchor {
+    display: inline-block; /* 확대 효과를 위해 inline-block 설정 */
+    text-decoration: none; /* 기본 밑줄 제거 */
+    transition: transform 0.3s ease;
 }
-
-button + button {
-    background-color: #dc3545;
+.surveyanchor:hover {
+    transform: scale(1.07); /* 약간 확대 */
 }
-
-button + button:hover {
-    background-color: #c82333;
+.myfundlist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 1px;
+}
+.profileupdate {
+    margin-left: auto; /* 부모의 왼쪽 여백을 자동으로 설정해 오른쪽으로 밀어냄 */
 }

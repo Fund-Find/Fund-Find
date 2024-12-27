@@ -3,6 +3,7 @@ package com.example.global.Jwt;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.repository.UserRepository;
 import com.example.global.Util.Util;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -57,7 +58,7 @@ public class JwtProvider {
 
     // AccessToken 생성
     public String genAccessToken(SiteUser user) {
-        return genToken(user, 60 * 10); // 10분
+        return genToken(user, 60 * 30); // 30분
     }
 
     // 토큰 생성
@@ -112,12 +113,13 @@ public class JwtProvider {
 
     // 리프레시 토큰으로 액세스 토큰 갱신
     public String refreshAccessToken(String refreshToken) {
-        if (verify(refreshToken)) {
-            SiteUser user = getUserFromRefreshToken(refreshToken);
-            return genAccessToken(user);
+        if (!verify(refreshToken)) {
+            throw new IllegalArgumentException("리프레시 토큰이 만료되었거나 유효하지 않습니다.");
         }
-        throw new IllegalArgumentException("리프레시 토큰이 만료되었거나 잘못되었습니다.");
+        SiteUser user = getUserFromRefreshToken(refreshToken);
+        return genAccessToken(user);
     }
+
 
     // 리프레시 토큰에서 사용자 정보 추출
     public SiteUser getUserFromRefreshToken(String refreshToken) {
@@ -129,4 +131,18 @@ public class JwtProvider {
         }
         throw new IllegalArgumentException("리프레시 토큰이 유효하지 않습니다.");
     }
+
+    public long getExpirationTime(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        // exp 클레임은 만료 시간을 포함
+        Date expiration = claims.getExpiration();
+        return expiration.getTime(); // 만료 시간의 타임스탬프 (ms 단위)
+    }
+
+
 }
