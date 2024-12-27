@@ -34,7 +34,7 @@ public class UserController {
             @RequestPart("userRequest") @Valid UserRequest userRequest,  // JSON 데이터를 받는 부분
             @RequestPart(value = "thumbnailImg", required = false) MultipartFile thumbnailImg) {  // 파일 업로드 처리
         userRequest.setThumbnailImg(thumbnailImg);  // 파일을 UserRequest에 설정
-        System.out.println("test");
+
 
         SiteUser user = this.userService.registerUser(userRequest);
         return RsData.of("200", "회원가입이 완료되었습니다.", new UserResponse(user));

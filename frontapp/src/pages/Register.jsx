@@ -59,7 +59,7 @@ function Register() {
                 alert(data.msg) // 서버에서 반환한 메시지 출력
                 window.location.href = '/user/login' // 예시: 로그인 페이지로 이동
             } else {
-                setErrorMessage(data.msg || '회원가입에 실패했습니다.')
+                setErrorMessage(data.msg || data.message || '회원가입에 실패했습니다.')
             }
         } catch (error) {
             console.log(error)

@@ -39,7 +39,7 @@ public class UserService {
 
         // 중복 확인
         if (this.userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("이미 존재하는 사용자 이름입니다.");
+            throw new IllegalArgumentException("이미 존재하는 사용자 ID 입니다.");
         }
         if (this.userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -95,7 +95,7 @@ public class UserService {
                 fileStorageService.deleteFile(existingUser.getThumbnailImg());
             }
             String newImageUrl = fileStorageService.storeFile(updatedData.getThumbnailImg());
-            System.out.println("이미지 :http://localhost:8080/uploads/" + newImageUrl);
+//            System.out.println("이미지 :http://localhost:8080/uploads/" + newImageUrl);  // 이미지경로가 잘 들어오는지 확인
             existingUser.setThumbnailImg("http://localhost:8080/uploads/" + newImageUrl.substring(newImageUrl.lastIndexOf("\\") + 1)); //
         }
 
@@ -106,7 +106,7 @@ public class UserService {
 
     public SiteUser getUser(String username) {
         return this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID는 존재하지 않습니다."));
     }
 
     public SiteUser getUser(Long userId) {
@@ -119,11 +119,10 @@ public class UserService {
         return this.userRepository.findByUsername(username);
     }
 
-
     // 사용자 삭제
     public void deleteUser(String username) {
         SiteUser user = this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("사용자 ID를 찾을 수 없습니다."));
         this.userRepository.delete(user);
     }
 
@@ -150,7 +149,7 @@ public class UserService {
 
         // 데이터베이스에서 사용자 조회
         SiteUser siteUser = this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("사용자 ID를 찾을 수 없습니다."));
 
         String baseUrl = "http://localhost:8080/uploads/"; // 업로드 이미지 파일이 제공되는 서버 URL
         String thumbnailPath = siteUser.getThumbnailImg();
@@ -174,7 +173,6 @@ public class UserService {
     public SiteUser findByUsernameAndEmail(String username, String email) {
         return userRepository.findByUsernameAndEmail(username, email).orElse(null);
     }
-
 
     private final PasswordResetTokenRepository tokenRepository;
 
@@ -217,7 +215,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-
     @Transactional
     public boolean changePassword(SiteUser user, String currentPassword, String newPassword, String confirmPassword) {
         // 현재 비밀번호 확인
@@ -239,6 +236,10 @@ public class UserService {
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public SiteUser save(SiteUser user) {
+        return userRepository.save(user);
     }
 }
 

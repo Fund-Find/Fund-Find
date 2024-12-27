@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import '../assets/css/profile.css'
 import { useNavigate } from 'react-router-dom'
 import PasswordChange from '../components/PsswordChange'
+import Survey from '../components/Survey'
 
 const API_URL = 'http://localhost:8080/api/v1/user/profile'
 const UPDATE_API_URL = 'http://localhost:8080/api/v1/user/profile'
@@ -18,6 +19,7 @@ const Profile = () => {
     const [introError, setIntroError] = useState('')
     const navigate = useNavigate()
     const [showPasswordChange, setShowPasswordChange] = useState(false)
+    const [showSurveyPopup, setShowSurveyPopup] = useState(false)
 
     useEffect(() => {
         fetch(API_URL, {
@@ -92,6 +94,10 @@ const Profile = () => {
         setPreviewImage(originalUser.thumbnailImg)
         setNicknameError('')
         setIntroError('')
+    }
+
+    const handleSurveyClick = () => {
+        setShowSurveyPopup(true)
     }
 
     const handleNicknameChange = (e) => {
@@ -227,14 +233,24 @@ const Profile = () => {
                         </div>
                     ) : (
                         <span>
-                            <a className="surveyanchor" href="/survey">
+                            <div className="surveyanchor" onClick={handleSurveyClick}>
                                 설문조사를 통해 투자성향을 알아보세요!
-                            </a>
+                            </div>
                         </span>
                     )}
                 </div>
             </div>
             <button onClick={() => setShowPasswordChange(true)}>비밀번호 변경</button>
+            {showSurveyPopup && (
+                <div className="survey-popup-overlay">
+                    <div className="survey-popup">
+                        <button className="popup-close-btn" onClick={() => setShowSurveyPopup(false)}>
+                            <span>×</span>
+                        </button>
+                        <Survey onClose={() => setShowSurveyPopup(false)} />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

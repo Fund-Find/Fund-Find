@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,23 +54,53 @@ public class ApiV1ETFController {
     }
 
     @PostMapping("/survey/submit")
-    public ResponseEntity<RsData<Long>> submitSurvey(@RequestBody Map<String, String> answers,@CookieValue(value = "accessToken", required = false) String accessToken) {
+    public ResponseEntity<RsData<Long>> submitSurvey(
+            @RequestBody Map<String, String> answers,
+            @CookieValue(value = "accessToken", required = false) String accessToken
+    ) {
         try {
+            // 인증 체크
             if (accessToken == null) {
-                System.out.println("Access Token이 쿠키에서 발견되지 않았습니다.");
-                return ResponseEntity.badRequest().body(RsData.of("403", "엑세스 토큰이 없습니다.", null));
+                return ResponseEntity.badRequest().body(
+                        RsData.of("403", "엑세스 토큰이 없습니다.", null)
+                );
+            }
+            SiteUser user = this.userService.getSiteUserFromAccessToken(accessToken);
+            if (user == null) {
+                return ResponseEntity.badRequest().body(
+                        RsData.of("403", "유효하지 않은 사용자입니다.", null)
+                );
             }
 
+            // “하루 2회 제한” 로직
+            LocalDate today = LocalDate.now();
+            if (user.getLastSurveyDate() != null && user.getLastSurveyDate().isEqual(today)) {
+                if (user.getDailySurveyCount() >= 2) {
+                    return ResponseEntity.ok(
+                            RsData.of("429", "오늘은 더 이상 설문조사를 진행할 수 없습니다.", null)
+                    );
+                } else {
+                    user.setDailySurveyCount(user.getDailySurveyCount() + 1);
+                }
+            } else {
+                user.setLastSurveyDate(today);
+                user.setDailySurveyCount(1);
+            }
+
+            // **DB에 반영** (없으면 변경 사항 저장 안 됨)
+            userService.save(user);
+
+            // 설문 로직
             String mbti = propensityService.calculateMBTI(answers);
-
-            SiteUser user = this.userService.getSiteUserFromAccessToken(accessToken);
-
             PropensityDTO savedPropensity = propensityService.processAndSavePropensity(answers, user);
 
-            return ResponseEntity.ok(RsData.of("200", "투자 성향 MBTI 등록 성공", savedPropensity.getPropensityId()));
-
+            return ResponseEntity.ok(
+                    RsData.of("200", "투자 성향 MBTI 등록 성공", savedPropensity.getPropensityId())
+            );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(RsData.of("400", "투자 성향 MBTI 등록 실패: " + e.getMessage(), null));
+            return ResponseEntity.badRequest().body(
+                    RsData.of("400", "투자 성향 MBTI 등록 실패: " + e.getMessage(), null)
+            );
         }
     }
 
