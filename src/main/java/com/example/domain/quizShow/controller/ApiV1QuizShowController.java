@@ -42,9 +42,12 @@ public class ApiV1QuizShowController {
             @Valid @RequestPart("data") QuizShowCreateRequest quizShowCR,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
 
+        // MultipartFile을 QuizShowCreateRequest 객체에 설정
         if (imageFile != null) {
             quizShowCR.setImageFile(imageFile);
         }
+
+        // Service 호출 및 DTO 반환
         QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
         return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
     }

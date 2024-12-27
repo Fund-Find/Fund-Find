@@ -3,15 +3,17 @@ package com.example.domain.quizShow.entity;
 import com.example.domain.quizShow.constant.QuizShowImage;
 import com.example.domain.user.entity.SiteUser;
 import com.example.global.jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,13 +44,19 @@ public class QuizShow extends BaseEntity {
     private LocalDateTime lastViewedAt;
 
     @ManyToMany
-    @ColumnDefault("0")
     @JoinTable(
             name = "quiz_show_votes",
             joinColumns = @JoinColumn(name = "quiz_show_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<SiteUser> votes;
+    @JsonIgnore
+    private Set<SiteUser> votes = new HashSet<>();
+
+    @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    @BatchSize(size = 100)
+    @JsonManagedReference
+    private List<Quiz> quizzes;
 
     @Transient
     private boolean hasVoted = false;
@@ -79,11 +87,6 @@ public class QuizShow extends BaseEntity {
         return this.votes.stream()
                 .anyMatch(user -> user.getId().equals(userId));
     }
-
-    @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("id ASC")  // id 기준으로 정렬
-    @BatchSize(size = 100)  // batch size 설정
-    private List<Quiz> quizzes;
 
     @Column
     private String customImagePath; // 사용자 지정 이미지 경로

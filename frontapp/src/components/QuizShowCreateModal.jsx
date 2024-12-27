@@ -25,6 +25,19 @@ const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
         choiceContent: '',
         isCorrect: false,
     });
+    
+    const [previewImage, setPreviewImage] = useState(null);
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        setImageFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => setPreviewImage(reader.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
 
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -66,46 +79,98 @@ const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
     };
 
     const addQuiz = () => {
-        if (!quizData.quizContent.trim() || quizData.quizScore <= 0 || !quizData.quizTypeId) {
-            alert('퀴즈 내용을 모두 입력해주세요.');
+        if (!quizData.quizContent.trim()) {
+            alert('퀴즈 내용을 입력해주세요.');
             return;
         }
+        if (quizData.quizScore <= 0) {
+            alert('퀴즈 점수는 0 이상이어야 합니다.');
+            return;
+        }
+        if (!quizData.quizTypeId) {
+            alert('퀴즈 유형을 선택해주세요.');
+            return;
+        }
+        if (quizData.choices.length < 2) {
+            alert('선택지는 최소 2개 이상이어야 합니다.');
+            return;
+        }
+    
         setFormData((prev) => ({
             ...prev,
             quizzes: [...prev.quizzes, { ...quizData }],
         }));
-        setQuizData({ quizContent: '', quizScore: 0, quizTypeId: '', choices: [] }); // 초기화
+        setQuizData({ quizContent: '', quizScore: 0, quizTypeId: '', choices: [] });
     };
+    
 
     const handleSubmit = async () => {
+        // 데이터 유효성 검사
+        if (!formData.showName || !formData.category || !formData.showDescription) {
+            alert('필수 항목을 모두 입력해주세요.');
+            return;
+        }
+
+        const token = localStorage.getItem('accessToken'); // 토큰 가져오기
+        if (!token) {
+            alert('로그인이 필요한 서비스입니다.');
+            return;
+        }
+        
         setLoading(true);
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('data', JSON.stringify(formData)); // 퀴즈 데이터
+            
+            // 퀴즈 데이터 준비
+            const quizData = {
+                showName: formData.showName,
+                category: formData.category,
+                showDescription: formData.showDescription,
+                totalQuizCount: formData.quizzes?.length || 0,
+                totalScore: formData.quizzes?.reduce((sum, quiz) => sum + (quiz.quizScore || 0), 0) || 0,
+                useCustomImage: !!imageFile,
+                quizzes: formData.quizzes || [],
+                selectedImagePath: ''
+            };
+    
+            // JSON 데이터를 'data'라는 키로 추가
+            formDataToSend.append('data', new Blob([JSON.stringify(quizData)], { 
+                type: 'application/json' 
+            }));
+    
+            // 이미지 파일이 있다면 추가
             if (imageFile) {
-                formDataToSend.append('imageFile', imageFile); // 이미지 파일
+                formDataToSend.append('imageFile', imageFile);
             }
     
-            // 서버 요청
-            const response = await fetch('/api/v1/quizshow', {
+            const response = await fetch('http://localhost:8080/api/v1/quizshow', {
                 method: 'POST',
-                body: formDataToSend, // FormData 사용
-                credentials: 'include', // 필요한 경우 추가
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formDataToSend,
+                credentials: 'include'
             });
     
-            // 응답 처리
-            if (response.ok) {
-                const result = await response.json();
-                alert('퀴즈쇼가 성공적으로 생성되었습니다!');
-                onClose();
-            } else {
-                const errorData = await response.text();
-                console.error('서버 오류:', errorData);
-                alert('퀴즈쇼 생성 중 오류가 발생했습니다.');
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type");
+                let errorMessage;
+                if (contentType?.includes("application/json")) {
+                    const errorData = await response.json();
+                    errorMessage = errorData.msg || '퀴즈쇼 생성 중 오류가 발생했습니다.';
+                } else {
+                    errorMessage = await response.text();
+                }
+                throw new Error(errorMessage);
             }
+    
+            const result = await response.json();
+            alert('퀴즈쇼가 성공적으로 생성되었습니다!');
+            onClose();
+            
         } catch (error) {
-            console.error('요청 실패:', error);
-            alert('퀴즈쇼 생성 중 오류가 발생했습니다.');
+            console.error('Error:', error);
+            alert(error.message || '퀴즈쇼 생성 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
