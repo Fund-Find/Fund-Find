@@ -19,21 +19,52 @@ function Result() {
             return
         }
 
-        // MBTI 결과 가져오기
-        fetch(`http://localhost:8080/api/v1/etf/propensity/${propensityId}`)
-            .then((response) => response.json())
+        // 1) MBTI 결과 가져오기
+        fetch(`http://localhost:8080/api/v1/etf/propensity/${propensityId}`, {
+            method: 'GET',
+            credentials: 'include', // ★ 세션 쿠키/토큰을 포함하여 인증
+        })
+            .then((response) => {
+                // 2xx가 아니면 text()로 에러 처리
+                if (!response.ok) {
+                    return response.text().then((text) => {
+                        throw new Error(`HTTP Error ${response.status}: ${text}`)
+                    })
+                }
+                return response.json()
+            })
             .then((data) => {
                 if (data.resultCode === '200') {
                     setMbti(data.data.surveyResult)
+                } else {
+                    alert('MBTI 결과를 가져오는 데 실패했습니다.')
                 }
             })
+            .catch((error) => {
+                console.error('Error:', error)
+                alert('MBTI 결과를 가져오는데 실패했습니다.')
+            })
 
-        // 추천 ETF 목록 가져오기
-        fetch(`http://localhost:8080/api/v1/etf/recommend/${propensityId}`)
-            .then((response) => response.json())
+        // 2) 추천 ETF 목록 가져오기
+        fetch(`http://localhost:8080/api/v1/etf/recommend/${propensityId}`, {
+            method: 'GET',
+            credentials: 'include', // ★ 인증 포함
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    // 401, 403 등 비정상 응답일 때
+                    return response.text().then((text) => {
+                        throw new Error(`HTTP Error ${response.status}: ${text}`)
+                    })
+                }
+                return response.json()
+            })
             .then((data) => {
                 if (data.resultCode === '200') {
                     setRecommendedEtfs(data.data)
+                } else if (data.resultCode === '404') {
+                    alert('추천 종목이 없습니다.')
+                    setRecommendedEtfs([])
                 } else {
                     alert('결과를 가져오는데 실패했습니다.')
                 }
@@ -47,37 +78,30 @@ function Result() {
     // MBTI 설명을 반환하는 함수
     const getMbtiDescription = (mbti) => {
         switch (mbti) {
-            // 내향적(I) + 판단형(J) 성향
             case 'ISTJ':
                 return '현실적이고 신중한 성향으로, 안전한 채권형 투자를 선호합니다.'
             case 'ISFJ':
                 return '안정 지향적이고 보수적인 성향으로, 안정적인 대형주 투자를 선호합니다.'
             case 'INFJ':
-                return '가치 지향적이고 장기 투자를 선호하는 성향으로, 헬스케어 섹터에 관심이 있습니다.'
+                return '가치 지향적이고 장기 투자를 선호하는 성향으로, 조선/해양 섹터에 관심이 있습니다.'
             case 'INTJ':
-                return '전략적이고 분석적인 성향으로, IT/반도체 섹터에 대한 투자를 선호합니다.'
-
-            // 내향적(I) + 인식형(P) 성향
+                return '전략적이고 분석적인 성향으로, ESG 섹터에 대한 투자를 선호합니다.'
             case 'ISTP':
-                return '논리적이고 실용적인 성향으로, IT/반도체 섹터에 대한 투자를 선호합니다.'
+                return '논리적이고 실용적인 성향으로, 전자제품 및 소재 섹터에 대한 투자를 선호합니다.'
             case 'ISFP':
                 return '예술적이고 가치를 중시하는 성향으로, 귀금속 관련 투자를 선호합니다.'
             case 'INFP':
                 return '이상주의적이고 혁신을 중시하는 성향으로, 헬스케어 섹터에 관심이 있습니다.'
             case 'INTP':
                 return '분석적이고 혁신 지향적인 성향으로, 성장 가능성이 높은 중소형주 투자를 선호합니다.'
-
-            // 외향적(E) + 인식형(P) 성향
             case 'ESTP':
                 return '모험적이고 기회주의적인 성향으로, 레버리지 ETF 투자를 통한 높은 수익을 추구합니다.'
             case 'ESFP':
                 return '즉흥적이고 기회 포착을 중시하는 성향으로, 중소형주 투자를 선호합니다.'
             case 'ENFP':
-                return '열정적이고 새로운 기회를 추구하는 성향으로, IT/반도체 섹터에 관심이 있습니다.'
+                return '열정적이고 새로운 기회를 추구하는 성향으로, IT/로봇 섹터에 관심이 있습니다.'
             case 'ENTP':
                 return '혁신적이고 도전적인 성향으로, 레버리지 ETF를 통한 공격적인 투자를 선호합니다.'
-
-            // 외향적(E) + 판단형(J) 성향
             case 'ESTJ':
                 return '체계적이고 효율성을 중시하는 성향으로, 금융 섹터 투자를 선호합니다.'
             case 'ESFJ':
@@ -85,8 +109,7 @@ function Result() {
             case 'ENFJ':
                 return '성장 지향적이고 영향력을 추구하는 성향으로, 안정적인 대형주 투자를 선호합니다.'
             case 'ENTJ':
-                return '전략적이고 성취 지향적인 성향으로, IT/반도체 섹터에 대한 투자를 선호합니다.'
-
+                return '전략적이고 성취 지향적인 성향으로, 디지털 플랫폼 섹터에 대한 투자를 선호합니다.'
             default:
                 return '투자 성향을 분석중입니다...'
         }

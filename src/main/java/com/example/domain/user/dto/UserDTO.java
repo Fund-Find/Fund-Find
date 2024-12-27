@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +21,9 @@ public class UserDTO {
     private final String thumbnailImg;    // 프로필 이미지 (응답용)
     private final LocalDateTime createdDate;  // 생성일 (응답용)
     private final LocalDateTime modifiedDate; // 수정일 (응답용)
-
+    private final LocalDate lastSurveyDate;
+    private final int dailySurveyCount;
+    
     public UserDTO(SiteUser user) {
         this.id = user.getId();
         this.username = user.getUsername();
@@ -30,5 +33,7 @@ public class UserDTO {
         this.nickname = user.getNickname();
         this.intro = user.getIntro();
         this.thumbnailImg = user.getThumbnailImg();
+        this.lastSurveyDate = user.getLastSurveyDate();
+        this.dailySurveyCount = user.getDailySurveyCount();
     }
 }

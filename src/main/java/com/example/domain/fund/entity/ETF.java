@@ -1,9 +1,13 @@
 package com.example.domain.fund.entity;
 
+import com.example.domain.favorite.entity.ETFFavorite;
 import com.example.domain.fund.model.ETFCategory;
 import com.example.domain.fund.model.ETFSubCategory;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,6 +56,9 @@ public class ETF {
 
     @Column(name = "price_change_rate")
     private String priceChangeRate;
+
+    @OneToMany(mappedBy = "etf")
+    private List<ETFFavorite> favorites = new ArrayList<>();
 
     @Builder
     public ETF(String code, String name, ETFCategory category, ETFSubCategory subCategory,
