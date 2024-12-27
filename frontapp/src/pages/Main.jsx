@@ -86,6 +86,7 @@ function Home() {
             })
 
             const data = await response.json()
+            console.log('로그인 응답:', JSON.stringify(data, null, 2))
 
             if (response.ok) {
                 // 로그인 성공 처리
@@ -104,6 +105,11 @@ function Home() {
                     alert('로그인 성공')
                     // storage 이벤트 발생 -> Main에서 감지
                     window.dispatchEvent(new Event('storage'))
+                } else {
+                    console.error('Access Token이 응답에 포함되지 않았습니다.')
+                    setErrorMessage(data.msg || '로그인 응답에서 토큰을 확인할 수 없습니다.')
+
+                    return
                 }
             } else {
                 setErrorMessage(data.message || '로그인에 실패했습니다.')

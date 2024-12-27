@@ -18,7 +18,7 @@ public class UserRequest {
             message = "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다."
     )
     private String password1;
-    @NotBlank(message = "비밀번호 확인은 필수입력 사항입니다.")
+
     private String password2;
 
     @Pattern(

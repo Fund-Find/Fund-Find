@@ -50,6 +50,7 @@ function Login() {
                 } else {
                     console.error('Access Token이 응답에 포함되지 않았습니다.')
                     setErrorMessage(data.msg || '로그인 응답에서 토큰을 확인할 수 없습니다.')
+                    console.log(data.msg)
 
                     return
                 }
@@ -70,7 +71,10 @@ function Login() {
                 // 인증 상태 강제로 반영 (새로고침 없이 동작)
                 window.dispatchEvent(new Event('storage'))
             } else {
-                setErrorMessage(data.message || '로그인에 실패했습니다.')
+                setErrorMessage(data.message || data.msg || '로그인에 실패했습니다.') // 로그인 실패시 이유 알려주기 (이유 백에서 전달 안되면 오른쪽문구 띄우기기)
+                console.log(data.message)
+                console.log(data.msg)
+                console.log(data)
             }
         } catch (error) {
             console.error('로그인 요청 실패:', error)
