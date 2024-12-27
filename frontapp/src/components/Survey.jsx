@@ -48,6 +48,12 @@ function Survey({ onClose, onSubmitSuccess }) {
                 navigate('/result', {
                     state: { propensityId: result.data },
                 })
+            } else if (result.resultCode === '429') {
+                // 하루 2회 초과
+                alert(result.msg) // "오늘은 더 이상 설문조사를 진행할 수 없습니다."
+                if (typeof onClose === 'function') {
+                    onClose() // 그냥 팝업 닫음, result 페이지 이동 안 함
+                }
             } else {
                 alert(result.msg || '제출 중 오류가 발생했습니다.')
             }

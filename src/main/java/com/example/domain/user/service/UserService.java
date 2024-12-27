@@ -119,7 +119,6 @@ public class UserService {
         return this.userRepository.findByUsername(username);
     }
 
-
     // 사용자 삭제
     public void deleteUser(String username) {
         SiteUser user = this.userRepository.findByUsername(username)
@@ -175,7 +174,6 @@ public class UserService {
         return userRepository.findByUsernameAndEmail(username, email).orElse(null);
     }
 
-
     private final PasswordResetTokenRepository tokenRepository;
 
     // 비밀번호 재설정 토큰 생성
@@ -217,7 +215,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-
     @Transactional
     public boolean changePassword(SiteUser user, String currentPassword, String newPassword, String confirmPassword) {
         // 현재 비밀번호 확인
@@ -239,6 +236,10 @@ public class UserService {
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public SiteUser save(SiteUser user) {
+        return userRepository.save(user);
     }
 }
 
