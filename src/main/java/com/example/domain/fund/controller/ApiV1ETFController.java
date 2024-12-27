@@ -104,7 +104,6 @@ public class ApiV1ETFController {
         }
     }
 
-
     @GetMapping("/propensity/{id}")
     public ResponseEntity<RsData<PropensityDTO>> getPropensity(@PathVariable("id") Long id) {
         try {
@@ -227,5 +226,4 @@ public class ApiV1ETFController {
             return RsData.of("500", "ETF 목록 조회 실패: " + e.getMessage(), null);
         }
     }
-
 }

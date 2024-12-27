@@ -24,7 +24,7 @@ body {
 
 #navi {
     position: fixed;
-    height: 55px;
+    height: 60px;
     width: 100% !important;
     margin: 0 auto;
     display: flex !important;
@@ -53,13 +53,22 @@ body {
     line-height: 0;
 }
 #navi .logo img {
-    width: 55px; /* 원하는 너비 (픽셀 또는 비율로 조정 가능) */
+    width: 60px; /* 원하는 너비 (픽셀 또는 비율로 조정 가능) */
     height: auto; /* 자동으로 비율에 맞게 높이를 조정 */
 }
 
 .Nav__menulist {
     list-style: none;
     display: flex;
+}
+
+#navi > ul > li {
+    border-left: 1px solid rgba(127, 62, 62, 0.481);
+    border-right: 1px solid rgba(127, 62, 62, 0.481);
+}
+#navi > ul {
+    border-left: 1px solid rgba(103, 103, 103, 0.481);
+    border-right: 1px solid rgba(103, 103, 103, 0.481);
 }
 
 #navi__left {
