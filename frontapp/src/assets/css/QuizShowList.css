@@ -3,6 +3,14 @@
     margin: 0 auto;
     padding: 20px;
 }
+
+.filter-container {
+    display: flex;
+    justify-content: flex-end; /* 오른쪽 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
+    gap: 5px; /* 요소 간 5px 간격 */
+    margin-bottom: 20px; /* 하단 여백 */
+}
   
 .search-controls {
     display: flex;
