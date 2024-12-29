@@ -1,146 +1,214 @@
 import React, { useState, useEffect } from 'react';
-import '../assets/css/quizshow.css';
+import { X, Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
-    const [step, setStep] = useState(1); // 1: 퀴즈쇼 기본정보, 2: 퀴즈 추가 단계
-    const [formData, setFormData] = useState({
+const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
+    const navigate = useNavigate();
+    const [step, setStep] = useState(1);
+    const [basicInfo, setBasicInfo] = useState({
         showName: '',
-        category: 'INVESTMENT',
+        category: '',
         showDescription: '',
-        totalQuizCount: 0,
-        totalScore: 0,
-        selectedImagePath: '',
-        useCustomImage: false,
-        quizzes: [], // 퀴즈 목록
+        useCustomImage: false
     });
-
-    const [quizData, setQuizData] = useState({
+    const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [quizzes, setQuizzes] = useState([]);
+    const [currentQuiz, setCurrentQuiz] = useState({
+        quizTypeId: "MULTIPLE_CHOICE",
         quizContent: '',
-        quizScore: 0,
-        quizTypeId: '',
-        choices: [],
+        quizScore: 10,
+        choices: [
+            { choiceContent: '', isCorrect: false },
+            { choiceContent: '', isCorrect: false }
+        ]
     });
 
-    const [choiceData, setChoiceData] = useState({
-        choiceContent: '',
-        isCorrect: false,
-    });
-    
-    const [previewImage, setPreviewImage] = useState(null);
-
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        setImageFile(file);
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => setPreviewImage(reader.result);
-            reader.readAsDataURL(file);
+    // 로그인 체크
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('로그인이 필요한 서비스입니다.');
+            navigate('/auth/login', { state: { from: location.pathname } });
+            onClose();
         }
+    }, []);
+
+    const handleBasicInfoChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setBasicInfo(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
     };
 
-
-    const [imageFile, setImageFile] = useState(null);
-    const [loading, setLoading] = useState(false);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+            setBasicInfo(prev => ({
+                ...prev,
+                useCustomImage: true
+            }));
+        }
     };
 
     const handleQuizChange = (e) => {
         const { name, value } = e.target;
-        setQuizData((prev) => ({
+        setCurrentQuiz(prev => ({
             ...prev,
-            [name]: value,
+            [name]: value
         }));
     };
 
-    const handleChoiceChange = (e) => {
-        const { name, value, type } = e.target;
-        setChoiceData((prev) => ({
+    const handleChoiceChange = (index, e) => {
+        const { name, value, type, checked } = e.target;
+        setCurrentQuiz(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? e.target.checked : value,
+            choices: prev.choices.map((choice, i) => {
+                if (i === index) {
+                    return { 
+                        ...choice, 
+                        [name]: type === 'radio' || type === 'checkbox' ? checked : value 
+                    };
+                }
+                // radio 타입인 경우 다른 모든 선택지의 isCorrect를 false로 설정
+                if (type === 'radio' && name === 'isCorrect' && checked) {
+                    return { ...choice, isCorrect: false };
+                }
+                return choice;
+            })
         }));
     };
 
     const addChoice = () => {
-        if (!choiceData.choiceContent.trim()) {
-            alert('선택지 내용을 입력해주세요.');
-            return;
+        if (currentQuiz.choices.length < 5) {
+            setCurrentQuiz(prev => ({
+                ...prev,
+                choices: [...prev.choices, { choiceContent: '', isCorrect: false }]
+            }));
         }
-        setQuizData((prev) => ({
-            ...prev,
-            choices: [...prev.choices, { ...choiceData }],
-        }));
-        setChoiceData({ choiceContent: '', isCorrect: false }); // 초기화
+    };
+
+    const removeChoice = (index) => {
+        if (currentQuiz.choices.length > 2) {
+            setCurrentQuiz(prev => ({
+                ...prev,
+                choices: prev.choices.filter((_, i) => i !== index)
+            }));
+        }
+    };
+
+    const validateQuiz = () => {
+        if (!currentQuiz.quizContent.trim()) {
+            alert('문제 내용을 입력해주세요.');
+            return false;
+        }
+
+        switch (currentQuiz.quizTypeId) {
+            case 'MULTIPLE_CHOICE':
+                if (!currentQuiz.choices.some(choice => choice.isCorrect)) {
+                    alert('정답을 선택해주세요.');
+                    return false;
+                }
+                if (currentQuiz.choices.some(choice => !choice.choiceContent.trim())) {
+                    alert('모든 선택지를 입력해주세요.');
+                    return false;
+                }
+                break;
+
+            case 'TRUE_FALSE':
+                if (!currentQuiz.choices.some(choice => choice.isCorrect)) {
+                    alert('O 또는 X를 선택해주세요.');
+                    return false;
+                }
+                break;
+
+            case 'SUBJECTIVE':
+            case 'SHORT_ANSWER':
+                if (!currentQuiz.choices[0].choiceContent.trim()) {
+                    alert('정답을 입력해주세요.');
+                    return false;
+                }
+                break;
+        }
+
+        return true;
     };
 
     const addQuiz = () => {
-        if (!quizData.quizContent.trim()) {
-            alert('퀴즈 내용을 입력해주세요.');
-            return;
+        if (validateQuiz()) {
+            setQuizzes(prev => [...prev, { ...currentQuiz }]);
+            // 새로운 퀴즈 폼 초기화
+            setCurrentQuiz({
+                quizTypeId: currentQuiz.quizTypeId, // 현재 선택된 타입 유지
+                quizContent: '',
+                quizScore: 10,
+                choices: currentQuiz.quizTypeId === "TRUE_FALSE" 
+                    ? [
+                        { choiceContent: "T", isCorrect: false },
+                        { choiceContent: "F", isCorrect: false }
+                    ]
+                    : currentQuiz.quizTypeId === "MULTIPLE_CHOICE" 
+                        ? [
+                            { choiceContent: "", isCorrect: false },
+                            { choiceContent: "", isCorrect: false }
+                        ]
+                        : [{ choiceContent: "", isCorrect: true }]
+            });
         }
-        if (quizData.quizScore <= 0) {
-            alert('퀴즈 점수는 0 이상이어야 합니다.');
-            return;
-        }
-        if (!quizData.quizTypeId) {
-            alert('퀴즈 유형을 선택해주세요.');
-            return;
-        }
-        if (quizData.choices.length < 2) {
-            alert('선택지는 최소 2개 이상이어야 합니다.');
-            return;
-        }
-    
-        setFormData((prev) => ({
-            ...prev,
-            quizzes: [...prev.quizzes, { ...quizData }],
-        }));
-        setQuizData({ quizContent: '', quizScore: 0, quizTypeId: '', choices: [] });
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
     
-
-    const handleSubmit = async () => {
-        // 데이터 유효성 검사
-        if (!formData.showName || !formData.category || !formData.showDescription) {
-            alert('필수 항목을 모두 입력해주세요.');
+        if (step === 1) {
+            if (!basicInfo.showName || !basicInfo.category || !basicInfo.showDescription) {
+                alert('모든 필수 항목을 입력해주세요.');
+                return;
+            }
+            setStep(2);
             return;
         }
-
-        const token = localStorage.getItem('accessToken'); // 토큰 가져오기
-        if (!token) {
-            alert('로그인이 필요한 서비스입니다.');
-            return;
+    
+        // 퀴즈 추가 확인
+        if (quizzes.length === 0) {
+            if (!validateQuiz()) return;
+            quizzes.push({...currentQuiz});
         }
-        
-        setLoading(true);
+    
         try {
-            const formDataToSend = new FormData();
-            
-            // 퀴즈 데이터 준비
-            const quizData = {
-                showName: formData.showName,
-                category: formData.category,
-                showDescription: formData.showDescription,
-                totalQuizCount: formData.quizzes?.length || 0,
-                totalScore: formData.quizzes?.reduce((sum, quiz) => sum + (quiz.quizScore || 0), 0) || 0,
-                useCustomImage: !!imageFile,
-                quizzes: formData.quizzes || [],
-                selectedImagePath: ''
-            };
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                throw new Error('로그인이 필요합니다.');
+            }
     
-            // JSON 데이터를 'data'라는 키로 추가
-            formDataToSend.append('data', new Blob([JSON.stringify(quizData)], { 
-                type: 'application/json' 
+            const totalScore = quizzes.reduce((sum, quiz) => sum + parseInt(quiz.quizScore), 0);
+    
+            const submitData = {
+                showName: basicInfo.showName,
+                category: basicInfo.category,
+                showDescription: basicInfo.showDescription,
+                useCustomImage: basicInfo.useCustomImage,
+                totalQuizCount: quizzes.length,
+                totalScore: quizzes.reduce((sum, quiz) => sum + parseInt(quiz.quizScore), 0),
+                quizzes: quizzes.map(quiz => ({
+                    quizTypeId: quiz.quizTypeId,
+                    quizContent: quiz.quizContent,
+                    quizScore: quiz.quizScore,
+                    choices: quiz.choices
+                }))
+            };
+        
+            const formData = new FormData();
+            formData.append('data', new Blob([JSON.stringify(submitData)], {
+                type: 'application/json'  // 여기를 명시적으로 지정
             }));
     
-            // 이미지 파일이 있다면 추가
+            // 이미지 파일이 있는 경우에만 추가
             if (imageFile) {
-                formDataToSend.append('imageFile', imageFile);
+                submitData.append('imageFile', imageFile);
             }
     
             const response = await fetch('http://localhost:8080/api/v1/quizshow', {
@@ -148,64 +216,68 @@ const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formDataToSend,
-                credentials: 'include'
+                body: submitData
             });
     
-            if (!response.ok) {
-                const contentType = response.headers.get("content-type");
-                let errorMessage;
-                if (contentType?.includes("application/json")) {
-                    const errorData = await response.json();
-                    errorMessage = errorData.msg || '퀴즈쇼 생성 중 오류가 발생했습니다.';
-                } else {
-                    errorMessage = await response.text();
-                }
-                throw new Error(errorMessage);
-            }
-    
             const result = await response.json();
-            alert('퀴즈쇼가 성공적으로 생성되었습니다!');
-            onClose();
-            
+    
+            if (result.resultCode === "200") {
+                alert('퀴즈쇼가 성공적으로 생성되었습니다.');
+                onClose();
+            } else {
+                throw new Error(result.msg || '퀴즈쇼 생성에 실패했습니다.');
+            }
         } catch (error) {
-            console.error('Error:', error);
-            alert(error.message || '퀴즈쇼 생성 중 오류가 발생했습니다.');
-        } finally {
-            setLoading(false);
+            if (error.message === '로그인이 필요합니다.') {
+                navigate('/auth/login', { 
+                    state: { from: location.pathname }
+                });
+            } else {
+                alert(error.message);
+            }
         }
     };
 
     return (
-        <div className="quiz-popup-overlay">
-            <div className="quiz-popup">
-                <button className="close-button" onClick={onClose}>
-                    ×
-                </button>
-                {step === 1 && (
-                    <>
-                        <header className="header">
-                            <h1>퀴즈쇼 생성</h1>
-                        </header>
-                        <section className="quizinfo">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                    <h2 className="text-xl font-bold">
+                        {step === 1 ? '퀴즈쇼 정보 입력' : '퀴즈 추가'}
+                    </h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                        <X size={24} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {step === 1 ? (
+                        // 기본 정보 입력 단계
+                        <div className="space-y-4">
                             <div>
-                                <h2>1. 퀴즈쇼 제목을 입력해주세요.</h2>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    퀴즈쇼 제목 *
+                                </label>
                                 <input
                                     type="text"
                                     name="showName"
-                                    value={formData.showName}
-                                    onChange={handleInputChange}
+                                    value={basicInfo.showName}
+                                    onChange={handleBasicInfoChange}
                                     required
-                                    placeholder="퀴즈쇼 제목을 입력하세요"
+                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
+
                             <div>
-                                <h2>2. 카테고리를 선택해주세요.</h2>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    카테고리 *
+                                </label>
                                 <select
                                     name="category"
-                                    value={formData.category}
-                                    onChange={handleInputChange}
+                                    value={basicInfo.category}
+                                    onChange={handleBasicInfoChange}
                                     required
+                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="">카테고리 선택</option>
                                     {categories.map((category) => (
@@ -215,119 +287,229 @@ const QuizShowCreateModal = ({ onClose, onSubmit, quizTypes, categories }) => {
                                     ))}
                                 </select>
                             </div>
+
                             <div>
-                                <h2>3. 퀴즈쇼 설명을 작성해주세요.</h2>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    퀴즈쇼 설명 *
+                                </label>
                                 <textarea
                                     name="showDescription"
-                                    value={formData.showDescription}
-                                    onChange={handleInputChange}
+                                    value={basicInfo.showDescription}
+                                    onChange={handleBasicInfoChange}
                                     required
-                                    placeholder="퀴즈쇼에 대한 간단한 설명을 입력하세요"
-                                    rows={4}
+                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
                                 />
                             </div>
+
                             <div>
-                                <h2>4. 대표 이미지를 선택해주세요.</h2>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    대표 이미지
+                                </label>
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setImageFile(e.target.files[0])}
+                                    onChange={handleImageChange}
+                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 />
+                                {previewUrl && (
+                                    <div className="mt-2">
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="w-full max-h-48 object-cover rounded"
+                                        />
+                                    </div>
+                                )}
                             </div>
-                            <div className="quiz-button-container">
-                                <button className="quiz-button" onClick={() => setStep(2)}>다음</button>
+                        </div>
+                    ) : (
+                        // 퀴즈 추가 단계
+                        <div className="space-y-6">
+                            {/* 기존 퀴즈 목록 */}
+                            {quizzes.length > 0 && (
+                                <div className="space-y-2">
+                                    <h3 className="font-medium">추가된 퀴즈 ({quizzes.length}개)</h3>
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        {quizzes.map((quiz, index) => (
+                                            <div key={index} className="mb-2 last:mb-0">
+                                                {index + 1}. {quiz.quizContent} ({quiz.quizScore}점)
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 새 퀴즈 입력 폼 */}
+                            <div className="border p-4 rounded-lg">
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            퀴즈 타입 *
+                                        </label>
+                                        <select
+                                            name="quizTypeId"
+                                            value={currentQuiz.quizTypeId}
+                                            onChange={(e) => {
+                                                const newType = e.target.value;
+                                                setCurrentQuiz(prev => ({
+                                                    ...prev,
+                                                    quizTypeId: newType,
+                                                    choices: newType === "TRUE_FALSE" 
+                                                        ? [
+                                                            { choiceContent: "T", isCorrect: false },
+                                                            { choiceContent: "F", isCorrect: false }
+                                                        ]
+                                                        : newType === "MULTIPLE_CHOICE" 
+                                                            ? [
+                                                                { choiceContent: "", isCorrect: false },
+                                                                { choiceContent: "", isCorrect: false }
+                                                            ]
+                                                            : [{ choiceContent: "", isCorrect: true }]
+                                                }));
+                                            }}
+                                            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="MULTIPLE_CHOICE">객관식</option>
+                                            <option value="SUBJECTIVE">주관식</option>
+                                            <option value="TRUE_FALSE">OX</option>
+                                            <option value="SHORT_ANSWER">단답형</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            문제 *
+                                        </label>
+                                        <textarea
+                                            name="quizContent"
+                                            value={currentQuiz.quizContent}
+                                            onChange={handleQuizChange}
+                                            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            배점 *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="quizScore"
+                                            value={currentQuiz.quizScore}
+                                            onChange={handleQuizChange}
+                                            min="1"
+                                            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            {currentQuiz.quizTypeId === "MULTIPLE_CHOICE" && "선택지 *"}
+                                            {currentQuiz.quizTypeId === "TRUE_FALSE" && "OX 선택 *"}
+                                            {currentQuiz.quizTypeId === "SUBJECTIVE" && "정답 *"}
+                                            {currentQuiz.quizTypeId === "SHORT_ANSWER" && "정답 *"}
+                                        </label>
+                                        <div className="space-y-2">
+                                            {currentQuiz.quizTypeId === "MULTIPLE_CHOICE" && (
+                                                <>
+                                                    {currentQuiz.choices.map((choice, index) => (
+                                                        <div key={index} className="flex gap-2 items-center">
+                                                            <input
+                                                                type="radio"
+                                                                name="isCorrect"
+                                                                checked={choice.isCorrect}
+                                                                onChange={(e) => handleChoiceChange(index, e)}
+                                                                className="w-4 h-4"
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                name="choiceContent"
+                                                                value={choice.choiceContent}
+                                                                onChange={(e) => handleChoiceChange(index, e)}
+                                                                placeholder={`선택지 ${index + 1}`}
+                                                                className="flex-1 p-2 border rounded"
+                                                            />
+                                                            {currentQuiz.choices.length > 2 && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeChoice(index)}
+                                                                    className="text-red-500 hover:text-red-700"
+                                                                >
+                                                                    <Trash2 size={20} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                    {currentQuiz.choices.length < 5 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={addChoice}
+                                                            className="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                                        >
+                                                            <Plus size={16} />
+                                                            선택지 추가
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                            {currentQuiz.quizTypeId === "TRUE_FALSE" && (
+                                                <div className="flex gap-4">
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="tfAnswer"
+                                                            checked={currentQuiz.choices[0].isCorrect}
+                                                            onChange={() => handleChoiceChange(0, { target: { name: 'isCorrect', type: 'radio', checked: true } })}
+                                                            className="w-4 h-4"
+                                                        />
+                                                        O
+                                                    </label>
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="tfAnswer"
+                                                            checked={currentQuiz.choices[1].isCorrect}
+                                                            onChange={() => handleChoiceChange(1, { target: { name: 'isCorrect', type: 'radio', checked: true } })}
+                                                            className="w-4 h-4"
+                                                        />
+                                                        X
+                                                    </label>
+                                                </div>
+                                            )}
+                                            {(currentQuiz.quizTypeId === "SUBJECTIVE" || currentQuiz.quizTypeId === "SHORT_ANSWER") && (
+                                                <input
+                                                    type="text"
+                                                    name="choiceContent"
+                                                    value={currentQuiz.choices[0].choiceContent}
+                                                    onChange={(e) => handleChoiceChange(0, e)}
+                                                    placeholder="정답을 입력하세요"
+                                                    className="w-full p-2 border rounded"
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </section>
-                    </>
-                )}
-                {step === 2 && (
-                    <>
-                        <header className="header">
-                            <h1>퀴즈 추가</h1>
-                        </header>
-                        <section className="quizinfo">
-                            <div>
-                                <h2>퀴즈 내용을 입력해주세요.</h2>
-                                <textarea
-                                    name="quizContent"
-                                    value={quizData.quizContent}
-                                    onChange={handleQuizChange}
-                                    required
-                                    rows={3}
-                                />
-                            </div>
-                            <div>
-                                <h2>퀴즈 점수를 입력해주세요.</h2>
-                                <input
-                                    type="number"
-                                    name="quizScore"
-                                    value={quizData.quizScore}
-                                    onChange={handleQuizChange}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <h2>퀴즈 유형을 선택해주세요.</h2>
-                                <select
-                                    name="quizTypeId"
-                                    value={quizData.quizTypeId}
-                                    onChange={handleQuizChange}
-                                    required
-                                >
-                                    <option value="">유형 선택</option>
-                                    {quizTypes.map((type) => (
-                                        <option key={type.id} value={type.id}>
-                                            {type.typeName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <h2>선택지를 추가해주세요.</h2>
-                                <input
-                                    type="text"
-                                    name="choiceContent"
-                                    value={choiceData.choiceContent}
-                                    onChange={handleChoiceChange}
-                                    placeholder="선택지 내용을 입력하세요"
-                                />
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        name="isCorrect"
-                                        checked={choiceData.isCorrect}
-                                        onChange={handleChoiceChange}
-                                    />
-                                    정답 여부
-                                </label>
-                                <button className="quiz-button" type="button" onClick={addChoice}>
-                                    선택지 추가
-                                </button>
-                            </div>
-                            <div>
-                                <h3>추가된 선택지:</h3>
-                                <ul>
-                                    {quizData.choices.map((choice, index) => (
-                                        <li key={index}>
-                                            {choice.choiceContent} {choice.isCorrect ? '(정답)' : ''}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="quiz-button-container">
-                                <button className="quiz-button" type="button" onClick={addQuiz}>
-                                    퀴즈 추가
-                                </button>
-                                <button className="quiz-button" type="button" onClick={() => setStep(1)}>
-                                    이전
-                                </button>
-                                <button className="quiz-button" type="button" onClick={handleSubmit} disabled={loading}>
-                                    {loading ? '생성 중...' : '퀴즈쇼 생성하기'}
-                                </button>
-                            </div>
-                        </section>
-                    </>
-                )}
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-4 pt-4">
+                        {step === 2 && (
+                            <button
+                                type="button"
+                                onClick={addQuiz}
+                                className="px-4 py-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
+                            >
+                                퀴즈 추가
+                            </button>
+                        )}
+                        <button
+                            type="submit"
+                            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                        >
+                            {step === 1 ? '다음' : '생성 완료'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

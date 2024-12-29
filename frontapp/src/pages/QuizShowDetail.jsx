@@ -18,9 +18,22 @@ const QuizShowDetail = () => {
     const fetchQuizShow = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/v1/quizshow/${id}`);
+            const token = localStorage.getItem('accessToken');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+    
+            const response = await fetch(`http://localhost:8080/api/v1/quizshow/${id}`, {
+                headers: headers,
+                credentials: 'include'  // 쿠키를 포함하여 요청
+            });
+    
             if (!response.ok) throw new Error('퀴즈쇼를 불러오는데 실패했습니다.');
-
+    
             const result = await response.json();
             if (result.resultCode === "200" && result.data?.quizShow) {
                 setQuizShow(result.data.quizShow);

@@ -294,10 +294,17 @@ public class QuizShowService {
     }
 
     @Transactional
-    public QuizShowDTO create(@Valid QuizShowCreateRequest request) {
+    public QuizShowDTO create(@Valid QuizShowCreateRequest request, Long userId) {
+        SiteUser creator = userService.getUser(userId);
         String imagePath = null;
+
         if (request.isUseCustomImage() && request.getImageFile() != null) {
-            imagePath = saveImage(request.getImageFile());
+            try {
+                imagePath = saveImage(request.getImageFile());
+            } catch (Exception e) {
+                log.error("Error saving image file", e);
+                throw new RuntimeException("이미지 저장 중 오류가 발생했습니다.", e);
+            }
         }
 
         QuizShow quizShow = QuizShow.builder()
@@ -307,18 +314,26 @@ public class QuizShowService {
                 .totalQuizCount(request.getTotalQuizCount())
                 .totalScore(request.getTotalScore())
                 .view(0)
-                .votes(new HashSet<>())
+                .votes(new HashSet<>())  // 빈 HashSet으로 초기화
                 .customImagePath(imagePath)
                 .useCustomImage(request.isUseCustomImage())
+                .creator(creator)
                 .build();
 
-        quizShowRepository.save(quizShow);
+        QuizShow savedQuizShow = quizShowRepository.save(quizShow);
+        log.info("QuizShow created with ID: {}", savedQuizShow.getId());
+        log.info("Saved QuizShow ID: {}", savedQuizShow.getId());  // 로그 추가
 
         if (request.getQuizzes() != null) {
-            createQuizzes(quizShow, request.getQuizzes());
+            try {
+                createQuizzes(savedQuizShow, request.getQuizzes());
+            } catch (Exception e) {
+                log.error("Error occurred while saving QuizShow", e);
+                throw e; // 예외를 다시 던져서 확인
+            }
         }
 
-        return new QuizShowDTO(quizShow);
+        return new QuizShowDTO(savedQuizShow);
     }
 
     @Transactional
@@ -389,8 +404,23 @@ public class QuizShowService {
         }
     }
 
+    // 권한 체크 메소드 추가
     @Transactional
-    public QuizShowDTO delete(Long id) {
+    public boolean canDeleteQuizShow(Long quizShowId, Long userId) {
+        QuizShow quizShow = quizShowRepository.findById(quizShowId)
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
+
+        return quizShow.getCreator().getId().equals(userId);
+    }
+
+    // 삭제 메소드에서 권한 체크 활용
+    @Transactional
+    public QuizShowDTO delete(Long id, Long userId) {
+        // 권한 체크
+        if (!canDeleteQuizShow(id, userId)) {
+            throw new IllegalStateException("삭제 권한이 없습니다.");
+        }
+
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 

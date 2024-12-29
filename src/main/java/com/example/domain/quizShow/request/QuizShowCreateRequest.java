@@ -29,4 +29,8 @@ public class QuizShowCreateRequest {
     @JsonIgnore
     private MultipartFile imageFile; // 이미지 경로
     private boolean useCustomImage; // 사용자 이미지 사용 여부
+    @JsonIgnore
+    public boolean isUsingFileUpload() {
+        return imageFile != null && !imageFile.isEmpty();
+    }
 }

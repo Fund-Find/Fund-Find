@@ -10,6 +10,8 @@ import com.example.domain.quizShow.response.QuizSubmitResponse;
 import com.example.domain.quizShow.service.QuizShowService;
 import com.example.global.rsData.RsData;
 import com.example.global.security.SecurityUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -39,18 +41,30 @@ public class ApiV1QuizShowController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public RsData<QuizShowResponse> create(
-            @Valid @RequestPart("data") QuizShowCreateRequest quizShowCR,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
-
-        // MultipartFile을 QuizShowCreateRequest 객체에 설정
-        if (imageFile != null) {
-            quizShowCR.setImageFile(imageFile);
+            @RequestPart("data") String data,  // JSON 데이터를 String으로 먼저 받음
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            return RsData.of("401", "로그인이 필요한 서비스입니다.", null);
         }
 
-        // Service 호출 및 DTO 반환
-        QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR);
-        return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
+        try {
+            // JSON 데이터를 역직렬화하여 객체로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            QuizShowCreateRequest quizShowCR = objectMapper.readValue(data, QuizShowCreateRequest.class);
+
+            if (imageFile != null) {
+                quizShowCR.setImageFile(imageFile);
+            }
+
+            // Service 호출
+            QuizShowDTO quizShowDTO = quizShowService.create(quizShowCR, securityUser.getId());
+            return RsData.of("200", "게시글 생성 완료", new QuizShowResponse(quizShowDTO));
+        } catch (Exception e) {
+            return RsData.of("500", "게시글 생성 중 오류가 발생했습니다: " + e.getMessage(), null);
+        }
     }
+
 
     @PostMapping("/{id}/submit")
     public RsData<QuizSubmitResponse> submitQuiz(
@@ -103,8 +117,20 @@ public class ApiV1QuizShowController {
     }
 
     @DeleteMapping("/{id}")
-    public RsData<QuizShowResponse> delete(@PathVariable("id") Long id) {
-        QuizShowDTO deletedQuizShow = this.quizShowService.delete(id);
-        return RsData.of("200", "게시글 삭제 완료", new QuizShowResponse(deletedQuizShow));
+    public RsData<QuizShowResponse> delete(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        if (securityUser == null) {
+            return RsData.of("401", "로그인이 필요한 서비스입니다.", null);
+        }
+
+        try {
+            QuizShowDTO deletedQuizShow = this.quizShowService.delete(id, securityUser.getId());
+            return RsData.of("200", "게시글 삭제 완료", new QuizShowResponse(deletedQuizShow));
+        } catch (IllegalStateException e) {
+            return RsData.of("403", e.getMessage(), null);
+        } catch (EntityNotFoundException e) {
+            return RsData.of("404", e.getMessage(), null);
+        }
     }
 }

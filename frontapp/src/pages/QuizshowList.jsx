@@ -6,6 +6,7 @@ import "../assets/css/QuizShowList.css";
 function QuizShowList() {
     const navigate = useNavigate();
     const [quizShowList, setQuizShowList] = useState([]); // 전체 데이터
+    const [quizTypes, setQuizTypes] = useState([]);
     const [filteredQuizShowList, setFilteredQuizShowList] = useState([]); // 필터링된 데이터
     const [paginatedQuizShowList, setPaginatedQuizShowList] = useState([]); // 현재 페이지 데이터
     const [currentPage, setCurrentPage] = useState(0); // 현재 페이지
@@ -28,6 +29,7 @@ function QuizShowList() {
             if (result.resultCode === "200") {
                 setQuizShowList(result.data.quizShows); // 전체 데이터 저장
                 setFilteredQuizShowList(result.data.quizShows); // 초기에는 전체 데이터를 필터링된 데이터로 설정
+                setQuizTypes(result.data.quizTypes); // quizTypes 저장 (여기 중요)
                 setCategories(result.data.categories); // 카테고리 저장
                 setTotalPages(Math.ceil(result.data.quizShows.length / pageSize)); // 총 페이지 수 계산
             }
@@ -105,9 +107,6 @@ function QuizShowList() {
                 
                 // 첫 페이지로 이동
                 setCurrentPage(0);
-                
-                // 모달 닫기
-                setShowCreateModal(false);
             } else {
                 throw new Error(data.msg || "퀴즈쇼 생성에 실패했습니다.");
             }
@@ -243,8 +242,12 @@ function QuizShowList() {
             {showCreateModal && (
                 <QuizShowCreateModal
                     onClose={() => setShowCreateModal(false)}
-                    onSubmit={handleCreateQuizShow}
-                    categories={categories}
+                    onSubmit={(formData) => {
+                        handleCreateQuizShow(formData);
+                        setShowCreateModal(false);
+                    }}
+                    quizTypes={quizTypes}
+                    categories={categories} // 전달 누락된 데이터 추가
                 />
             )}
         </div>

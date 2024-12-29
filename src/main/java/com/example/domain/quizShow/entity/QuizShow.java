@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -50,6 +51,7 @@ public class QuizShow extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
+    @Builder.Default
     private Set<SiteUser> votes = new HashSet<>();
 
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -112,4 +114,8 @@ public class QuizShow extends BaseEntity {
             this.useCustomImage = false;
         }
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private SiteUser creator;  // 작성자 정보 추가
 }
