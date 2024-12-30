@@ -18,7 +18,7 @@ public class QuizSubmitRequest {
         private Long quizId;
 
         // 객관식/OX 문제용 인덱스
-        private Integer choiceIndex;
+        private Integer choiceId;
 
         // 주관식/단답형 문제용 텍스트
         private String textAnswer;
@@ -31,9 +31,8 @@ public class QuizSubmitRequest {
         public String getFormattedAnswer() {
             switch (quizType) {
                 case MULTIPLE_CHOICE:
-                    return String.valueOf(choiceIndex);
                 case TRUE_FALSE:
-                    return choiceIndex == 0 ? "T" : "F";
+                    return choiceId.toString();  // 선택지의 ID를 반환
                 case SUBJECTIVE:
                 case SHORT_ANSWER:
                     return textAnswer;

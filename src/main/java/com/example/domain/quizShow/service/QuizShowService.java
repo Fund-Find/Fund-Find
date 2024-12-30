@@ -1,6 +1,8 @@
 package com.example.domain.quizShow.service;
 
+import com.example.domain.quizShow.dto.QuizShowCategoryDTO;
 import com.example.domain.quizShow.dto.QuizShowDTO;
+import com.example.domain.quizShow.dto.QuizTypeDTO;
 import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.*;
 import com.example.domain.quizShow.request.QuizRequest;
@@ -63,10 +65,24 @@ public class QuizShowService {
                 .map(QuizShowDTO::new)
                 .collect(Collectors.toList());
 
-        return new QuizShowListResponse(quizShows,
+        // 퀴즈 타입 정보 조회
+        List<QuizTypeDTO> quizTypes = quizTypeRepository.findAll().stream()
+                .map(type -> new QuizTypeDTO(type.getId(), type.getTypeName()))
+                .collect(Collectors.toList());
+
+        // 카테고리 조회 - Enum 기반으로 DTO 생성
+        List<QuizShowCategoryDTO> categories = Arrays.stream(QuizShowCategoryEnum.values())
+                .map(QuizShowCategoryDTO::fromEnum)
+                .collect(Collectors.toList());
+
+        return new QuizShowListResponse(
+                quizShows,
+                quizTypes,
+                categories,
                 quizShowPage.getTotalElements(),
                 quizShowPage.getTotalPages(),
-                quizShowPage.getNumber());
+                quizShowPage.getNumber()
+        );
     }
 
     @Transactional
@@ -147,30 +163,26 @@ public class QuizShowService {
                 }
 
                 QuizTypeEnum quizType = quiz.getQuizType().getType();
-                String userAnswer = answer.getFormattedAnswer();
                 boolean isCorrect;
 
-                // 답안 채점
                 switch (quizType) {
                     case MULTIPLE_CHOICE:
-                        // 선택한 인덱스의 선택지가 정답인지 확인
-                        isCorrect = quiz.getChoices().get(answer.getChoiceIndex()).getIsCorrect();
-                        break;
-
                     case TRUE_FALSE:
-                        // OX 문제의 경우 첫 번째 선택지와 비교
-                        isCorrect = userAnswer.equals(quiz.getChoices().get(0).getChoiceContent());
+                        // ID로 선택지를 찾아 정답 여부 확인
+                        isCorrect = quiz.getChoices().stream()
+                                .filter(choice -> choice.getId() != null &&
+                                        choice.getId() == answer.getChoiceId().longValue())
+                                .anyMatch(QuizChoice::getIsCorrect);
                         break;
-
                     case SUBJECTIVE:
                     case SHORT_ANSWER:
-                        // 주관식/단답형의 경우 정답 목록과 비교
+                        // 기존 로직 유지
+                        String userAnswer = answer.getTextAnswer();
                         isCorrect = quiz.getChoices().stream()
                                 .anyMatch(choice -> choice.getChoiceContent()
                                         .trim()
                                         .equalsIgnoreCase(userAnswer.trim()));
                         break;
-
                     default:
                         throw new IllegalArgumentException("지원하지 않는 퀴즈 타입입니다.");
                 }
@@ -178,15 +190,37 @@ public class QuizShowService {
                 results.put(quiz.getId(), isCorrect);
 
                 // 새로운 답안 저장
-                QuizAnswer quizAnswer = QuizAnswer.builder()
-                        .quiz(quiz)
-                        .user(user)
-                        .userAnswer(userAnswer)
-                        .isCorrect(isCorrect)
-                        .answeredAt(LocalDateTime.now())
-                        .build();
+                QuizAnswer quizAnswer;
 
+                if (quizType == QuizTypeEnum.MULTIPLE_CHOICE || quizType == QuizTypeEnum.TRUE_FALSE) {
+                    if (answer.getChoiceId() == null) {
+                        throw new IllegalArgumentException("선택형 퀴즈는 choiceId가 필수입니다.");
+                    }
+                    quizAnswer = QuizAnswer.builder()
+                            .quiz(quiz)
+                            .user(user)
+                            .userAnswer(answer.getChoiceId().toString()) // choiceId를 문자열로 저장
+                            .isCorrect(isCorrect)
+                            .answeredAt(LocalDateTime.now())
+                            .build();
+                } else if (quizType == QuizTypeEnum.SUBJECTIVE || quizType == QuizTypeEnum.SHORT_ANSWER) {
+                    if (answer.getTextAnswer() == null || answer.getTextAnswer().trim().isEmpty()) {
+                        throw new IllegalArgumentException("주관식 퀴즈는 텍스트 답변이 필수입니다.");
+                    }
+                    quizAnswer = QuizAnswer.builder()
+                            .quiz(quiz)
+                            .user(user)
+                            .userAnswer(answer.getTextAnswer().trim()) // ChoiceContent에 텍스트 답변 저장
+                            .isCorrect(isCorrect)
+                            .answeredAt(LocalDateTime.now())
+                            .build();
+                } else {
+                    throw new IllegalArgumentException("지원하지 않는 퀴즈 타입입니다.");
+                }
+
+// 답안 저장
                 quizAnswerRepository.save(quizAnswer);
+
 
                 if (isCorrect) {
                     totalScore += quiz.getQuizScore();
@@ -260,10 +294,17 @@ public class QuizShowService {
     }
 
     @Transactional
-    public QuizShowDTO create(@Valid QuizShowCreateRequest request) {
+    public QuizShowDTO create(@Valid QuizShowCreateRequest request, Long userId) {
+        SiteUser creator = userService.getUser(userId);
         String imagePath = null;
+
         if (request.isUseCustomImage() && request.getImageFile() != null) {
-            imagePath = saveImage(request.getImageFile());
+            try {
+                imagePath = saveImage(request.getImageFile());
+            } catch (Exception e) {
+                log.error("Error saving image file", e);
+                throw new RuntimeException("이미지 저장 중 오류가 발생했습니다.", e);
+            }
         }
 
         QuizShow quizShow = QuizShow.builder()
@@ -273,18 +314,26 @@ public class QuizShowService {
                 .totalQuizCount(request.getTotalQuizCount())
                 .totalScore(request.getTotalScore())
                 .view(0)
-                .votes(new HashSet<>())
+                .votes(new HashSet<>())  // 빈 HashSet으로 초기화
                 .customImagePath(imagePath)
                 .useCustomImage(request.isUseCustomImage())
+                .creator(creator)
                 .build();
 
-        quizShowRepository.save(quizShow);
+        QuizShow savedQuizShow = quizShowRepository.save(quizShow);
+        log.info("QuizShow created with ID: {}", savedQuizShow.getId());
+        log.info("Saved QuizShow ID: {}", savedQuizShow.getId());  // 로그 추가
 
         if (request.getQuizzes() != null) {
-            createQuizzes(quizShow, request.getQuizzes());
+            try {
+                createQuizzes(savedQuizShow, request.getQuizzes());
+            } catch (Exception e) {
+                log.error("Error occurred while saving QuizShow", e);
+                throw e; // 예외를 다시 던져서 확인
+            }
         }
 
-        return new QuizShowDTO(quizShow);
+        return new QuizShowDTO(savedQuizShow);
     }
 
     @Transactional
@@ -355,8 +404,23 @@ public class QuizShowService {
         }
     }
 
+    // 권한 체크 메소드 추가
     @Transactional
-    public QuizShowDTO delete(Long id) {
+    public boolean canDeleteQuizShow(Long quizShowId, Long userId) {
+        QuizShow quizShow = quizShowRepository.findById(quizShowId)
+                .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
+
+        return quizShow.getCreator().getId().equals(userId);
+    }
+
+    // 삭제 메소드에서 권한 체크 활용
+    @Transactional
+    public QuizShowDTO delete(Long id, Long userId) {
+        // 권한 체크
+        if (!canDeleteQuizShow(id, userId)) {
+            throw new IllegalStateException("삭제 권한이 없습니다.");
+        }
+
         QuizShow quizShow = quizShowRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 

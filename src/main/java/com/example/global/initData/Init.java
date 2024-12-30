@@ -6,7 +6,10 @@ import com.example.domain.quizShow.repository.QuizTypeRepository;
 import com.example.domain.quizShow.request.QuizRequest;
 import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.service.QuizShowService;
+import com.example.domain.user.entity.SiteUser;
+import com.example.domain.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,8 @@ import java.util.List;
 @Profile("dev") // 개발 환경에서만 실행되도록 설정
 @Slf4j  // 로깅을 위한 어노테이션
 public class Init {
+    @Autowired
+    private UserRepository userRepository;
 
     // 초기 데이터 생성을 위한 CommandLineRunner 빈 정의
     @Bean
@@ -143,17 +148,30 @@ public class Init {
             String description,
             List<QuizRequest> quizzes) {
 
-        QuizShowCreateRequest request = new QuizShowCreateRequest();
-        request.setShowName(showName);
-        request.setCategory(category);
-        request.setShowDescription(description);
-        request.setTotalQuizCount(quizzes.size());
-        request.setTotalScore(quizzes.stream().mapToInt(QuizRequest::getQuizScore).sum());
-        request.setQuizzes(quizzes);
-        request.setUseCustomImage(false);
-
         try {
-            quizShowService.create(request);
+            // 시스템 관리자 계정 조회 또는 생성
+            SiteUser adminUser = userRepository.findByUsername("admin")
+                    .orElseGet(() -> {
+                        SiteUser admin = SiteUser.builder()
+                                .username("admin")
+                                .password("admin123") // 실제 운영환경에서는 암호화된 비밀번호 사용
+                                .email("admin@example.com")
+                                .nickname("관리자")
+                                .build();
+                        return userRepository.save(admin);
+                    });
+
+            QuizShowCreateRequest request = new QuizShowCreateRequest();
+            request.setShowName(showName);
+            request.setCategory(category);
+            request.setShowDescription(description);
+            request.setTotalQuizCount(quizzes.size());
+            request.setTotalScore(quizzes.stream().mapToInt(QuizRequest::getQuizScore).sum());
+            request.setQuizzes(quizzes);
+            request.setUseCustomImage(false);
+
+            // 관리자 ID를 전달하여 퀴즈쇼 생성
+            quizShowService.create(request, adminUser.getId());
             log.debug("퀴즈쇼 생성 완료: {}", showName);
         } catch (Exception e) {
             log.error("퀴즈쇼 생성 중 오류 발생: " + showName, e);

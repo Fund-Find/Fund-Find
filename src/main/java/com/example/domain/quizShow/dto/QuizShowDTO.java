@@ -28,6 +28,7 @@ public class QuizShowDTO {
     private String customImagePath;  // 추가된 필드
     private boolean useCustomImage;  // 추가된 필드
     private boolean hasVoted;
+    private Long creatorId;
 
     public QuizShowDTO(QuizShow quizShow) {
         this.id = quizShow.getId();
@@ -43,6 +44,7 @@ public class QuizShowDTO {
         this.customImagePath = quizShow.getCustomImagePath();
         this.useCustomImage = quizShow.isUseCustomImage();
         this.hasVoted = quizShow.isHasVoted();
+        this.creatorId = quizShow.getCreator() != null ? quizShow.getCreator().getId() : null;
 
         if (quizShow.getQuizzes() != null) {
             this.quizzes = quizShow.getQuizzes().stream()
