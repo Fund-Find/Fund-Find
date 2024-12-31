@@ -21,7 +21,6 @@ import java.util.Set;
 @Entity
 @Getter
 @SuperBuilder(toBuilder = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class QuizShow extends BaseEntity {
     @Column(nullable = false)
@@ -39,9 +38,13 @@ public class QuizShow extends BaseEntity {
     @Column(nullable = false)
     private Integer totalScore;
 
-    @Column(nullable = false, columnDefinition = "integer default 0")
-    private Integer view;
+    @Column(nullable = false)
+    private Integer view = 0; // 기본값 0으로 초기화
 
+    // 기본 생성자
+    public QuizShow() {
+        this.view = 0;
+    }
     private LocalDateTime lastViewedAt;
 
     @ManyToMany
@@ -50,8 +53,8 @@ public class QuizShow extends BaseEntity {
             joinColumns = @JoinColumn(name = "quiz_show_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonIgnore
     @Builder.Default
+    @JsonManagedReference
     private Set<SiteUser> votes = new HashSet<>();
 
     @OneToMany(mappedBy = "quizShow", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -117,5 +120,13 @@ public class QuizShow extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
+    @JsonIgnore
     private SiteUser creator;  // 작성자 정보 추가
+
+    public void setQuizzes(List<Quiz> quizzes) {
+        this.quizzes = quizzes;
+        if (quizzes != null) {
+            quizzes.forEach(quiz -> quiz.setQuizShow(this));
+        }
+    }
 }

@@ -1,7 +1,8 @@
 package com.example.domain.quizShow.dto;
 
+import com.example.domain.quizShow.constant.QuizTypeEnum;
 import com.example.domain.quizShow.entity.Quiz;
-import com.example.domain.quizShow.entity.QuizTypeEnum;
+//import com.example.domain.quizShow.entity.QuizTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

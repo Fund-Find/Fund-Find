@@ -5,6 +5,7 @@ import com.example.domain.quizShow.entity.QuizShowCategoryEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,9 +25,9 @@ public class QuizShowDTO {
     private Integer voteCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<QuizDTO> quizzes;  // 추가된 필드
-    private String customImagePath;  // 추가된 필드
-    private boolean useCustomImage;  // 추가된 필드
+    private List<QuizDTO> quizzes;
+    private String customImagePath;
+    private boolean useCustomImage;
     private boolean hasVoted;
     private Long creatorId;
 
@@ -52,4 +53,15 @@ public class QuizShowDTO {
                     .collect(Collectors.toList());
         }
     }
+
+//    public QuizShowDTO(Long id, String showName, QuizShowCategoryEnum quizCategory, String showDescription, Integer totalQuizCount, Integer totalScore, Integer voteCount) {
+//        this.id = id;
+//        this.showName = showName;
+//        this.quizCategory = quizCategory; // Enum 값을 직접 설정
+//        this.showDescription = showDescription;
+//        this.totalQuizCount = totalQuizCount;
+//        this.totalScore = totalScore;
+//        this.voteCount = voteCount;
+//    }
+
 }

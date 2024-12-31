@@ -4,7 +4,9 @@ import com.example.domain.user.entity.SiteUser;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor(force = true)
+@AllArgsConstructor
 public class UserDTO {
     private final Long id;                // 사용자 ID (응답용)
     private final String username;        // 사용자 이름 (요청/응답 공통)

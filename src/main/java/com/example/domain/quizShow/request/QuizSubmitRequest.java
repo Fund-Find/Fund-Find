@@ -1,6 +1,7 @@
 package com.example.domain.quizShow.request;
 
-import com.example.domain.quizShow.entity.QuizTypeEnum;
+//import com.example.domain.quizShow.entity.QuizTypeEnum;
+import com.example.domain.quizShow.constant.QuizTypeEnum;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

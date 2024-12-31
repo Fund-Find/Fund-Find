@@ -103,7 +103,6 @@ public class UserService {
         return UserResponse.fromEntity(updatedUser);
     }
 
-
     public SiteUser getUser(String username) {
         return this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID는 존재하지 않습니다."));

@@ -1,8 +1,7 @@
 package com.example.domain.quizShow.service;
 
-import com.example.domain.quizShow.dto.QuizShowCategoryDTO;
-import com.example.domain.quizShow.dto.QuizShowDTO;
-import com.example.domain.quizShow.dto.QuizTypeDTO;
+import com.example.domain.quizShow.constant.QuizTypeEnum;
+import com.example.domain.quizShow.dto.*;
 import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.*;
 import com.example.domain.quizShow.request.QuizRequest;
@@ -15,10 +14,12 @@ import com.example.domain.quizShow.validator.QuizValidator;
 import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.entity.UserQuizResult;
 import com.example.domain.user.repository.UserQuizResultRepository;
+import com.example.domain.user.repository.UserRepository;
 import com.example.domain.user.service.UserService;
 import com.example.global.security.SecurityUser;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -307,6 +308,8 @@ public class QuizShowService {
             }
         }
 
+        System.out.println("퀴즈쇼 생성전 마지막 확인");
+
         QuizShow quizShow = QuizShow.builder()
                 .showName(request.getShowName())
                 .category(request.getCategory())
@@ -553,4 +556,185 @@ public class QuizShowService {
             throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
         }
     }
+
+//    public QuizShowDTO convertToDto(QuizShow quizShow) {
+//        return new QuizShowDTO(
+//                quizShow.getId(),
+//                quizShow.getShowName(),
+//                quizShow.getCategory(),
+//                quizShow.getShowDescription(),
+//                quizShow.getTotalQuizCount(),
+//                quizShow.getTotalScore(),
+//                Integer.valueOf(quizShow.getVotes().size()) // votes의 크기만 포함
+//        );
+//    }
+
+    @Transactional
+    public QuizShowResponseDTO create(QuizShowCreateDTO dto, Long userId) {
+        try {
+            QuizShow quizShow = mapToQuizShowEntity(dto, userId);
+            QuizShow savedQuizShow = quizShowRepository.save(quizShow);
+            return mapToQuizShowResponseDTO(savedQuizShow);
+        } catch (Exception e) {
+            log.error("퀴즈쇼 생성 중 오류 발생", e);
+            throw new RuntimeException("퀴즈쇼 생성에 실패했습니다.", e);
+        }
+    }
+
+    private final UserRepository userRepository;
+
+    private QuizShow mapToQuizShowEntity(QuizShowCreateDTO dto, Long userId) {
+        SiteUser creator = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        QuizShow quizShow = QuizShow.builder()
+                .showName(dto.getShowName())
+                .category(dto.getCategory())
+                .showDescription(dto.getShowDescription())
+                .totalQuizCount(dto.getTotalQuizCount())
+                .totalScore(dto.getTotalScore())
+                .useCustomImage(dto.isUseCustomImage())
+                .creator(creator)
+                .view(0)
+                .build();
+
+        List<Quiz> quizzes = mapToQuizEntities(dto.getQuizzes(), quizShow);
+        quizShow.setQuizzes(quizzes);
+        return quizShow;
+    }
+
+    private List<Quiz> mapToQuizEntities(List<QuizCreateDTO> dtos, QuizShow quizShow) {
+        return dtos.stream()
+                .map(dto -> createQuizEntity(dto, quizShow))
+                .collect(Collectors.toList());
+    }
+
+    private Quiz createQuizEntity(QuizCreateDTO dto, QuizShow quizShow) {
+        QuizType quizType = quizTypeRepository.findById(dto.getQuizType().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Quiz type not found"));
+
+        Quiz quiz = Quiz.builder()
+                .quizShow(quizShow)
+                .quizContent(dto.getQuizContent())
+                .quizScore(dto.getQuizScore())
+                .quizType(quizType)
+                .build();
+
+        // choices 설정 추가
+        List<QuizChoice> choices = mapToQuizChoiceEntities(dto.getChoices(), quiz);
+        quiz.setChoices(choices);
+
+        return quiz;
+    }
+
+    private QuizChoice createQuizChoiceEntity(QuizChoiceCreateDTO dto, Quiz quiz) {
+        return QuizChoice.builder()
+                .quiz(quiz)
+                .choiceContent(dto.getChoiceContent())
+                .isCorrect(dto.getIsCorrect())
+                .build();
+    }
+
+    private List<Quiz> mapQuizzes(List<QuizCreateDTO> dtos, QuizShow quizShow) {
+        return dtos.stream()
+                .map(dto -> mapToQuizEntity(dto, quizShow))
+                .collect(Collectors.toList());
+    }
+
+    private Quiz mapToQuizEntity(QuizCreateDTO dto, QuizShow quizShow) {
+        try {
+            QuizType quizType = quizTypeRepository.findById(dto.getQuizType().getId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            String.format("Quiz type not found for type: %s", dto.getQuizType())
+                    ));
+
+            Quiz quiz = Quiz.builder()
+                    .quizShow(quizShow)
+                    .quizContent(dto.getQuizContent())
+                    .quizScore(dto.getQuizScore())
+                    .quizType(quizType)
+                    .build();
+
+            List<QuizChoice> choices = mapToQuizChoiceEntities(dto.getChoices(), quiz);
+            quiz.addChoices(choices);
+            return quiz;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid quiz type: " + dto.getQuizType(), e);
+        }
+    }
+
+    // Entity → DTO 매핑
+    private QuizShowResponseDTO mapToQuizShowResponseDTO(QuizShow quizShow) {
+        return QuizShowResponseDTO.builder()
+                .id(quizShow.getId())
+                .showName(quizShow.getShowName())
+                .category(quizShow.getCategory())
+                .showDescription(quizShow.getShowDescription())
+                .totalQuizCount(quizShow.getTotalQuizCount())
+                .totalScore(quizShow.getTotalScore())
+                .effectiveImagePath(quizShow.getEffectiveImagePath())
+                .quizzes(mapToQuizResponseDTOs(quizShow.getQuizzes()))
+                .hasVoted(getCurrentUserVoteStatus(quizShow))
+                .voteCount(quizShow.getVotes().size())
+                .view(quizShow.getView())
+                .build();
+    }
+
+    private List<QuizResponseDTO> mapToQuizResponseDTOs(List<Quiz> quizzes) {
+        return quizzes.stream()
+                .map(this::mapToQuizResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private QuizResponseDTO mapToQuizResponseDTO(Quiz quiz) {
+        return QuizResponseDTO.builder()
+                .id(quiz.getId())
+                .quizTypeId(quiz.getQuizType().getId())
+                .quizContent(quiz.getQuizContent())
+                .quizScore(quiz.getQuizScore())
+                .choices(mapToQuizChoiceResponseDTOs(quiz.getChoices()))
+                .build();
+    }
+
+    private List<QuizChoiceResponseDTO> mapToQuizChoiceResponseDTOs(List<QuizChoice> choices) {
+        return choices.stream()
+                .map(this::mapToQuizChoiceResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private QuizChoiceResponseDTO mapToQuizChoiceResponseDTO(QuizChoice choice) {
+        return QuizChoiceResponseDTO.builder()
+                .id(choice.getId())
+                .quizId(choice.getQuiz().getId())
+                .choiceContent(choice.getChoiceContent())
+                .build();
+    }
+
+    private List<QuizChoice> mapToQuizChoiceEntities(List<QuizChoiceCreateDTO> dtos, Quiz quiz) {
+        if (dtos == null) {
+            return new ArrayList<>();
+        }
+        return dtos.stream()
+                .map(dto -> mapToQuizChoiceEntity(dto, quiz))
+                .collect(Collectors.toList());
+    }
+
+    private QuizChoice mapToQuizChoiceEntity(QuizChoiceCreateDTO dto, Quiz quiz) {
+        return QuizChoice.builder()
+                .quiz(quiz)
+                .choiceContent(dto.getChoiceContent())
+                .isCorrect(dto.getIsCorrect())
+                .build();
+    }
+
+    // 보안 관련 유틸리티 메서드
+    private boolean getCurrentUserVoteStatus(QuizShow quizShow) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof SecurityUser)) {
+            return false;
+        }
+        SecurityUser user = (SecurityUser) auth.getPrincipal();
+        return quizShow.checkUserVoted(user.getId());
+    }
+
 }
