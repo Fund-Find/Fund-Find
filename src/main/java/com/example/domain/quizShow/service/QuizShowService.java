@@ -27,13 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -340,13 +334,13 @@ public class QuizShowService {
         if (request.isUseCustomImage()) {
             if (request.getImageFile() != null) {
                 if (imagePath != null) {
-                    deleteImage(imagePath);
+                    fileService.deleteFile(imagePath);
                 }
-                imagePath = saveImage(request.getImageFile());
+                imagePath = fileService.saveImage(request.getImageFile());
             }
         } else {
             if (imagePath != null) {
-                deleteImage(imagePath);
+                fileService.deleteFile(imagePath);
                 imagePath = null;
             }
         }
@@ -418,7 +412,7 @@ public class QuizShowService {
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈쇼를 찾을 수 없습니다."));
 
         if (quizShow.isUseCustomImage() && quizShow.getCustomImagePath() != null) {
-            deleteImage(quizShow.getCustomImagePath());
+            fileService.deleteFile(quizShow.getCustomImagePath());
         }
 
         QuizShowDTO quizShowDTO = new QuizShowDTO(quizShow);
@@ -518,33 +512,6 @@ public class QuizShowService {
         QuizShow updatedQuizShow = quizShow.updateVoteStatus(user);
 
         return new QuizShowDTO(quizShowRepository.save(updatedQuizShow));
-    }
-
-    private String saveImage(MultipartFile file) {
-        try {
-            String fileName = UUID.randomUUID() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
-            Path uploadPath = Paths.get(uploadDir);
-
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 저장에 실패했습니다.", e);
-        }
-    }
-
-    private void deleteImage(String fileName) {
-        try {
-            Path filePath = Paths.get(uploadDir).resolve(fileName);
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
-        }
     }
 
 //    public QuizShowDTO convertToDto(QuizShow quizShow) {
