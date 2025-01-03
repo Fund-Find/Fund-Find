@@ -1,5 +1,6 @@
 package com.example.global.initData;
 
+import com.example.domain.quizShow.constant.QuizTypeEnum;
 import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.QuizShowCategoryRepository;
 import com.example.domain.quizShow.repository.QuizTypeRepository;

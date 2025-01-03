@@ -1,5 +1,6 @@
 package com.example.domain.quizShow.entity;
 
+import com.example.domain.quizShow.constant.QuizTypeEnum;
 import com.example.global.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

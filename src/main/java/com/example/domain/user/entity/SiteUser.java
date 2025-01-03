@@ -4,6 +4,7 @@ import com.example.domain.favorite.entity.ETFFavorite;
 import com.example.domain.propensity.entity.Propensity;
 import com.example.domain.quizShow.entity.QuizShow;
 import com.example.global.jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
@@ -60,10 +61,11 @@ public class SiteUser extends BaseEntity {
     private Propensity propensity;
 
     @ManyToMany(mappedBy = "votes")
-    @JsonIgnore
+    @JsonBackReference
     private Set<QuizShow> votedQuizShows = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<ETFFavorite> favorites = new ArrayList<>();
 
     private LocalDate lastSurveyDate;

@@ -21,4 +21,8 @@ public class QuizChoice extends BaseEntity {
     private String choiceContent;
 
     private Boolean isCorrect;  // 객관식인 경우 정답 여부
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
+    }
 }

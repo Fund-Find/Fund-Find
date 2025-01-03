@@ -1,5 +1,4 @@
-
-/* quizshow.css
+/* quizshow.css */
 
 /* 팝업 전체를 덮는 오버레이 */
 .quiz-popup-overlay {
@@ -20,9 +19,10 @@
     background: white;
     padding: 20px;
     border-radius: 8px;
-    width: 90%;
+    width: 80%;
     max-width: 800px;
-    height: 90%;
+    height: auto;
+    max-height: 90vh;
     position: relative;
     overflow-y: auto;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 박스 그림자 */
@@ -31,32 +31,27 @@
 /* 닫기 버튼 */
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 24px;
+    top: 5px;
+    right: 5px;
+    font-size: 20px;
     background: none;
     border: none;
     cursor: pointer;
     color: #333;
+    /* margin: 5PX; */
+    padding: 5px;
 }
 
 .close-button:hover {
-    color: #d9534f;
+    color: #515151;
+    background-color: #e2e6ea;
 }
 
-/* 헤더 */
-.header h1 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* 질문 섹션 */
+/* 제목과 질문 섹션 */
 .quizinfo h2 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     margin-top: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #444;
 }
 
@@ -72,22 +67,93 @@
     box-sizing: border-box;
 }
 
+.quiz-choice-container {
+    display: flex;
+    align-items: center; /* 수직 가운데 정렬 */
+    gap: 10px; /* 라디오 버튼과 입력 필드 간 간격 */
+    margin-bottom: 15px; /* 선택지 간 간격 */
+}
+
+.quiz-choice-input {
+    width: 100%; /* 좌우 공간 100% 사용 */
+    padding: 10px; /* 내부 여백 */
+    border: 1px solid #ccc; /* 테두리 색상 */
+    border-radius: 5px; /* 모서리를 둥글게 */
+    font-size: 1rem; /* 글자 크기 */
+    box-sizing: border-box; /* 패딩과 테두리를 포함한 크기 계산 */
+}
+
+.quiz-choice-input:focus {
+    outline: none; /* 포커스 시 기본 외곽선 제거 */
+    border-color: #007bff; /* 포커스 시 테두리 색상 변경 */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 포커스 시 테두리 외곽 효과 */
+}
+
+/* 라디오 버튼 공통 스타일 */
+.quizinfo .quiz-radio {
+    flex-shrink: 0; /* 고정 크기를 유지 */
+    width: 20px; /* 라디오 버튼 너비 */
+    height: 20px; /* 라디오 버튼 높이 */
+    border-radius: 50%; /* 원형 */
+    cursor: pointer;
+}
+
+.quiz-radio:checked {
+    background-color: #000000; /* 선택된 상태 배경색 */
+    border-color: #000000; /* 선택된 상태 테두리 색상 */
+}
+
+.quiz-radio:hover {
+    border-color: #000000; /* 호버 상태 테두리 색상 */
+    background-color: #505050; /* 호버 상태 배경색 */
+}
+
+.quiz-ox {
+    display: flex;
+}
+
+.quiz-ox > .quiz-ox-text {
+    font-size: 1rem;
+    margin-top: 2px;
+    padding-left: 10px;
+}
+
 .quizinfo textarea {
-    resize: vertical; /* 세로 크기만 조절 가능 */
+    resize: vertical;
 }
 
 .quizinfo input:focus,
 .quizinfo select:focus,
 .quizinfo textarea:focus {
     outline: none;
-    border-color: #007bff; /* 포커스 시 파란색 테두리 */
+    border-color: #1f0091;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* 선택지 스타일 */
+.quiz-choice {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.quiz-choice input[type='checkbox'] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.quiz-choice input[type='text'] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 /* 버튼 컨테이너 */
 .quiz-button-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     margin-top: 20px;
 }
 
@@ -99,26 +165,28 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 /* 취소 버튼 */
-.quiz-button[type="button"] {
-    background: #f8f9fa; 
+.quiz-button[type='button'] {
+    background: #f8f9fa;
     color: #333;
 }
 
-.quiz-button[type="button"]:hover {
+.quiz-button[type='button']:hover {
     background: #e2e6ea;
 }
+
 /* 제출 버튼 */
-.quiz-button[type="submit"] {
-    background: #007bff; 
+.quiz-button[type='submit'] {
+    background: #12007a;
     color: white;
 }
 
-.quiz-button[type="submit"]:hover {
+.quiz-button[type='submit']:hover {
     background: #0056b3;
 }
 
 .quiz-button:disabled {
-    background: gray;
+    background: rgb(131, 131, 131);
     cursor: not-allowed;
 }

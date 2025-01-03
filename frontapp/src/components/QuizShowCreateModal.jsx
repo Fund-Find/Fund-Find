@@ -1,191 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { X, Plus, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import '../assets/css/quizshow.css'
 
 const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
-    const navigate = useNavigate();
-    const [step, setStep] = useState(1);
+    const navigate = useNavigate()
+    const [step, setStep] = useState(1)
     const [basicInfo, setBasicInfo] = useState({
         showName: '',
         category: '',
         showDescription: '',
-        useCustomImage: false
-    });
-    const [imageFile, setImageFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState('');
-    const [quizzes, setQuizzes] = useState([]);
+        useCustomImage: false,
+    })
+    const [imageFile, setImageFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState('')
+    const [quizzes, setQuizzes] = useState([])
     const [currentQuiz, setCurrentQuiz] = useState({
-        quizTypeId: "MULTIPLE_CHOICE",
+        quizType: 'MULTIPLE_CHOICE',
         quizContent: '',
         quizScore: 10,
         choices: [
             { choiceContent: '', isCorrect: false },
-            { choiceContent: '', isCorrect: false }
-        ]
-    });
+            { choiceContent: '', isCorrect: false },
+        ],
+    })
 
     // 로그인 체크
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('accessToken')
         if (!token) {
-            alert('로그인이 필요한 서비스입니다.');
-            navigate('/auth/login', { state: { from: location.pathname } });
-            onClose();
+            alert('로그인이 필요한 서비스입니다.')
+            navigate('/auth/login', { state: { from: location.pathname } })
+            onClose()
         }
-    }, []);
+    }, [])
 
     const handleBasicInfoChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setBasicInfo(prev => ({
+        const { name, value, type, checked } = e.target
+        setBasicInfo((prev) => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+            [name]: type === 'checkbox' ? checked : value,
+        }))
+    }
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files[0]
         if (file) {
-            setImageFile(file);
-            setPreviewUrl(URL.createObjectURL(file));
-            setBasicInfo(prev => ({
+            setImageFile(file)
+            setPreviewUrl(URL.createObjectURL(file))
+            setBasicInfo((prev) => ({
                 ...prev,
-                useCustomImage: true
-            }));
+                useCustomImage: true,
+            }))
         }
-    };
+    }
 
     const handleQuizChange = (e) => {
-        const { name, value } = e.target;
-        setCurrentQuiz(prev => ({
+        const { name, value } = e.target
+        setCurrentQuiz((prev) => ({
             ...prev,
-            [name]: value
-        }));
-    };
+            [name]: value,
+        }))
+    }
 
     const handleChoiceChange = (index, e) => {
-        const { name, value, type, checked } = e.target;
-        setCurrentQuiz(prev => ({
+        const { name, value, type, checked } = e.target
+        setCurrentQuiz((prev) => ({
             ...prev,
             choices: prev.choices.map((choice, i) => {
                 if (i === index) {
-                    return { 
-                        ...choice, 
-                        [name]: type === 'radio' || type === 'checkbox' ? checked : value 
-                    };
+                    return {
+                        ...choice,
+                        [name]: type === 'radio' || type === 'checkbox' ? checked : value,
+                    }
                 }
                 // radio 타입인 경우 다른 모든 선택지의 isCorrect를 false로 설정
                 if (type === 'radio' && name === 'isCorrect' && checked) {
-                    return { ...choice, isCorrect: false };
+                    return { ...choice, isCorrect: false }
                 }
-                return choice;
-            })
-        }));
-    };
+                return choice
+            }),
+        }))
+    }
 
     const addChoice = () => {
         if (currentQuiz.choices.length < 5) {
-            setCurrentQuiz(prev => ({
+            setCurrentQuiz((prev) => ({
                 ...prev,
-                choices: [...prev.choices, { choiceContent: '', isCorrect: false }]
-            }));
+                choices: [...prev.choices, { choiceContent: '', isCorrect: false }],
+            }))
         }
-    };
+    }
 
     const removeChoice = (index) => {
         if (currentQuiz.choices.length > 2) {
-            setCurrentQuiz(prev => ({
+            setCurrentQuiz((prev) => ({
                 ...prev,
-                choices: prev.choices.filter((_, i) => i !== index)
-            }));
+                choices: prev.choices.filter((_, i) => i !== index),
+            }))
         }
-    };
+    }
 
     const validateQuiz = () => {
         if (!currentQuiz.quizContent.trim()) {
-            alert('문제 내용을 입력해주세요.');
-            return false;
+            alert('문제 내용을 입력해주세요.')
+            return false
         }
 
-        switch (currentQuiz.quizTypeId) {
+        switch (currentQuiz.quizType) {
             case 'MULTIPLE_CHOICE':
-                if (!currentQuiz.choices.some(choice => choice.isCorrect)) {
-                    alert('정답을 선택해주세요.');
-                    return false;
+                if (!currentQuiz.choices.some((choice) => choice.isCorrect)) {
+                    alert('정답을 선택해주세요.')
+                    return false
                 }
-                if (currentQuiz.choices.some(choice => !choice.choiceContent.trim())) {
-                    alert('모든 선택지를 입력해주세요.');
-                    return false;
+                if (currentQuiz.choices.some((choice) => !choice.choiceContent.trim())) {
+                    alert('모든 선택지를 입력해주세요.')
+                    return false
                 }
-                break;
+                break
 
             case 'TRUE_FALSE':
-                if (!currentQuiz.choices.some(choice => choice.isCorrect)) {
-                    alert('O 또는 X를 선택해주세요.');
-                    return false;
+                if (!currentQuiz.choices.some((choice) => choice.isCorrect)) {
+                    alert('O 또는 X를 선택해주세요.')
+                    return false
                 }
-                break;
+                break
 
             case 'SUBJECTIVE':
             case 'SHORT_ANSWER':
                 if (!currentQuiz.choices[0].choiceContent.trim()) {
-                    alert('정답을 입력해주세요.');
-                    return false;
+                    alert('정답을 입력해주세요.')
+                    return false
                 }
-                break;
+                break
         }
 
-        return true;
-    };
+        return true
+    }
 
     const addQuiz = () => {
         if (validateQuiz()) {
-            setQuizzes(prev => [...prev, { ...currentQuiz }]);
+            setQuizzes((prev) => [...prev, { ...currentQuiz }])
             // 새로운 퀴즈 폼 초기화
             setCurrentQuiz({
-                quizTypeId: currentQuiz.quizTypeId, // 현재 선택된 타입 유지
+                quizType: currentQuiz.quizType, // 현재 선택된 타입 유지
                 quizContent: '',
                 quizScore: 10,
-                choices: currentQuiz.quizTypeId === "TRUE_FALSE" 
-                    ? [
-                        { choiceContent: "T", isCorrect: false },
-                        { choiceContent: "F", isCorrect: false }
-                    ]
-                    : currentQuiz.quizTypeId === "MULTIPLE_CHOICE" 
+                choices:
+                    currentQuiz.quizType === 'TRUE_FALSE'
                         ? [
-                            { choiceContent: "", isCorrect: false },
-                            { choiceContent: "", isCorrect: false }
-                        ]
-                        : [{ choiceContent: "", isCorrect: true }]
-            });
+                              { choiceContent: 'T', isCorrect: false },
+                              { choiceContent: 'F', isCorrect: false },
+                          ]
+                        : currentQuiz.quizType === 'MULTIPLE_CHOICE'
+                        ? [
+                              { choiceContent: '', isCorrect: false },
+                              { choiceContent: '', isCorrect: false },
+                          ]
+                        : [{ choiceContent: '', isCorrect: true }],
+            })
         }
-    };
+    }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-    
+        e.preventDefault()
+
         if (step === 1) {
             if (!basicInfo.showName || !basicInfo.category || !basicInfo.showDescription) {
-                alert('모든 필수 항목을 입력해주세요.');
-                return;
+                alert('모든 필수 항목을 입력해주세요.')
+                return
             }
-            setStep(2);
-            return;
+            setStep(2)
+            return
         }
-    
+
         // 퀴즈 추가 확인
         if (quizzes.length === 0) {
-            if (!validateQuiz()) return;
-            quizzes.push({...currentQuiz});
+            if (!validateQuiz()) return
+            quizzes.push({ ...currentQuiz })
         }
-    
+
         try {
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
-                throw new Error('로그인이 필요합니다.');
-            }
-    
-            const totalScore = quizzes.reduce((sum, quiz) => sum + parseInt(quiz.quizScore), 0);
-    
+            // 토큰 처리 방식 수정: 쿠키 기반으로 변경
+            // fetch 요청 시 credentials: 'include' 추가
+            // Authorization 헤더 제거
+
             const submitData = {
                 showName: basicInfo.showName,
                 category: basicInfo.category,
@@ -193,91 +192,85 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                 useCustomImage: basicInfo.useCustomImage,
                 totalQuizCount: quizzes.length,
                 totalScore: quizzes.reduce((sum, quiz) => sum + parseInt(quiz.quizScore), 0),
-                quizzes: quizzes.map(quiz => ({
-                    quizTypeId: quiz.quizTypeId,
+                quizzes: quizzes.map((quiz) => ({
+                    quizType: quiz.quizType,
                     quizContent: quiz.quizContent,
                     quizScore: quiz.quizScore,
-                    choices: quiz.choices
-                }))
-            };
-        
-            const formData = new FormData();
-            formData.append('data', new Blob([JSON.stringify(submitData)], {
-                type: 'application/json'  // 여기를 명시적으로 지정
-            }));
-    
+                    choices: quiz.choices,
+                })),
+            }
+
+            const formData = new FormData()
+            formData.append(
+                'data',
+                new Blob([JSON.stringify(submitData)], {
+                    type: 'application/json',
+                }),
+            )
+
             // 이미지 파일이 있는 경우에만 추가
             if (imageFile) {
-                submitData.append('imageFile', imageFile);
+                formData.append('imageFile', imageFile)
             }
-    
+
             const response = await fetch('http://localhost:8080/api/v1/quizshow', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: submitData
-            });
-    
-            const result = await response.json();
-    
-            if (result.resultCode === "200") {
-                alert('퀴즈쇼가 성공적으로 생성되었습니다.');
-                onClose();
+                credentials: 'include', // 쿠키를 전송하기 위해 추가
+                body: formData,
+            })
+
+            // 응답 상태 코드 확인
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    // 인증 실패 시 로그인 페이지로 이동
+                    navigate('/auth/login', {
+                        state: { from: location.pathname },
+                    })
+                    return
+                }
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+
+            if (result.resultCode === '200') {
+                alert('퀴즈쇼가 성공적으로 생성되었습니다.')
+                onClose()
             } else {
-                throw new Error(result.msg || '퀴즈쇼 생성에 실패했습니다.');
+                throw new Error(result.msg || '퀴즈쇼 생성에 실패했습니다.')
             }
         } catch (error) {
-            if (error.message === '로그인이 필요합니다.') {
-                navigate('/auth/login', { 
-                    state: { from: location.pathname }
-                });
-            } else {
-                alert(error.message);
-            }
+            alert(error.message)
         }
-    };
+    }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
-                    <h2 className="text-xl font-bold">
-                        {step === 1 ? '퀴즈쇼 정보 입력' : '퀴즈 추가'}
-                    </h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                        <X size={24} />
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="quiz-popup-overlay">
+            <div className="quiz-popup">
+                <button className="close-button" onClick={onClose}>
+                    <X size={24} />
+                </button>
+                <form onSubmit={handleSubmit}>
                     {step === 1 ? (
-                        // 기본 정보 입력 단계
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    퀴즈쇼 제목 *
-                                </label>
+                        <div className="quizinfo">
+                            <h2>퀴즈쇼 정보 입력</h2>
+                            <label>
+                                퀴즈쇼 제목 *
                                 <input
                                     type="text"
                                     name="showName"
                                     value={basicInfo.showName}
                                     onChange={handleBasicInfoChange}
                                     required
-                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    카테고리 *
-                                </label>
+                            </label>
+                            <label>
+                                카테고리 *
                                 <select
                                     name="category"
                                     value={basicInfo.category}
                                     onChange={handleBasicInfoChange}
                                     required
-                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="">카테고리 선택</option>
                                     {categories.map((category) => (
@@ -286,48 +279,28 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    퀴즈쇼 설명 *
-                                </label>
+                            </label>
+                            <label>
+                                퀴즈쇼 설명 *
                                 <textarea
                                     name="showDescription"
                                     value={basicInfo.showDescription}
                                     onChange={handleBasicInfoChange}
                                     required
-                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    대표 이미지
-                                </label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                                />
-                                {previewUrl && (
-                                    <div className="mt-2">
-                                        <img
-                                            src={previewUrl}
-                                            alt="Preview"
-                                            className="w-full max-h-48 object-cover rounded"
-                                        />
-                                    </div>
-                                )}
-                            </div>
+                            </label>
+                            <label>
+                                대표 이미지
+                                <input type="file" accept="image/*" onChange={handleImageChange} />
+                            </label>
+                            {previewUrl && <img src={previewUrl} alt="Preview" className="quiz-preview" />}
                         </div>
                     ) : (
                         // 퀴즈 추가 단계
                         <div className="space-y-6">
                             {/* 기존 퀴즈 목록 */}
                             {quizzes.length > 0 && (
-                                <div className="space-y-2">
+                                <div className="quizinfo">
                                     <h3 className="font-medium">추가된 퀴즈 ({quizzes.length}개)</h3>
                                     <div className="bg-gray-50 p-4 rounded-lg">
                                         {quizzes.map((quiz, index) => (
@@ -341,31 +314,32 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
 
                             {/* 새 퀴즈 입력 폼 */}
                             <div className="border p-4 rounded-lg">
-                                <div className="space-y-4">
-                                    <div>
+                                <div className="quizinfo">
+                                    <div className="quiz-form">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            퀴즈 타입 *
+                                            퀴즈 타입
                                         </label>
                                         <select
-                                            name="quizTypeId"
-                                            value={currentQuiz.quizTypeId}
+                                            name="quizType"
+                                            value={currentQuiz.quizType}
                                             onChange={(e) => {
-                                                const newType = e.target.value;
-                                                setCurrentQuiz(prev => ({
+                                                const newType = e.target.value
+                                                setCurrentQuiz((prev) => ({
                                                     ...prev,
-                                                    quizTypeId: newType,
-                                                    choices: newType === "TRUE_FALSE" 
-                                                        ? [
-                                                            { choiceContent: "T", isCorrect: false },
-                                                            { choiceContent: "F", isCorrect: false }
-                                                        ]
-                                                        : newType === "MULTIPLE_CHOICE" 
+                                                    quizType: newType,
+                                                    choices:
+                                                        newType === 'TRUE_FALSE'
                                                             ? [
-                                                                { choiceContent: "", isCorrect: false },
-                                                                { choiceContent: "", isCorrect: false }
-                                                            ]
-                                                            : [{ choiceContent: "", isCorrect: true }]
-                                                }));
+                                                                  { choiceContent: 'T', isCorrect: false },
+                                                                  { choiceContent: 'F', isCorrect: false },
+                                                              ]
+                                                            : newType === 'MULTIPLE_CHOICE'
+                                                            ? [
+                                                                  { choiceContent: '', isCorrect: false },
+                                                                  { choiceContent: '', isCorrect: false },
+                                                              ]
+                                                            : [{ choiceContent: '', isCorrect: true }],
+                                                }))
                                             }}
                                             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                         >
@@ -376,9 +350,7 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            문제 *
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">문제</label>
                                         <textarea
                                             name="quizContent"
                                             value={currentQuiz.quizContent}
@@ -386,11 +358,8 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
-
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            배점 *
-                                        </label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">배점</label>
                                         <input
                                             type="number"
                                             name="quizScore"
@@ -400,25 +369,24 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            {currentQuiz.quizTypeId === "MULTIPLE_CHOICE" && "선택지 *"}
-                                            {currentQuiz.quizTypeId === "TRUE_FALSE" && "OX 선택 *"}
-                                            {currentQuiz.quizTypeId === "SUBJECTIVE" && "정답 *"}
-                                            {currentQuiz.quizTypeId === "SHORT_ANSWER" && "정답 *"}
+                                            {currentQuiz.quizType === 'MULTIPLE_CHOICE' && '선택지 *'}
+                                            {currentQuiz.quizType === 'TRUE_FALSE' && 'OX 선택 *'}
+                                            {currentQuiz.quizType === 'SUBJECTIVE' && '정답 *'}
+                                            {currentQuiz.quizType === 'SHORT_ANSWER' && '정답 *'}
                                         </label>
                                         <div className="space-y-2">
-                                            {currentQuiz.quizTypeId === "MULTIPLE_CHOICE" && (
+                                            {currentQuiz.quizType === 'MULTIPLE_CHOICE' && (
                                                 <>
                                                     {currentQuiz.choices.map((choice, index) => (
-                                                        <div key={index} className="flex gap-2 items-center">
+                                                        <div key={index} className="quiz-choice-container">
                                                             <input
                                                                 type="radio"
                                                                 name="isCorrect"
                                                                 checked={choice.isCorrect}
                                                                 onChange={(e) => handleChoiceChange(index, e)}
-                                                                className="w-4 h-4"
+                                                                className="quiz-radio"
                                                             />
                                                             <input
                                                                 type="text"
@@ -426,7 +394,7 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                                                 value={choice.choiceContent}
                                                                 onChange={(e) => handleChoiceChange(index, e)}
                                                                 placeholder={`선택지 ${index + 1}`}
-                                                                className="flex-1 p-2 border rounded"
+                                                                className="quiz-choice-input"
                                                             />
                                                             {currentQuiz.choices.length > 2 && (
                                                                 <button
@@ -451,31 +419,48 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                                                     )}
                                                 </>
                                             )}
-                                            {currentQuiz.quizTypeId === "TRUE_FALSE" && (
+                                            {currentQuiz.quizType === 'TRUE_FALSE' && (
                                                 <div className="flex gap-4">
-                                                    <label className="flex items-center gap-2">
+                                                    <label className="quiz-ox flex items-center gap-2">
                                                         <input
                                                             type="radio"
                                                             name="tfAnswer"
                                                             checked={currentQuiz.choices[0].isCorrect}
-                                                            onChange={() => handleChoiceChange(0, { target: { name: 'isCorrect', type: 'radio', checked: true } })}
-                                                            className="w-4 h-4"
+                                                            onChange={() =>
+                                                                handleChoiceChange(0, {
+                                                                    target: {
+                                                                        name: 'isCorrect',
+                                                                        type: 'radio',
+                                                                        checked: true,
+                                                                    },
+                                                                })
+                                                            }
+                                                            className="quiz-radio"
                                                         />
-                                                        O
+                                                        <div className="quiz-ox-text">O</div>
                                                     </label>
-                                                    <label className="flex items-center gap-2">
+                                                    <label className="quiz-ox flex items-center gap-2">
                                                         <input
                                                             type="radio"
                                                             name="tfAnswer"
                                                             checked={currentQuiz.choices[1].isCorrect}
-                                                            onChange={() => handleChoiceChange(1, { target: { name: 'isCorrect', type: 'radio', checked: true } })}
-                                                            className="w-4 h-4"
+                                                            onChange={() =>
+                                                                handleChoiceChange(1, {
+                                                                    target: {
+                                                                        name: 'isCorrect',
+                                                                        type: 'radio',
+                                                                        checked: true,
+                                                                    },
+                                                                })
+                                                            }
+                                                            className="quiz-radio"
                                                         />
-                                                        X
+                                                        <div className="quiz-ox-text">X</div>
                                                     </label>
                                                 </div>
                                             )}
-                                            {(currentQuiz.quizTypeId === "SUBJECTIVE" || currentQuiz.quizTypeId === "SHORT_ANSWER") && (
+                                            {(currentQuiz.quizType === 'SUBJECTIVE' ||
+                                                currentQuiz.quizType === 'SHORT_ANSWER') && (
                                                 <input
                                                     type="text"
                                                     name="choiceContent"
@@ -491,28 +476,27 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                             </div>
                         </div>
                     )}
-
-                    <div className="flex justify-end gap-4 pt-4">
+                    <div className="quiz-button-container">
+                        <button
+                            type="button"
+                            onClick={() => (step === 2 ? setStep(1) : onClose())}
+                            className="quiz-button"
+                        >
+                            {step === 2 ? '이전' : '취소'}
+                        </button>
                         {step === 2 && (
-                            <button
-                                type="button"
-                                onClick={addQuiz}
-                                className="px-4 py-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
-                            >
+                            <button type="button" onClick={addQuiz} className="quiz-button">
                                 퀴즈 추가
                             </button>
                         )}
-                        <button
-                            type="submit"
-                            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                        >
+                        <button type="submit" className="quiz-button">
                             {step === 1 ? '다음' : '생성 완료'}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default QuizShowCreateModal;
+export default QuizShowCreateModal

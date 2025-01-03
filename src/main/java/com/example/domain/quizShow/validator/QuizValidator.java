@@ -1,12 +1,14 @@
 package com.example.domain.quizShow.validator;
 
+import com.example.domain.quizShow.constant.QuizTypeEnum;
 import com.example.domain.quizShow.entity.Quiz;
 import com.example.domain.quizShow.entity.QuizType;
-import com.example.domain.quizShow.entity.QuizTypeEnum;
+//import com.example.domain.quizShow.entity.QuizTypeEnum;
 import com.example.domain.quizShow.repository.QuizTypeRepository;
 import com.example.global.exception.QuizValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class QuizValidator {
     // QuizType 엔티티를 조회하기 위한 레포지토리
     private final QuizTypeRepository quizTypeRepository;
@@ -38,6 +41,7 @@ public class QuizValidator {
         // 퀴즈 타입 조회 - ID로 QuizType 엔티티 조회
         QuizType quizType = quizTypeRepository.findById(quizTypeId)
                 .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
+
 
         // 퀴즈 유형별 선택지 검증 - QuizType의 type을 직접 전달
         validateChoicesByType(quiz, quizType.getType(), errors);
