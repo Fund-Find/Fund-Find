@@ -136,7 +136,7 @@ const QuizShowDetail = () => {
                     <img
                         src={
                             quizShow.useCustomImage
-                                ? `http://localhost:8080/uploads/${quizShow.customImagePath}`
+                                ? `http://localhost:8080/${quizShow.customImagePath}`
                                 : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`
                         }
                         alt={quizShow.showName}

@@ -23,7 +23,7 @@ public class QuizShowCreateRequest {
     @NotNull
     private Integer totalScore;
     @NotNull
-    private String selectedImagePath;
+    private String customImagePath;
     @Valid  // 중첩된 객체의 검증을 위해 추가
     private List<QuizRequest> quizzes;
     @JsonIgnore

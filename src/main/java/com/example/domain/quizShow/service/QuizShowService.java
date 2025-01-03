@@ -5,7 +5,6 @@ import com.example.domain.quizShow.dto.*;
 import com.example.domain.quizShow.entity.*;
 import com.example.domain.quizShow.repository.*;
 import com.example.domain.quizShow.request.QuizRequest;
-import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import com.example.domain.quizShow.request.QuizSubmitRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
@@ -19,7 +18,6 @@ import com.example.domain.user.service.UserService;
 import com.example.global.security.SecurityUser;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -294,49 +292,41 @@ public class QuizShowService {
         userQuizResultRepository.save(quizResult);
     }
 
+    private final FileService fileService;
+
     @Transactional
-    public QuizShowDTO create(@Valid QuizShowCreateRequest request, Long userId) {
+    public QuizShowResponseDTO create(@Valid QuizShowCreateDTO createDTO, Long userId) {
         SiteUser creator = userService.getUser(userId);
-        String imagePath = null;
+        String imagePath = createDTO.getCustomImagePath(); // 컨트롤러에서 설정한 값 사용
 
-        if (request.isUseCustomImage() && request.getImageFile() != null) {
-            try {
-                imagePath = saveImage(request.getImageFile());
-            } catch (Exception e) {
-                log.error("Error saving image file", e);
-                throw new RuntimeException("이미지 저장 중 오류가 발생했습니다.", e);
-            }
-        }
-
-        System.out.println("퀴즈쇼 생성전 마지막 확인");
+        log.info("Service 진입 - customImagePath: {}, useCustomImage: {}",
+                imagePath, createDTO.isUseCustomImage());
 
         QuizShow quizShow = QuizShow.builder()
-                .showName(request.getShowName())
-                .category(request.getCategory())
-                .showDescription(request.getShowDescription())
-                .totalQuizCount(request.getTotalQuizCount())
-                .totalScore(request.getTotalScore())
+                .showName(createDTO.getShowName())
+                .category(createDTO.getCategory())
+                .showDescription(createDTO.getShowDescription())
+                .totalQuizCount(createDTO.getTotalQuizCount())
+                .totalScore(createDTO.getTotalScore())
                 .view(0)
-                .votes(new HashSet<>())  // 빈 HashSet으로 초기화
-                .customImagePath(imagePath)
-                .useCustomImage(request.isUseCustomImage())
+                .votes(new HashSet<>())
+                .customImagePath(imagePath)  // 컨트롤러에서 이미 저장된 경로 사용
+                .useCustomImage(createDTO.isUseCustomImage())
                 .creator(creator)
                 .build();
 
-        QuizShow savedQuizShow = quizShowRepository.save(quizShow);
-        log.info("QuizShow created with ID: {}", savedQuizShow.getId());
-        log.info("Saved QuizShow ID: {}", savedQuizShow.getId());  // 로그 추가
+        log.info("Entity 생성 - customImagePath: {}, useCustomImage: {}",
+                quizShow.getCustomImagePath(), quizShow.isUseCustomImage());
 
-        if (request.getQuizzes() != null) {
-            try {
-                createQuizzes(savedQuizShow, request.getQuizzes());
-            } catch (Exception e) {
-                log.error("Error occurred while saving QuizShow", e);
-                throw e; // 예외를 다시 던져서 확인
-            }
+        QuizShow savedQuizShow = quizShowRepository.save(quizShow);
+        log.info("Entity 저장 완료 - customImagePath: {}, useCustomImage: {}",
+                savedQuizShow.getCustomImagePath(), savedQuizShow.isUseCustomImage());
+
+        if (createDTO.getQuizzes() != null) {
+            createQuizzes(savedQuizShow, createDTO.getQuizzes());
         }
 
-        return new QuizShowDTO(savedQuizShow);
+        return new QuizShowResponseDTO(savedQuizShow);
     }
 
     @Transactional
@@ -437,28 +427,28 @@ public class QuizShowService {
         return quizShowDTO;
     }
 
-    private void createQuizzes(QuizShow quizShow, List<QuizRequest> quizRequests) {
-        for (QuizRequest quizReq : quizRequests) {
-            QuizType quizType = quizTypeRepository.findById(quizReq.getQuizTypeId())
+    private void createQuizzes(QuizShow quizShow, List<QuizCreateDTO> quizCreateDTOS) {
+        for (QuizCreateDTO quizCreateDTO : quizCreateDTOS) {
+            QuizType quizType = quizTypeRepository.findById(quizCreateDTO.getQuizTypeId())
                     .orElseThrow(() -> new EntityNotFoundException("퀴즈 타입을 찾을 수 없습니다."));
 
             Quiz quiz = Quiz.builder()
                     .quizShow(quizShow)
-                    .quizContent(quizReq.getQuizContent())
-                    .quizScore(quizReq.getQuizScore())
+                    .quizContent(quizCreateDTO.getQuizContent())
+                    .quizScore(quizCreateDTO.getQuizScore())
                     .quizType(quizType)  // 퀴즈 타입 설정
                     .choices(new ArrayList<>())
                     .build();
 
-            createChoices(quiz, quizReq.getChoices());
-            quizValidator.validateQuiz(quiz, quizReq.getQuizTypeId());
+            createChoices(quiz, quizCreateDTO.getChoices());
+            quizValidator.validateQuiz(quiz, quizCreateDTO.getQuizTypeId());
             quizRepository.save(quiz);
         }
     }
 
-    private void createChoices(Quiz quiz, List<QuizChoice> choices) {
+    private void createChoices(Quiz quiz, List<QuizChoiceCreateDTO> choices) {
         if (choices != null) {
-            for (QuizChoice choice : choices) {
+            for (QuizChoiceCreateDTO choice : choices) {
                 QuizChoice newChoice = QuizChoice.builder()
                         .quiz(quiz)
                         .choiceContent(choice.getChoiceContent())
@@ -569,17 +559,17 @@ public class QuizShowService {
 //        );
 //    }
 
-    @Transactional
-    public QuizShowResponseDTO create(QuizShowCreateDTO dto, Long userId) {
-        try {
-            QuizShow quizShow = mapToQuizShowEntity(dto, userId);
-            QuizShow savedQuizShow = quizShowRepository.save(quizShow);
-            return mapToQuizShowResponseDTO(savedQuizShow);
-        } catch (Exception e) {
-            log.error("퀴즈쇼 생성 중 오류 발생", e);
-            throw new RuntimeException("퀴즈쇼 생성에 실패했습니다.", e);
-        }
-    }
+//    @Transactional
+//    public QuizShowResponseDTO create(QuizShowCreateDTO dto, Long userId) {
+//        try {
+//            QuizShow quizShow = mapToQuizShowEntity(dto, userId);
+//            QuizShow savedQuizShow = quizShowRepository.save(quizShow);
+//            return mapToQuizShowResponseDTO(savedQuizShow);
+//        } catch (Exception e) {
+//            log.error("퀴즈쇼 생성 중 오류 발생", e);
+//            throw new RuntimeException("퀴즈쇼 생성에 실패했습니다.", e);
+//        }
+//    }
 
     private final UserRepository userRepository;
 
@@ -696,9 +686,9 @@ public class QuizShowService {
                 .build();
     }
 
-    private List<QuizChoiceResponseDTO> mapToQuizChoiceResponseDTOs(List<QuizChoice> choices) {
+    private List<QuizChoiceDTO> mapToQuizChoiceResponseDTOs(List<QuizChoice> choices) {
         return choices.stream()
-                .map(this::mapToQuizChoiceResponseDTO)
+                .map(QuizChoiceDTO::new)
                 .collect(Collectors.toList());
     }
 
