@@ -409,7 +409,67 @@ A. 이슈 내역
 - ETFDetail.jsx파일에 ETFDetail.module.css를 import한 후 HTML의 모든 클래스 명을 {styles.클래스명} 형식으로 변경하여 문제 해결
 <br>
 
+## 🔥 트러블 슈팅
 
+### 🚨 #68
+### 🚧 퀴즈쇼 생성
+
+A. 이슈 내역
+
+<br>
+- 퀴즈 생성이 안되는 문제
+<br>
+
+## 😱 문제점 설명
+
+<br> 
+- 순환 참조 문제로 퀴즈 생성이 안됨 
+<br>
+
+## 🛑 원인
+
+<br> 
+순환 참조 흐름
+
+QuizShowCreateRequest (DTO)
+안에 List<QuizRequest> quizzes가 있음.
+그런데 여기 **QuizRequest**에 List<QuizChoice> choices가 그대로 들어옴.
+즉, 엔티티(QuizChoice)를 그대로 DTO에 넣고 있음.
+
+QuizChoice (엔티티)
+이 엔티티는 @ManyToOne Quiz quiz 로 **Quiz**를 참조.
+Quiz (엔티티)
+
+이 엔티티는 @OneToMany List<QuizChoice> choices로 **QuizChoice**들을 다시 참조 → (양방향)
+또한 @ManyToOne QuizShow quizShow로 **QuizShow**를 참조.
+
+QuizShow (엔티티)
+이 엔티티는 @OneToMany List<Quiz> quizzes로 **Quiz**들을 참조(양방향).
+또한 @ManyToMany Set<SiteUser> votes 에서 **SiteUser**와의 관계가 있고, @JsonManagedReference 사용 중.
+
+결국, Jackson이 objectMapper.readValue(...) 로 JSON → QuizShowCreateRequest를 역직렬화할 때,
+QuizRequest.choices 가 실제 엔티티(QuizChoice)이고, 내부에 quiz → quizShow → votes → SiteUser 등 계속 참조가 연결되면서 Jackson이 “이건 @JsonBackReference / @JsonManagedReference로 이미 관리되는 객체인데, 타입이 맞지 않는다”는 식으로 에러 발생.
+
+요컨대, DTO에 엔티티(특히 양방향 관계가 있는 엔티티) 를 넣어두면 Jackson이 순환 참조를 감지하고 예외가 발생하기 쉬움
+
+## 🚥 해결
+ 
+1. 엔티티와 DTO 완전 분리
+- 모든 Request/Response에 대한 전용 DTO 사용
+- 엔티티 참조 제거로 순환 참조 방지
+
+2. 계층별 책임 명확화
+- Controller: 요청 검증 및 응답 처리
+- Service: 비즈니스 로직 및 엔티티 변환
+- Repository: 데이터 접근 
+
+3. 검증 로직 강화
+- Jakarta Validation 사용
+- DTO 레벨에서의 데이터 유효성 검증
+
+4. 안전한 객체 변환
+- Builder 패턴 활용
+- 명시적인 매핑 메서드 구현
 
 # [7] 개선 목표
 
