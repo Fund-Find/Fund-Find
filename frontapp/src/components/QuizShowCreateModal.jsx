@@ -181,9 +181,12 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
         }
 
         try {
-            // 토큰 처리 방식 수정: 쿠키 기반으로 변경
-            // fetch 요청 시 credentials: 'include' 추가
-            // Authorization 헤더 제거
+            const formData = new FormData()
+            
+            // 이미지 파일이 있는 경우에만 추가 
+            if (imageFile) {
+                formData.append('imageFile', imageFile)
+            }
 
             const submitData = {
                 showName: basicInfo.showName,
@@ -200,18 +203,12 @@ const QuizShowCreateModal = ({ onClose, onSubmit, categories }) => {
                 })),
             }
 
-            const formData = new FormData()
             formData.append(
                 'data',
                 new Blob([JSON.stringify(submitData)], {
                     type: 'application/json',
                 }),
             )
-
-            // 이미지 파일이 있는 경우에만 추가
-            if (imageFile) {
-                formData.append('imageFile', imageFile)
-            }
 
             const response = await fetch('http://localhost:8080/api/v1/quizshow', {
                 method: 'POST',

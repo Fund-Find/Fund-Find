@@ -4,8 +4,6 @@ import com.example.domain.quizShow.dto.QuizCreateDTO;
 import com.example.domain.quizShow.dto.QuizShowCreateDTO;
 import com.example.domain.quizShow.dto.QuizShowDTO;
 import com.example.domain.quizShow.dto.QuizShowResponseDTO;
-import com.example.domain.quizShow.entity.QuizShow;
-import com.example.domain.quizShow.request.QuizShowCreateRequest;
 import com.example.domain.quizShow.request.QuizShowModifyRequest;
 import com.example.domain.quizShow.request.QuizSubmitRequest;
 import com.example.domain.quizShow.response.QuizShowListResponse;
@@ -17,7 +15,6 @@ import com.example.domain.user.entity.SiteUser;
 import com.example.domain.user.service.UserService;
 import com.example.global.rsData.RsData;
 import com.example.global.security.SecurityUser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -168,7 +165,7 @@ public class ApiV1QuizShowController {
 //        if (imageFile != null) {
 //            // 이미지 처리 로직
 //            String imagePath = fileService.saveImage(imageFile);
-//            createDTO.setSelectedImagePath(imagePath);
+//            createDTO.setCustomImagePath(imagePath);
 //        }
 //
 //        QuizShowResponseDTO response = quizShowService.create(createDTO, securityUser.getId());
@@ -202,18 +199,27 @@ public class ApiV1QuizShowController {
 
             // 2. 이미지 처리
             if (imageFile != null && !imageFile.isEmpty()) {
+                log.info("이미지 파일 처리 시작: {}", imageFile.getOriginalFilename());
                 try {
-                    String imagePath = fileService.saveImage(imageFile);
-                    createDTO.setSelectedImagePath(imagePath);
+                    String savedFileName = fileService.saveImage(imageFile);
+                    log.info("이미지 저장 완료: {}", savedFileName);
+
+                    // DTO에 정확한 값 설정
+                    createDTO.setCustomImagePath(savedFileName);
                     createDTO.setUseCustomImage(true);
+
+                    log.info("DTO 설정 완료 - path: {}, useCustom: {}",
+                            createDTO.getCustomImagePath(),
+                            createDTO.isUseCustomImage());
                 } catch (IOException e) {
+                    log.error("이미지 저장 실패", e);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                             RsData.of("400", "이미지 처리 중 오류가 발생했습니다.", null)
                     );
-                }log.info("--------------------------------4");
-            } else {
-                createDTO.setSelectedImagePath(createDTO.getEffectiveImagePath());
+                }
             }
+
+            log.info("--------------------------------4");
 
             // 3. 퀴즈 타입 검증
             try {

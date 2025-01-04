@@ -167,7 +167,7 @@ function QuizShowList() {
                             {/* 이미지 */}
                             <div className="quiz-image-container">
                                 <img
-                                    src={quizShow.useCustomImage ? `http://localhost:8080/uploads/${quizShow.customImagePath}` : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`}
+                                    src={quizShow.useCustomImage ? `${quizShow.customImagePath}` : `/images/quizShow/${quizShow.quizCategory.toLowerCase()}.jpg`}
                                     alt={quizShow.showName}
                                     onError={(e) => {
                                         e.target.src = "/images/fflogo.webp";
