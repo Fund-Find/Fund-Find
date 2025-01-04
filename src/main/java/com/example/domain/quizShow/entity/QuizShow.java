@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.BatchSize;
 
@@ -107,15 +106,6 @@ public class QuizShow extends BaseEntity {
             return customImagePath;
         }
         return QuizShowImage.getImagePathByCategory(this.category);
-    }
-
-    @PrePersist
-    @PreUpdate
-    private void beforeSave() {
-        if (!useCustomImage || customImagePath == null || customImagePath.isEmpty()) {
-            this.customImagePath = null;
-            this.useCustomImage = false;
-        }
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
