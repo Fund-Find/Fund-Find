@@ -3,33 +3,6 @@
 <!--배지-->
 ![Repository Size][repository-size-shield] ![Issue Closed][issue-closed-shield]
 
-<!-- 자바 -->
-<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white">
-<!-- 스프링부트 -->
-<img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<!-- 스프링 시큐리티 -->
-<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">
-<!-- docker -->
-<img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
-<!-- HTML5 -->
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
-<!-- CSS3 -->
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
-<!-- JavaScript -->
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white">
-<!-- React -->
-<img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
-<!-- Git -->
-<img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
-<!-- Github -->
-<img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
-<!-- Swiper Library -->
-<img src="https://img.shields.io/badge/Swiper%20-FF9900?style=for-the-badge&logo=Swiper%20EC2&logoColor=white">
-<!-- Fetch API -->
-<img src="https://img.shields.io/badge/Fetch API-%23F46800.svg?style=for-the-badge&logo=Fetch API&logoColor=white">
-
-
-
 <!--목차-->
 # 목차
 - [[1] 프로젝트 설명](#1-프로젝트-설명)
@@ -116,22 +89,40 @@
 ## 기술 스택
 
 * Version Control
-  - Github
-  - Git
+<!-- Git -->
+  - <img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
+<!-- Github -->
+  - <img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
     
 * Backend Technologies
-  - Java
-  - SpringBoot
+<!-- 자바 -->
+  - <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white">
+<!-- 스프링부트 -->
+  - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+<!-- 스프링 시큐리티 -->
+  - <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">
     
 * FrontEnd Technologies
-  - HTML5
-  - CSS3
-  - React
-  - Fetch API
-  - Swiper Library
+<!-- HTML5 -->
+  - <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
+<!-- CSS3 -->
+  - <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
+<!-- JavaScript -->
+  - <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white">
+<!-- React -->
+  - <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
+<!-- Swiper Library -->
+  - <img src="https://img.shields.io/badge/Swiper%20-FF9900?style=for-the-badge&logo=Swiper%20EC2&logoColor=white">
+<!-- Fetch API -->
+  - <img src="https://img.shields.io/badge/Fetch API-%23F46800.svg?style=for-the-badge&logo=Fetch API&logoColor=white">  
 
 * DB
-  - PostgreSQL
+<!-- PostgreSQL -->
+  - <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=PostgreSQL&logoColor=white">
+ 
+* ETC
+<!-- docker -->
+  - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
  
 <div align="right">
   
