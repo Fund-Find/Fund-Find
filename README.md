@@ -3,6 +3,9 @@
 <!--배지-->
 ![Repository Size][repository-size-shield] ![Issue Closed][issue-closed-shield]
 
+<!--가장 많이 사용된 언어 --> 
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=starlike3279&layout=compact)](https://github.com/starlike3279/github-readme-stats)
+
 <!--목차-->
 # 목차
 - [[1] 프로젝트 설명](#1-프로젝트-설명)
