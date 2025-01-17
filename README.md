@@ -1,7 +1,7 @@
-# 금융 교육 & 사용자 맞춤 ETF 추천 플랫폼
+<!--배지 -->
+![header](https://capsule-render.vercel.app/api?type=waving&color=auto&height=300&section=header&text=Fund%20Find&fontSize=90)
 
-<!--배지-->
-![Repository Size][repository-size-shield] ![Issue Closed][issue-closed-shield]
+# 금융 교육 & 사용자 맞춤 ETF 추천 플랫폼
 
 <!--목차-->
 # 목차
@@ -35,11 +35,11 @@
   - [퀴즈쇼 페이지](#퀴즈쇼-페이지)
   - [금융 퀴즈 문제 풀기 페이지](#금융-퀴즈-문제-풀기-페이지)
 - [[6] 트러블 슈팅](#6-트러블-슈팅)
-  - [트러블 슈팅 1](#트러블-슈팅-1) #15 유저 로그인 , 회원가입 페이지가 프론트와 백연결과정에 문제가 생김
-  - [트러블 슈팅 2](#트러블-슈팅-2) #1 Kodex ETF 200 종목 출력하는데 어려움
-  - [트러블 슈팅 3](#트러블-슈팅-3) #6 Kodex 200 ETF 종목명 출력 문제, Kodex 200 ETF 구성종목명 출력 문제
-  - [트러블 슈팅 4](#트러블-슈팅-4) #40 ETF 상세정보 페이지 출력 시 css파일이 제대로 작동하지 않음
-  - [트러블 슈팅 5](#트러블-슈팅-5) #68 순환 참조 에러로, 퀴즈 생성이 안되는 문제
+  - [트러블 슈팅 1](#트러블-슈팅-1) 
+  - [트러블 슈팅 2](#트러블-슈팅-2) 
+  - [트러블 슈팅 3](#트러블-슈팅-3) 
+  - [트러블 슈팅 4](#트러블-슈팅-4) 
+  - [트러블 슈팅 5](#트러블-슈팅-5) 
 - [[7] 개선 목표](#7-개선-목표)
   - [개선 목표](#개선-목표)
 - [[8] 프로젝트 후기](#8-프로젝트-후기)
@@ -67,41 +67,63 @@
 ## 개발 환경
 
 * 환경 & IDE
-  - 운영체제 : window 11
-  - Intellij
-  - Visual Studio Code
-  - Dbeaver
-  - Docker Desktop
-  - Postman
+  - 운영체제 : <img src="https://img.shields.io/badge/Window 11-43B02A?style=flat-square&logo=Window 11&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/Intellij-FF4785?style=flat-square&logo=Intellij&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/Visual Studio Code-F7DF1E?style=flat-square&logo=Visual Studio Code&logoColor=black"/>
+  - <img src="https://img.shields.io/badge/DBeaver-F80000?style=flat-square&logo=DBeaver&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
+  - <img src="https://img.shields.io/badge/Postman-CC342D?style=flat-square&logo=Postman&logoColor=white"/>
+
 
 * Version
   - openjdk version: 17.0.13 
   - Gradle JVM: corretto-17(Amazon Corretto 17.0.13)
-  - SpringBoot version: 3.3.5
+  - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> version: 3.3.5
   - spring.dependency-management plugin version: 1.1.6
 
 * DB
-  - postgreSQL version -> 17.0
+  - <img src="https://img.shields.io/badge/PostgreSQL-3776AB?style=flat-square&logo=PostgreSQL&logoColor=white"/> version -> 17.0
   - DB PORT: 5433
   - DB username: ff_dev
   - 데이터베이스 이름 : ff_dev
 
 ## 기술 스택
 
-* Version Control
-  - Github
-  - Git
+Version Control
+<!-- Git -->
+  - <img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
+<!-- Github -->
+  - <img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
     
-* Backend Technologies
-  - Java
-  - SpringBoot
+Backend Technologies
+<!-- 자바 -->
+  - <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white">
+<!-- 스프링부트 -->
+  - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+<!-- 스프링 시큐리티 -->
+  - <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">
     
-* FrontEnd Technologies
-  - HTML5
-  - CSS3
-  - React
-  - Fetch API
-  - Swiper Library
+FrontEnd Technologies
+<!-- HTML5 -->
+  - <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
+<!-- CSS3 -->
+  - <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
+<!-- JavaScript -->
+  - <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white">
+<!-- React -->
+  - <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
+<!-- Swiper Library -->
+  - <img src="https://img.shields.io/badge/Swiper%20-FF9900?style=for-the-badge&logo=Swiper%20EC2&logoColor=white">
+<!-- Fetch API -->
+  - <img src="https://img.shields.io/badge/Fetch API-%23F46800.svg?style=for-the-badge&logo=Fetch API&logoColor=white">  
+
+DB
+<!-- PostgreSQL -->
+  - <img src="https://img.shields.io/badge/PostgreSQL-3776AB?style=flat-square&logo=PostgreSQL&logoColor=white"/>
+ 
+ETC
+<!-- docker -->
+  - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
  
 <div align="right">
   
@@ -300,7 +322,7 @@
 
 ## 금융 퀴즈 문제 풀기 페이지
 ![image](https://github.com/user-attachments/assets/bf169d8c-872f-4d19-807a-20fb330e2dc0)
-- 객관식, OX, 단답형 문제 풀기
+- 객관식, OX, 단답형, 주관식 문제 풀기
 - 정답, 오답 문제 확인 및 점수 산출 기능
 
 <div align="right">
