@@ -5,44 +5,47 @@
 
 <!--목차-->
 # 목차
-- [[1] 프로젝트 설명](#1-프로젝트_설명)
-  - [프로젝트 설명](#프로젝트_설명)
-  - [개발 기간](#개발_기간)
-  - [개발 환경](#개발_환경)
-  - [기술 스택](#기술_스택)
-- [[2] 팀원 & 역할분담](#2-팀원_역할분담)
-  - [개발 팀원](#개발_팀원)
-  - [역할 분담](#역할분담)
+- [[1] 프로젝트 설명](#1-프로젝트-설명)
+  - [프로젝트 설명](#프로젝트-설명)
+  - [개발 기간](#개발-기간)
+  - [개발 환경](#개발-환경)
+  - [기술 스택](#기술-스택)
+- [[2] 팀원 역할분담](#2-팀원-역할분담)
+  - [개발 팀원 및 역할 분담](#개발-팀원-및-역할-분담)
 - [[3] 문서](#3-문서)
   - [ERD](#ERD)
-  - [요구사항 정의서](#요구사항_정의서)
-  - [요구사항 기획서](#요구사항_기획서)
+  - [요구사항 정의서](#요구사항-정의서)
+  - [요구사항 기획서](#요구사항-기획서)
   - [와이어프레임](#와이어프레임)
   - [DFD](#DFD)
-- [[4] 주요 기능](#4-주요_기능)
+- [[4] 주요 기능](#4-주요-기능)
   - [회원](#회원)
-  - [금융 퀴즈](#금융_퀴즈)
+  - [금융 퀴즈](#금융-퀴즈)
   - [ETF](#ETF)
-- [[5] 페이지별 기능](#5-페이지별_기능)
-  - [](#)
-  - [](#)
-  - [](#)
-  - [](#)
-  - [](#)
-- [[6] 트러블 슈팅](#6-트러블_슈팅)
-  - [](#) #15 유저 로그인 , 회원가입 페이지가 프론트와 백연결과정에 문제가 생김
-  - [](#) #1 Kodex ETF 200 종목 출력하는데 어려움
-  - [](#) #6 Kodex 200 ETF 종목명 출력 문제, Kodex 200 ETF 구성종목명 출력 문제
-  - [](#) #40 ETF 상세정보 페이지 출력 시 css파일이 제대로 작동하지 않음
-  - [](#)
-- [[7] 개선 목표](#7-개선_목표)
-  - [](#)
-  - [](#)
-  - [](#)
-- [[8] 프로젝트 후기](#7-프로젝트_후기)
-  - [](#)
-  - [](#)
-  - [](#)
+- [[5] 페이지별 기능](#5-페이지별-기능)
+  - [메인 페이지](#메인-페이지)
+  - [회원가입 페이지](#회원가입-페이지)
+  - [로그인 페이지](#로그인-페이지)
+  - [아이디 찾기](#아이디-찾기)
+  - [비밀번호 재발급](#비밀번호-재발급)
+  - [프로필 페이지](#프로필-페이지)
+  - [ETF 목록 페이지](#ETF-목록-페이지)
+  - [ETF 투자성향 분석 결과 팝업](#ETF-투자성향-분석-결과-팝업)
+  - [ETF 상세정보 페이지](#ETF-상세정보-페이지)
+  - [퀴즈쇼 페이지](#퀴즈쇼-페이지)
+  - [금융 퀴즈 문제 풀기 페이지](#금융-퀴즈-문제-풀기-페이지)
+- [[6] 트러블 슈팅](#6-트러블-슈팅)
+  - [트러블 슈팅 1](#트러블-슈팅-1) #15 유저 로그인 , 회원가입 페이지가 프론트와 백연결과정에 문제가 생김
+  - [트러블 슈팅 2](#트러블-슈팅-2) #1 Kodex ETF 200 종목 출력하는데 어려움
+  - [트러블 슈팅 3](#트러블-슈팅-3) #6 Kodex 200 ETF 종목명 출력 문제, Kodex 200 ETF 구성종목명 출력 문제
+  - [트러블 슈팅 4](#트러블-슈팅-4) #40 ETF 상세정보 페이지 출력 시 css파일이 제대로 작동하지 않음
+  - [트러블 슈팅 5](#트러블-슈팅-5) #68 순환 참조 에러로, 퀴즈 생성이 안되는 문제
+- [[7] 개선 목표](#7-개선-목표)
+  - [개선 목표](#개선-목표)
+- [[8] 프로젝트 후기](#8-프로젝트-후기)
+  - [임재혁](#임재혁)
+  - [장준규](#장준규)
+  - [한태호](#한태호)
 
 # [1] 프로젝트 설명
 
@@ -62,7 +65,6 @@
   - 2024.11.11 ~ 2024.12.20
 
 ## 개발 환경
-***언어, 프레임워크, 주요 라이브러리**를 **버전**과 함께 나열하세요.*
 
 * 환경 & IDE
   - 운영체제 : window 11
@@ -100,11 +102,17 @@
   - React
   - Fetch API
   - Swiper Library
+ 
+<div align="right">
+  
+[목차로 이동](#목차)
 
-# [2] 팀원 & 역할분담
+</div>
+
+# [2] 팀원 역할분담
 
 
-## 개발 팀원 & 역할 분담
+## 개발 팀원 및 역할 분담
 
 - 임재혁(팀원)
 
@@ -169,6 +177,12 @@
      - 투자성향 MBTI 분석
      - 투자성향 MBTI 1일 2회 제한
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
+
 # [3] 문서
 
 ## ERD
@@ -186,31 +200,118 @@
 ## DFD
 - https://www.figma.com/board/eFCqOQvEn6oGs17G7hX7LP/Fund-Find?node-id=0-1&t=ISUhGe4DFFLt1AXA-1
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [4] 주요 기능
-이 프로젝트의 기여하신 분들을 소개합니다! 🙆‍♀️
 
 ## 회원
+>
+- 회원가입
+- 일반 로그인
+- 아이디 찾기
+- 비밀번호 재발급
+- 프로필 조회 및 수정
 
-## 금융퀴즈
+## 금융 퀴즈
+>
+- 인기 금융 퀴즈 조회
+- 금융 퀴즈 제작
+- 금융 퀴즈 수정
+- 금융 퀴즈 삭제
 
-## ETF
+## ETF 
+>
+- 투자 성향 분석(설문 조사)
+- 사용자 맞춤 ETF 제공
+- ETF 비교 기능 제공
+- ETF 즐겨찾기 기능
+- ETF 조회
+- ETF 상세 페이지
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [5] 페이지별 기능
-***유사한 프로젝트의 레포지토리** 혹은 **블로그 포스트** 등 프로젝트 구현에 영감을 준 출처에 대해 링크를 나열하세요.*
 
-## 기능 1
+## 메인 페이지
+![image](https://github.com/user-attachments/assets/d6b1fc53-283c-4b36-809f-648831139a5c)
+- 투자성향 MBTI 분석
+- 로그인 기능
+- 인기퀴즈 조회
+- 등락률 Best Fund 조회
+- 로그인 시간 갱신
 
-## 기능 2
+## 회원가입 페이지
+![image](https://github.com/user-attachments/assets/f36aba67-207a-4f31-a575-b864a5f208ba)
+- 회원가입 기능
 
-## 기능 3
+## 로그인 페이지
+![image](https://github.com/user-attachments/assets/f2d69fa0-191f-4d60-9111-46cc17727661)
+- 로그인 기능
+
+## 아이디 찾기 
+![image](https://github.com/user-attachments/assets/d5b6aadd-42e5-43be-90f0-2e2a7fcd0a52)
+- 아이디 찾기 기능
+
+## 비밀번호 재발급 
+![image](https://github.com/user-attachments/assets/392686b8-fef9-4ef5-9b62-d1f29cffd18d)
+- 비밀번호 재발급 기능
+  
+## 프로필 페이지
+![image](https://github.com/user-attachments/assets/2c95eede-0030-45c6-a7b7-84187890dd12)
+- 프로필 이미지 등록 및 변경(파일 업로드)
+- 닉네임 변경
+- 자기소개 변경
+- 사용자ID, 이메일, 투자성향 MBTI 조회
+- 비밀번호 변경 기능
+
+## ETF 목록 페이지
+![image](https://github.com/user-attachments/assets/fa034d3f-9152-4c9b-90e4-ee9a488b5f12)
+- 투자성향 MBTI 분석
+  ![image](https://github.com/user-attachments/assets/5eacb308-28af-4e5e-af5d-5a9b90d965b2)
+- ETF 검색 기능
+  ![image](https://github.com/user-attachments/assets/1d9d0342-be0a-4392-bcf7-64c13f897b73)
+- ETF 비교 기능
+  ![image](https://github.com/user-attachments/assets/559207dc-cbfe-4b33-83a6-0d9321613213)
+- ETF 즐겨찾기 기능
+  ![image](https://github.com/user-attachments/assets/f7a2bf29-da6b-4565-a61e-2c42b9e02152)
+- 등락률 Best Fund 조회 기능
+
+## ETF 투자성향 분석 결과 팝업
+![image](https://github.com/user-attachments/assets/06da57a0-c9dc-47c1-a1d0-be1348146e97)
+- ETF 투자성향 분석 결과 조회
+
+## ETF 상세정보 페이지
+![image](https://github.com/user-attachments/assets/e2ceb1be-1d1a-42e7-a68e-278789d1af7f)
+- ETF 상세 정보 조회
+- ETF 구성종목 정보 조회
+
+## 퀴즈쇼 페이지
+![image](https://github.com/user-attachments/assets/38d71cc5-8dce-4e34-967f-b8309cd98150)
+- 등록된 퀴즈 조회
+- 퀴즈쇼 생성 기능
+
+## 금융 퀴즈 문제 풀기 페이지
+![image](https://github.com/user-attachments/assets/bf169d8c-872f-4d19-807a-20fb330e2dc0)
+- 객관식, OX, 단답형 문제 풀기
+- 정답, 오답 문제 확인 및 점수 산출 기능
+
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [6] 트러블 슈팅
 
-## 장준규
-
-## 🔥 트러블 슈팅
+## 트러블 슈팅 1
 
 ### 🚨 #15
 ### 🚧 유저 로그인 , 회원가입 페이지가 프론트와 백연결과정에  문제가 생김
@@ -280,10 +381,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 - 
 <br>
 
-
-## 한태호
-
-## 🔥 트러블 슈팅
+## 트러블 슈팅 2
 
 ### 🚨 #1 
 ### 🚧 Kodex ETF 200 종목 출력하는데 어려움
@@ -328,7 +426,7 @@ postman에서 Bearer 토큰 발급에 문제 발생
 ## 🚥 해결
 - 개행 문자를 삭제하여 해결하였음
 
-## 🔥 트러블 슈팅
+## 트러블 슈팅 3
 
 ### 🚨 #6  
 ### 🚧 이슈 제목
@@ -376,7 +474,7 @@ A. 이슈 내역
 ## 🚥 해결
 - output2 데이터가 배열로 존재하는지 여부를 확인 후에 반복문을 통해 처리
 
-## 🔥 트러블 슈팅
+## 트러블 슈팅 4
 
 ### 🚨 #40 
 ### 🚧 
@@ -409,7 +507,7 @@ A. 이슈 내역
 - ETFDetail.jsx파일에 ETFDetail.module.css를 import한 후 HTML의 모든 클래스 명을 {styles.클래스명} 형식으로 변경하여 문제 해결
 <br>
 
-## 🔥 트러블 슈팅
+## 트러블 슈팅 5
 
 ### 🚨 #68
 ### 🚧 퀴즈쇼 생성
@@ -471,25 +569,23 @@ QuizRequest.choices 가 실제 엔티티(QuizChoice)이고, 내부에 quiz → q
 - Builder 패턴 활용
 - 명시적인 매핑 메서드 구현
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
+
 # [7] 개선 목표
-
-* 임재혁
-
-  -  
-  - 
-  - 
-
-* 장준규
-
-  -  
-  - 
-  - 
-
-* 한태호
-
-  - 메인 페이지 디자인 및 CSS 수정 
+## 개선 목표
+  - 메인 페이지 디자인 및 CSS 수정
   - 전체 ETF 로딩시간 단축
   - 코드 가독성 향상
+ 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [8] 프로젝트 후기
 
@@ -498,27 +594,16 @@ QuizRequest.choices 가 실제 엔티티(QuizChoice)이고, 내부에 quiz → q
 ## 장준규
 
 ## 한태호
+프로젝트를 마무리하며, 이 특별한 여정을 함께한 팀원들에게 깊은 감사의 마음을 전합니다.
 
+돌이켜보면, 가장 값진 순간들은 우리가 기술적 난관 앞에서 포기하지 않고 함께 성장해 나갔던 시간들입니다. JWT 인증으로 고민하던 순간, RESTful API 설계에 막혔을 때, 처음 사용해보는 React 문제로 머리를 맞대었던 순간... 매번 에러가 발생할 때마다 함께 모니터 앞에 모여 열띤 토론을 이어갔습니다. "이 에러는 도대체 왜 나는 거야?"라며 한숨짓다가도, 함께 웃으며 해결책을 찾아가는 과정 자체가 큰 배움이었습니다.
 
+Fund-Find는 저에게 단순한 프로젝트 그 이상의 의미를 가집니다. 팀장으로서 기술적 성장은 물론, 동료들과 함께 문제를 해결해나가는 진정한 리더십이 무엇인지 깨달을 수 있었습니다. 때로는 제가 부족한 부분을 팀원들이 채워주었고, 때로는 제가 팀원들의 어려움을 해결하는데 도움을 줄 수 있었던 이 모든 순간들이 우리를 한 단계 더 성장시켰다고 믿습니다.
 
+이제는 이 소중한 경험을 발판으로, 사용자들의 실제 고민을 해결하고 그들의 삶에 의미 있는 변화를 만들어내는 개발자로 성장하고 싶습니다. 다시 한 번, 이 값진 여정에 함께해준 모든 팀원들에게 진심 어린 감사를 전합니다.
 
-<!--Url for Badges-->
-[license-shield]: https://img.shields.io/github/license/dev-ujin/readme-template?labelColor=D8D8D8&color=04B4AE
-[repository-size-shield]: https://img.shields.io/github/repo-size/dev-ujin/readme-template?labelColor=D8D8D8&color=BE81F7
-[issue-closed-shield]: https://img.shields.io/github/issues-closed/dev-ujin/readme-template?labelColor=D8D8D8&color=FE9A2E
+<div align="right">
+  
+[목차로 이동](#목차)
 
-<!--Url for Buttons-->
-[readme-eng-shield]: https://img.shields.io/badge/-readme%20in%20english-2E2E2E?style=for-the-badge
-[view-demo-shield]: https://img.shields.io/badge/-%F0%9F%98%8E%20view%20demo-F3F781?style=for-the-badge
-[view-demo-url]: https://dev-ujin.github.io
-[report-bug-shield]: https://img.shields.io/badge/-%F0%9F%90%9E%20report%20bug-F5A9A9?style=for-the-badge
-[report-bug-url]: https://github.com/dev-ujin/readme-template/issues
-[request-feature-shield]: https://img.shields.io/badge/-%E2%9C%A8%20request%20feature-A9D0F5?style=for-the-badge
-[request-feature-url]: https://github.com/dev-ujin/readme-template/issues
-
-<!--URLS-->
-[license-url]: LICENSE.md
-[contribution-url]: CONTRIBUTION.md
-[readme-eng-url]: ../README.md
-
-
+</div>
