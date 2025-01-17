@@ -88,13 +88,13 @@
 
 ## 기술 스택
 
-* Version Control
+Version Control
 <!-- Git -->
   - <img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
 <!-- Github -->
   - <img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
     
-* Backend Technologies
+Backend Technologies
 <!-- 자바 -->
   - <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white">
 <!-- 스프링부트 -->
@@ -102,7 +102,7 @@
 <!-- 스프링 시큐리티 -->
   - <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">
     
-* FrontEnd Technologies
+FrontEnd Technologies
 <!-- HTML5 -->
   - <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
 <!-- CSS3 -->
@@ -116,11 +116,11 @@
 <!-- Fetch API -->
   - <img src="https://img.shields.io/badge/Fetch API-%23F46800.svg?style=for-the-badge&logo=Fetch API&logoColor=white">  
 
-* DB
+DB
 <!-- PostgreSQL -->
   - <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=PostgreSQL&logoColor=white">
  
-* ETC
+ETC
 <!-- docker -->
   - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
  
