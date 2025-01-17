@@ -122,6 +122,9 @@
   - React
   - Fetch API
   - Swiper Library
+
+* DB
+  - PostgreSQL
  
 <div align="right">
   
