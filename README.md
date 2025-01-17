@@ -104,6 +104,12 @@
   - React
   - Fetch API
   - Swiper Library
+ 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [2] 팀원 & 역할분담
 
@@ -173,6 +179,12 @@
      - 투자성향 MBTI 분석
      - 투자성향 MBTI 1일 2회 제한
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
+
 # [3] 문서
 
 ## ERD
@@ -190,6 +202,11 @@
 ## DFD
 - https://www.figma.com/board/eFCqOQvEn6oGs17G7hX7LP/Fund-Find?node-id=0-1&t=ISUhGe4DFFLt1AXA-1
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [4] 주요 기능
 
@@ -217,6 +234,12 @@
 > ETF 즐겨찾기 기능
 > ETF 조회
 > ETF 상세 페이지
+
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [5] 페이지별 기능
 
@@ -283,6 +306,11 @@
 - 객관식, OX, 단답형 문제 풀기
 - 정답, 오답 문제 확인 및 점수 산출 기능
 
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [6] 트러블 슈팅
 
@@ -548,6 +576,12 @@ QuizRequest.choices 가 실제 엔티티(QuizChoice)이고, 내부에 quiz → q
 4. 안전한 객체 변환
 - Builder 패턴 활용
 - 명시적인 매핑 메서드 구현
+
+<div align="right">
+  
+[목차로 이동](#목차)
+
+</div>
 
 # [7] 개선 목표
 
