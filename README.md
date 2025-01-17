@@ -21,7 +21,8 @@
 <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
 <!-- Git -->
 <img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
-
+<!-- Github -->
+<img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
 
 
 
