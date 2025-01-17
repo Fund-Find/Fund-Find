@@ -23,6 +23,10 @@
 <img src="https://img.shields.io/badge/Git-2088FF?style=for-the-badge&logo=Git&logoColor=white">
 <!-- Github -->
 <img src="https://img.shields.io/badge/GitHub-2088FF?style=for-the-badge&logo=GitHub&logoColor=white">
+<!-- Swiper Library -->
+<img src="https://img.shields.io/badge/Swiper%20EC2-FF9900?style=for-the-badge&logo=Swiper%20EC2&logoColor=white">
+<!-- Fetch API -->
+<img src="https://img.shields.io/badge/Fetch API-%23F46800.svg?style=for-the-badge&logo=Fetch API&logoColor=white">
 
 
 
