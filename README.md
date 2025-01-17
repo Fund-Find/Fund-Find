@@ -1,5 +1,5 @@
 <!--배지 -->
-![header](https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=capsule%20render&fontSize=90)
+![header](https://capsule-render.vercel.app/api?type=transparent&color=auto&height=300&section=header&text=Fund%20Find&fontSize=90)
 
 # 금융 교육 & 사용자 맞춤 ETF 추천 플랫폼
 
