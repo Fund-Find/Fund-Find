@@ -255,11 +255,11 @@
 ![image](https://github.com/user-attachments/assets/f2d69fa0-191f-4d60-9111-46cc17727661)
 - 로그인 기능
 
-## 아이디 찾기 페이지
+## 아이디 찾기 
 ![image](https://github.com/user-attachments/assets/d5b6aadd-42e5-43be-90f0-2e2a7fcd0a52)
 - 아이디 찾기 기능
 
-## 비밀번호 재발급 페이지
+## 비밀번호 재발급 
 ![image](https://github.com/user-attachments/assets/392686b8-fef9-4ef5-9b62-d1f29cffd18d)
 - 비밀번호 재발급 기능
   
@@ -283,7 +283,7 @@
   ![image](https://github.com/user-attachments/assets/f7a2bf29-da6b-4565-a61e-2c42b9e02152)
 - 등락률 Best Fund 조회 기능
 
-## ETF 투자성향 분석 결과 페이지
+## ETF 투자성향 분석 결과 팝업
 ![image](https://github.com/user-attachments/assets/06da57a0-c9dc-47c1-a1d0-be1348146e97)
 - ETF 투자성향 분석 결과 조회
 
