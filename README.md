@@ -69,10 +69,11 @@
 * 환경 & IDE
   - 운영체제 : <img src="https://img.shields.io/badge/Window 11-43B02A?style=flat-square&logo=Window 11&logoColor=white"/>
   - <img src="https://img.shields.io/badge/Intellij-FF4785?style=flat-square&logo=Intellij&logoColor=white"/>
-  - <img src="https://img.shields.io/badge/Visual Studio Code-007ACC?style=flat-square&logo=Visual Studio Code&logoColor=white"/>
-  - <img src="https://img.shields.io/badge/DBeaver-147EFB?style=flat-square&logo=DBeaver&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/Visual Studio Code-F7DF1E?style=flat-square&logo=Visual Studio Code&logoColor=black"/>
+  - <img src="https://img.shields.io/badge/DBeaver-F80000?style=flat-square&logo=DBeaver&logoColor=white"/>
   - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
-  - <img src="https://img.shields.io/badge/Postman-06B6D4?style=flat-square&logo=Postman&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/Postman-CC342D?style=flat-square&logo=Postman&logoColor=white"/>
+
 
 * Version
   - openjdk version: 17.0.13 
