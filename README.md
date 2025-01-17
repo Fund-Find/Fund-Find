@@ -82,7 +82,7 @@
   - spring.dependency-management plugin version: 1.1.6
 
 * DB
-  - <img src="https://img.shields.io/badge/PostgreSQL-000000?style=flat-square&logo=PostgreSQL&logoColor=white"/> version -> 17.0
+  - <img src="https://img.shields.io/badge/PostgreSQL-3776AB?style=flat-square&logo=PostgreSQL&logoColor=white"/> version -> 17.0
   - DB PORT: 5433
   - DB username: ff_dev
   - 데이터베이스 이름 : ff_dev
@@ -119,7 +119,7 @@ FrontEnd Technologies
 
 DB
 <!-- PostgreSQL -->
-  - <img src="https://img.shields.io/badge/PostgreSQL-000000?style=flat-square&logo=PostgreSQL&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/PostgreSQL-3776AB?style=flat-square&logo=PostgreSQL&logoColor=white"/>
  
 ETC
 <!-- docker -->
