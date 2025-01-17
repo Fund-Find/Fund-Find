@@ -573,7 +573,7 @@ QuizRequest.choices 가 실제 엔티티(QuizChoice)이고, 내부에 quiz → q
 </div>
 
 # [7] 개선 목표
-개선 목표
+## 개선 목표
   - 메인 페이지 디자인 및 CSS 수정
   - 전체 ETF 로딩시간 단축
   - 코드 가독성 향상
