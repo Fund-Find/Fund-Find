@@ -67,7 +67,7 @@
 ## 개발 환경
 
 * 환경 & IDE
-  - 운영체제 : window 11
+  - 운영체제 : <img src="https://img.shields.io/badge/Window 11-43B02A?style=flat-square&logo=Window 11&logoColor=white"/>
   - <img src="https://img.shields.io/badge/Intellij-FF4785?style=flat-square&logo=Intellij&logoColor=white"/>
   - <img src="https://img.shields.io/badge/Visual Studio Code-007ACC?style=flat-square&logo=Visual Studio Code&logoColor=white"/>
   - <img src="https://img.shields.io/badge/DBeaver-147EFB?style=flat-square&logo=DBeaver&logoColor=white"/>
@@ -77,11 +77,11 @@
 * Version
   - openjdk version: 17.0.13 
   - Gradle JVM: corretto-17(Amazon Corretto 17.0.13)
-  - SpringBoot version: 3.3.5
+  - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> version: 3.3.5
   - spring.dependency-management plugin version: 1.1.6
 
 * DB
-  - postgreSQL version -> 17.0
+  - <img src="https://img.shields.io/badge/PostgreSQL-000000?style=for-the-badge&logo=PostgreSQL&logoColor=white"> version -> 17.0
   - DB PORT: 5433
   - DB username: ff_dev
   - 데이터베이스 이름 : ff_dev
