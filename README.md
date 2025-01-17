@@ -321,7 +321,7 @@ ETC
 
 ## 금융 퀴즈 문제 풀기 페이지
 ![image](https://github.com/user-attachments/assets/bf169d8c-872f-4d19-807a-20fb330e2dc0)
-- 객관식, OX, 단답형 문제 풀기
+- 객관식, OX, 단답형, 주관식 문제 풀기
 - 정답, 오답 문제 확인 및 점수 산출 기능
 
 <div align="right">
