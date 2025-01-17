@@ -3,9 +3,6 @@
 
 # 금융 교육 & 사용자 맞춤 ETF 추천 플랫폼
 
-<!--배지-->
-![Repository Size][repository-size-shield] ![Issue Closed][issue-closed-shield]
-
 <!--목차-->
 # 목차
 - [[1] 프로젝트 설명](#1-프로젝트-설명)
@@ -71,11 +68,11 @@
 
 * 환경 & IDE
   - 운영체제 : window 11
-  - Intellij
-  - Visual Studio Code
-  - Dbeaver
-  - Docker Desktop
-  - Postman
+  - <img src="https://img.shields.io/badge/Intellij-FCC624?style=flat-square&logo=Intellij&logoColor=black"/
+  - <img src="https://img.shields.io/badge/Visual Studio Code-007ACC?style=flat-square&logo=Visual Studio Code&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/DBeaver-147EFB?style=flat-square&logo=DBeaver&logoColor=white"/>
+  - <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white"> 
+  - <img src="https://img.shields.io/badge/Postman-06B6D4?style=flat-square&logo=Postman&logoColor=white"/>
 
 * Version
   - openjdk version: 17.0.13 
